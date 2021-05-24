@@ -20,8 +20,8 @@ class BlockchainTestCase(TestCase):
     def setUp(self):
         self.blockchain = Blockchain()
 
-    def create_block(self, proof=123, previous_hash='abc', miner=public_key.to_string()):
-        self.blockchain.new_block(proof, previous_hash, miner)
+    def create_block(self, proof=123, previous_hash='abc', forger=public_key.to_string()):
+        self.blockchain.new_block(proof, previous_hash, forger)
 
     def create_transaction(
             self,
@@ -40,6 +40,7 @@ class BlockchainTestCase(TestCase):
             sender=transaction.sender,
             recipient=transaction.recipient,
             amount=transaction.amount,
+            nonce=transaction.nonce,
             signature=transaction.signature
         )
 
@@ -80,9 +81,8 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert len(self.blockchain.chain) == 2
         assert latest_block['index'] == 2
         assert latest_block['timestamp'] is not None
-        assert latest_block['proof'] == 123
         assert latest_block['previous_hash'] == 'abc'
-        assert latest_block['miner'] == b64encode(public_key.to_string()).decode()
+        assert latest_block['forger'] == public_key.to_string()
 
     def test_create_transaction(self):
         self.create_transaction()
@@ -95,10 +95,11 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert transaction['amount'] == 1
 
         assert Transaction.from_dict(
-            transaction['sender'],
-            transaction['recipient'],
-            transaction['amount'],
-            transaction['signature']
+            sender=transaction['sender'],
+            recipient=transaction['recipient'],
+            amount=transaction['amount'],
+            signature=transaction['signature'],
+            nonce=transaction['nonce'],
         ).is_signature_verified()
 
     def test_block_resets_transactions(self):
@@ -128,8 +129,8 @@ class TestHashingAndProofs(BlockchainTestCase):
         self.create_block()
 
         new_block = self.blockchain.last_block
-        new_block_json = json.dumps(new_block, sort_keys=True).encode()
+        new_block_json = json.dumps(new_block._raw_data(), sort_keys=True).encode()
         new_hash = hashlib.sha256(new_block_json).hexdigest()
 
         assert len(new_hash) == 64
-        assert new_hash == self.blockchain.hash(new_block)
+        assert new_hash == new_block.hash

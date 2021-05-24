@@ -7,6 +7,7 @@ from base64 import b64encode
 import requests
 
 from src.transaction import Transaction
+from src.block import Block
 
 
 class Blockchain:
@@ -16,7 +17,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100, miner=b'')
+        self.new_block(previous_hash='1', proof=100, forger=b'')
 
     def register_node(self, address):
         """
@@ -51,7 +52,7 @@ class Blockchain:
             print(f'{block}')
             print("\n-----------\n")
             # Check that the hash of the block is correct
-            last_block_hash = self.hash(last_block)
+            last_block_hash = last_block.hash
             if block['previous_hash'] != last_block_hash:
                 return False
 
@@ -98,24 +99,23 @@ class Blockchain:
 
         return False
 
-    def new_block(self, proof, previous_hash, miner):
+    def new_block(self, proof, previous_hash, forger):
         """
         Create a new Block in the Blockchain
 
-        :param proof: The proof given by the Proof of Work algorithm
+        :param proof: The proof given by the Proof of Work algorithm TODO: replace with PoS
         :param previous_hash: Hash of previous Block
-        :param miner: public key of the miner (to get reward)
+        :param forger: public key of the forger (to get reward)
         :return: New Block
         """
-
-        block = {
-            'index': len(self.chain) + 1,
-            'timestamp': time(),
-            'transactions': self.current_transactions,
-            'proof': proof,
-            'previous_hash': previous_hash or self.hash(self.chain[-1]),
-            'miner': b64encode(miner).decode(),
-        }
+        if previous_hash is None:
+            previous_hash = self.last_block.hash
+        block = Block(
+            index=len(self.chain)+1,
+            transactions=self.current_transactions,
+            previous_hash=previous_hash,
+            forger=forger,
+        )
 
         # Reset the current list of transactions
         self.current_transactions = []
@@ -123,7 +123,7 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount, signature):
+    def new_transaction(self, sender, recipient, amount, nonce, signature):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -131,10 +131,11 @@ class Blockchain:
         :param recipient: Public key of the Recipient (ECDSA)
         :param amount: Coin amount to transfer
         :param signature: Signature of the transaction (ECDSA)
+        :param nonce: Number only sent once for double spending protection
         :raise ValueError: when the signature doesn't match the transaction.
         :return: The index of the Block that will hold this transaction
         """
-        transaction = Transaction(sender, recipient, amount, signature)
+        transaction = Transaction(sender=sender, recipient=recipient, amount=amount, nonce=nonce, signature=signature)
         if transaction.is_signature_verified() is False:
             raise ValueError("Invalid Signature")
         self.current_transactions.append(transaction.to_dict())
@@ -144,18 +145,6 @@ class Blockchain:
     @property
     def last_block(self):
         return self.chain[-1]
-
-    @staticmethod
-    def hash(block):
-        """
-        Creates a SHA-256 hash of a Block
-
-        :param block: Block
-        """
-
-        # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
-        block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block_string).hexdigest()
 
     def proof_of_work(self, last_block, miner_key):
         """
@@ -170,7 +159,7 @@ class Blockchain:
         """
 
         last_proof = last_block['proof']
-        last_hash = self.hash(last_block)
+        last_hash = last_block.hash
 
         proof = 0
         while self.valid_proof(last_proof, proof, last_hash, miner_key) is False:
