@@ -1,8 +1,5 @@
 import hashlib
-import json
-from time import time
 from urllib.parse import urlparse
-from base64 import b64encode
 
 import requests
 

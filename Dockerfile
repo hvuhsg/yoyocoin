@@ -8,10 +8,8 @@ RUN cd /app && \
     pip install -r requirements.txt
 
 # Add actual source code.
-ADD transaction.py /app
-ADD blockchain.py /app
-ADD server.py /app
+ADD src /app
 
 EXPOSE 5000
 
-CMD ["python", "server.py", "--port", "5000"]
+CMD ["python", "src/server.py", "--port", "5000"]
