@@ -28,7 +28,7 @@ The wallet with the smallest score that have more then 100 coins wins and can fo
 #### code parts
 
 | Name          | Description                                          |
-| ------------- |:----------------------------------------------------:|
+|:-------------:|:----------------------------------------------------:|
 | server        | listen to transactions and blocks                    |
 | blockchain    | manage chain + block foreign + maintaining consensus |
 | client        | menage p2p network                                   |
