@@ -14,7 +14,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100, forger=b'')
+        self.new_block(previous_hash='0', proof=100, forger=b'')
 
     def register_node(self, address):
         """
@@ -100,7 +100,8 @@ class Blockchain:
         """
         Create a new Block in the Blockchain
 
-        :param proof: The proof given by the Proof of Work algorithm TODO: replace with PoS
+        :param proof: The proof given by the Proof of Work algorithm 
+        TODO: replace with PoS
         :param previous_hash: Hash of previous Block
         :param forger: public key of the forger (to get reward)
         :return: New Block
