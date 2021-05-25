@@ -22,7 +22,7 @@ def score (wallet_address, wallet_history, lottery_number):
 The score algorithm return's lower number for wallet that hold more coins for more blocks (the block count stop with win of the lottery),
 in addition to wallet_number distance to lottery_number.
 
-The wallet with the smallest score that have more then 100 coins wins and can forge then new block.
+The wallet with the smallest score that have more then 100 coins wins and can forge the new block.
 
 
 #### code parts
