@@ -19,30 +19,6 @@ node_identifier = public.to_string()
 blockchain = Blockchain()
 
 
-@app.route('/mine', methods=['GET'])
-def mine():
-    # We run the proof of work algorithm to get the next proof...
-    # We run the proof algorithm with our public key to verify that it is as that mine the block.
-    last_block = blockchain.last_block
-    proof = blockchain.proof_of_work(last_block, public.to_string())
-
-    # We must receive a reward for finding the proof.
-    # We add our public key as miner to the block to receive the reward.
-    # Forge the new Block by adding it to the chain
-    previous_hash = blockchain.hash(last_block)
-    block = blockchain.new_block(proof, previous_hash, public.to_string())
-
-    response = {
-        'message': "New Block Forged",
-        'index': block['index'],
-        'transactions': block['transactions'],
-        'proof': block['proof'],
-        'previous_hash': block['previous_hash'],
-        'miner': block['miner']
-    }
-    return jsonify(response), 200
-
-
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     values = request.get_json()
@@ -66,7 +42,6 @@ def new_transaction():
 def full_chain():
     response = {
         'chain': blockchain.chain,
-        'length': len(blockchain.chain),
     }
     return jsonify(response), 200
 
