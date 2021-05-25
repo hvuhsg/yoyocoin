@@ -7,7 +7,7 @@ PoS blockchain python (but a bit different)
 This coin will use PoS to determine witch wallet has won the lottery and can forge the next block (and get the fee's)
 
 The lottery function gets hash 256 bit as input and outputs number (float) in range of 0-1000.
-it's uses the hash of the previous block
+it's uses the hash of the last block
 
 ```python
 def wallet_number(wallet_address):
