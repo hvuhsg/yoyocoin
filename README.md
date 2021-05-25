@@ -26,7 +26,6 @@ The wallet with the smallest score that have more then 100 coins wins and can fo
 
 
 #### code parts
-Colons can be used to align columns.
 
 | Name          | Description                                          |
 | ------------- |:----------------------------------------------------:|
