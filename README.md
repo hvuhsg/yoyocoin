@@ -24,6 +24,29 @@ in addition to wallet_number distance to lottery_number.
 
 The wallet with the smallest score that have more then 100 coins wins and can forge the new block.
 
+<pre>
+Wallet-A is the wallet number of wallet-a
+Wallet-B is the wallet number of wallet-b
+lottery is the number that created from the last block hash
+
+Distance:
+0                         wallet-A    lottery                       wallet-B                      1000
+|                             |          |                              |                           |
+|---------------------------------------------------------------------------------------------------|
+
+wallet-power = wallet sum(coin's per block sins last win)/1000000 (million coins for 20 blocks is 2 power)
+wallet-score = {wallet distance from lottery} - {wallet-power}
+
+Power:
+1000                                                     wallet-b-score      wallet-a-score          0
+  |                                                            |                    |                | <- the goal
+  |--------------------------------------------------------------------------------------------------|
+
+
+If Wallet-A will forge new block and Wallet-B will forge new block,
+the block of Wallet-A has less power so its will the chosen one in a <a href="#dispute">dispute</a>.
+</pre>
+
 
 #### code parts
 
