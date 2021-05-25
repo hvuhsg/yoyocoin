@@ -34,7 +34,9 @@ Distance:
 |                             |          |                              |                           |
 |---------------------------------------------------------------------------------------------------|
 
-wallet-power = wallet sum(coin's per block sins last win)/1000000 (million coins for 20 blocks is 2 power)
+wallet-power = wallet sum(coin's per block sins last win)/1000000
+(million coins for 20 blocks it's 2 power)
+
 wallet-score = {wallet distance from lottery} - {wallet-power}
 
 Power:
