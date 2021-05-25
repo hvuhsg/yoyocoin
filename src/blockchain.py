@@ -5,6 +5,7 @@ import requests
 
 from src.transaction import Transaction
 from src.block import Block
+from src.exceptions import ValidationError
 
 
 class Blockchain:
@@ -32,7 +33,8 @@ class Blockchain:
         else:
             raise ValueError('Invalid URL')
 
-    def valid_chain(self, chain):
+    @staticmethod
+    def valid_chain(chain):
         """
         Determine if a given blockchain is valid
 
@@ -52,20 +54,22 @@ class Blockchain:
             last_block_hash = last_block.hash
             if block['previous_hash'] != last_block_hash:
                 return False
-
-            # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash, block['miner']):
+            try:
+                block.validate()
+            except ValidationError:
                 return False
-
             last_block = block
             current_index += 1
-
         return True
+
+    @staticmethod
+    def chain_score(chain):
+        return 1  # TODO: create chain score calculation algorithm
 
     def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
-        by replacing our chain with the longest one in the network.
+        by replacing our chain with the chain with the most score on the network.
 
         :return: True if our chain was replaced, False if not
         """
@@ -73,27 +77,28 @@ class Blockchain:
         neighbours = self.nodes
         new_chain = None
 
-        # We're only looking for chains longer than ours
-        max_length = len(self.chain)
+        # We're only looking for chains with more score then ours
+        max_score = self.chain_score(self.chain)
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
             response = requests.get(f'http://{node}/chain')
 
             if response.status_code == 200:
-                length = response.json()['length']
                 chain = response.json()['chain']
+                if not self.valid_chain(chain):
+                    continue
+                score = self.chain_score(chain)
 
                 # Check if the length is longer and the chain is valid
-                if length > max_length and self.valid_chain(chain):
-                    max_length = length
+                if score > max_score:
+                    max_score = score
                     new_chain = chain
 
         # Replace our chain if we discovered a new, valid chain longer than ours
         if new_chain:
             self.chain = new_chain
             return True
-
         return False
 
     def new_block(self, proof, previous_hash, forger):
@@ -144,40 +149,17 @@ class Blockchain:
     def last_block(self):
         return self.chain[-1]
 
-    def proof_of_work(self, last_block, miner_key):
+    def proof_of_stake(self, last_block, forger_key):
         """
-        Simple Proof of Work Algorithm:
+        Simple Proof of Stake Algorithm:
 
-         - Find a number p' such that hash(pp') contains leading 4 zeroes
-         - Where p is the previous proof, and p' is the new proof
+         - Find the lottery number
+         - If your wallet address is close create block and sign it
 
         :param last_block: <dict> last Block
-        :param miner_key: <str> miner public key
+        :param forger_key: <str> forger public key
         :return: <int>
         """
 
-        last_proof = last_block['proof']
-        last_hash = last_block.hash
-
-        proof = 0
-        while self.valid_proof(last_proof, proof, last_hash, miner_key) is False:
-            proof += 1
-
-        return proof
-
-    @staticmethod
-    def valid_proof(last_proof, proof, last_hash, miner_key):
-        """
-        Validates the Proof
-
-        :param last_proof: <int> Previous Proof
-        :param proof: <int> Current Proof
-        :param last_hash: <str> The hash of the Previous Block
-        :param miner_key: <str> The miner public key
-        :return: <bool> True if correct, False if not.
-
-        """
-
-        guess = f'{last_proof}{proof}{last_hash}{miner_key}'.encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+        # TODO: create lottery number generator
+        pass
