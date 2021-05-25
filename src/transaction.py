@@ -51,7 +51,8 @@ class Transaction:
         :return: None
         """
         # TODO: validate sender balance
-        self.is_signature_verified()
+        if not self.is_signature_verified():
+            raise ValidationError("transaction signature is not valid")
 
     def _raw_transaction(self):
         return {
