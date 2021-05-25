@@ -39,14 +39,14 @@ wallet-power = wallet sum(coin's per block sins last win)/10000000
 
 wallet-score = {wallet distance from lottery} - {wallet-power}
 
-Power:
+Score:
 1000                                                     wallet-b-score      wallet-a-score          0
   |                                                            |                    |                | <- the goal
   |--------------------------------------------------------------------------------------------------|
 
 
 If Wallet-A will forge new block and Wallet-B will forge new block,
-the block of Wallet-A has less power so its will the chosen one in a <a href="#dispute">dispute</a>.
+the block of Wallet-A has less score so its will the chosen one in a <a href="#dispute">dispute</a>.
 </pre>
 
 
