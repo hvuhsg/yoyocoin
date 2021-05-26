@@ -2,7 +2,7 @@ from typing import List
 import json
 import hashlib
 from time import time
-from base64 import b64encode
+from base64 import b64decode
 
 import ecdsa
 
@@ -50,12 +50,13 @@ class Block:
             'timestamp': self.timestamp,
             'transactions': [transaction.to_dict() for transaction in self.transactions],
             'previous_hash': self.previous_hash,
-            'forger': b64encode(self.forger).decode(),
+            'forger': self.forger,
         }
 
     @property
     def forger_public_key(self) -> ecdsa.VerifyingKey:
-        return ecdsa.VerifyingKey.from_string(self.forger)
+        forger_public_key_string = b64decode(self.forger.encode())
+        return ecdsa.VerifyingKey.from_string(forger_public_key_string)
 
     def hash(self):
         """
@@ -68,7 +69,15 @@ class Block:
         block_string = json.dumps(block_dict, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def create_signature(self, forger_private_key: ecdsa.SigningKey):
+    def create_signature(self, forger_private_address: str):
+        """
+        Create block signature for this block
+        :param forger_private_address: base64(wallet private address)
+        :return: None
+        """
+
+        forger_private_key_string = b64decode(forger_private_address.encode())
+        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string)
         if forger_private_key.get_verifying_key() != self.forger_public_key:
             raise ValueError("The forger is not the one signing")
         self.signature = self.sign(forger_private_key)

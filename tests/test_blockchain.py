@@ -5,25 +5,28 @@ from unittest import TestCase
 
 import ecdsa
 from src.blockchain import Blockchain
-from src.transaction import Transaction
-from src.block import Block
 
 
 class BlockchainTestCase(TestCase):
 
     def setUp(self):
         self.blockchain = Blockchain()
+
         self.private_key = ecdsa.SigningKey.generate()
         self.public_key = self.private_key.get_verifying_key()
+        self.private_address = b64encode(self.private_key.to_string()).decode()
+        self.public_address = b64encode(self.public_key.to_string()).decode()
 
         self.private_key_2 = ecdsa.SigningKey.generate()
         self.public_key_2 = self.private_key_2.get_verifying_key()
+        self.private_address_2 = b64encode(self.private_key_2.to_string()).decode()
+        self.public_address_2 = b64encode(self.public_key_2.to_string()).decode()
 
     def create_block(self, forger=None, forger_private_key=None):
         if forger is None:
-            forger = self.public_key.to_string()
+            forger = self.public_address
         if forger_private_key is None:
-            forger_private_key = self.private_key
+            forger_private_key = self.private_address
         self.blockchain.new_block(forger, forger_private_key)
 
     def create_transaction(
@@ -34,11 +37,11 @@ class BlockchainTestCase(TestCase):
             sender_private_key=None,
     ):
         if sender is None:
-            sender = self.public_key.to_string()
+            sender = self.public_address
         if recipient is None:
-            recipient = self.public_key_2.to_string()
+            recipient = self.public_address_2
         if sender_private_key is None:
-            sender_private_key = self.private_key
+            sender_private_key = self.private_address
         self.blockchain.new_transaction(
             sender=sender, recipient=recipient, amount=amount, sender_private_key=sender_private_key
         )
@@ -81,7 +84,7 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert latest_block['index'] == 1
         assert latest_block['timestamp'] is not None
         assert latest_block['previous_hash'] == self.blockchain.chain[-2].hash()
-        assert latest_block['forger'] == self.public_key.to_string()
+        assert latest_block['forger'] == self.public_address
 
     def test_create_transaction(self):
         self.create_transaction()
@@ -89,8 +92,8 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         transaction = self.blockchain.current_transactions[-1]
 
         assert transaction
-        assert transaction.sender_wallet_address == b64encode(self.public_key.to_string()).decode()
-        assert transaction.recipient_wallet_address == b64encode(self.public_key_2.to_string()).decode()
+        assert transaction.sender == self.public_address
+        assert transaction.recipient == self.public_address_2
         assert transaction.amount == 1
         assert transaction.is_signature_verified()
 
@@ -142,7 +145,7 @@ class TestHashingAndProofs(BlockchainTestCase):
 class TextKeysSignatureAndVerification(BlockchainTestCase):
 
     def test_transaction_signature_creation(self):
-        self.create_transaction(sender=self.public_key.to_string(), sender_private_key=self.private_key)
+        self.create_transaction()
         new_transaction = self.blockchain.current_transactions[-1]
 
         assert new_transaction.is_signature_verified()
@@ -158,7 +161,7 @@ class TextKeysSignatureAndVerification(BlockchainTestCase):
         new_transaction.signature = correct_signature
 
     def test_block_signature_creation(self):
-        self.create_block(forger=self.public_key.to_string(), forger_private_key=self.private_key)
+        self.create_block()
         new_block = self.blockchain.last_block
 
         assert new_block.is_signature_verified()

@@ -36,9 +36,15 @@ class Transaction:
         except ecdsa.BadSignatureError:
             return False
 
-    def create_signature(self, private_key: ecdsa.SigningKey):
-        sender_verifying_key = ecdsa.VerifyingKey.from_string(self.sender)
-        if sender_verifying_key != private_key.get_verifying_key():
+    def create_signature(self, private_key: str):
+        """
+        Create signature for this transaction
+        :param private_key: base64(wallet private key)
+        :return: None
+        """
+        private_key_string = b64decode(private_key.encode())
+        private_key = ecdsa.SigningKey.from_string(private_key_string)
+        if self.sender_pub_key != private_key.get_verifying_key():
             raise ValueError('SigningKey is not the sender')
         self.signature = self.sign(private_key)
 
@@ -77,8 +83,8 @@ class Transaction:
 
     def _raw_transaction(self):
         return {
-            "sender": self.sender_wallet_address,
-            "recipient": self.recipient_wallet_address,
+            "sender": self.sender,
+            "recipient": self.recipient,
             "amount": self.amount,
             "fee": self.fee,
             "nonce": self.nonce,
@@ -91,16 +97,9 @@ class Transaction:
 
     @property
     def sender_pub_key(self) -> ecdsa.VerifyingKey:
-        public_key = ecdsa.VerifyingKey.from_string(self.sender)
-        return public_key
-
-    @property
-    def sender_wallet_address(self):
-        return b64encode(self.sender).decode()
-
-    @property
-    def recipient_wallet_address(self):
-        return b64encode(self.recipient).decode()
+        sender_public_key_string = b64decode(self.sender.encode())
+        sender_verifying_key = ecdsa.VerifyingKey.from_string(sender_public_key_string)
+        return sender_verifying_key
 
     @property
     def base64_signature(self):
