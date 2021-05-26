@@ -19,15 +19,12 @@ class BlockchainTestCase(TestCase):
         self.private_key_2 = ecdsa.SigningKey.generate()
         self.public_key_2 = self.private_key_2.get_verifying_key()
 
-    def create_block(self, previous_hash=None, forger=None, forger_private_key=None):
+    def create_block(self, forger=None, forger_private_key=None):
         if forger is None:
             forger = self.public_key.to_string()
         if forger_private_key is None:
             forger_private_key = self.private_key
-        if previous_hash is None:
-            previous_hash = self.blockchain.last_block.hash()
-        new_block = Block(index=len(self.blockchain.chain)+1, previous_hash=previous_hash, forger=forger)
-        self.blockchain.new_block(new_block, forger_private_key)
+        self.blockchain.new_block(forger, forger_private_key)
 
     def create_transaction(
             self,
@@ -42,9 +39,9 @@ class BlockchainTestCase(TestCase):
             recipient = self.public_key_2.to_string()
         if sender_private_key is None:
             sender_private_key = self.private_key
-        transaction = Transaction(sender=sender, recipient=recipient, amount=amount)
-        transaction.create_signature(private_key=sender_private_key)
-        self.blockchain.new_transaction(transaction)
+        self.blockchain.new_transaction(
+            sender=sender, recipient=recipient, amount=amount, sender_private_key=sender_private_key
+        )
 
 
 class TestRegisterNodes(BlockchainTestCase):
@@ -81,7 +78,7 @@ class TestBlocksAndTransactions(BlockchainTestCase):
 
         # The genesis block is create at initialization, so the length should be 2
         assert len(self.blockchain.chain) == 2
-        assert latest_block['index'] == 2
+        assert latest_block['index'] == 1
         assert latest_block['timestamp'] is not None
         assert latest_block['previous_hash'] == self.blockchain.chain[-2].hash()
         assert latest_block['forger'] == self.public_key.to_string()
@@ -115,6 +112,7 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         created_block = self.blockchain.last_block
 
         assert len(self.blockchain.chain) == 2
+        assert created_block.index == 1
         assert created_block is self.blockchain.chain[-1]
 
 

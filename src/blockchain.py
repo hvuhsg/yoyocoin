@@ -15,8 +15,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        genesis_block = Block(index=0, previous_hash='0', forger=b'')
-        self.new_block(genesis_block, forger_private_key=b'')
+        self.new_block(forger=b'', forger_private_key=b'', previous_hash='0', index=0)
 
     def register_node(self, address):
         """
@@ -102,7 +101,7 @@ class Blockchain:
             return True
         return False
 
-    def new_block(self, block: Block, forger_private_key):
+    def new_block(self, forger, forger_private_key, previous_hash=None, index=None):
         """
         Create a new Block in the Blockchain
 
@@ -110,30 +109,38 @@ class Blockchain:
         block: the new Block object
         :return: New Block
         """
+        if previous_hash is None:
+            previous_hash = self.last_block.hash()
+            index = len(self.chain)
+        new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
-        block.transactions = self.current_transactions
-        if block.index > 0:
-            block.create_signature(forger_private_key)
+        new_block.transactions = self.current_transactions
+        if new_block.index > 0:
+            new_block.create_signature(forger_private_key)
 
         # Reset the current list of transactions
         self.current_transactions = []
 
-        self.chain.append(block)
-        return block
+        self.chain.append(new_block)
+        return new_block
 
-    def new_transaction(self, transaction: Transaction):
+    def new_transaction(self, sender, recipient, amount, sender_private_key, fee=1):
         """
         Creates a new transaction to go into the next mined Block
 
-        :param transaction: Transaction object
+        :param fee: integer >= 1
+        :param sender_private_key: sender private key : ecdsa.SigningKey
+        :param amount: integer > 0
+        :param recipient: recipient public key
+        :param sender: sender public key
         :raise ValueError: when the signature doesn't match the transaction.
         :return: The index of the Block that will hold this transaction
         """
-        if transaction.is_signature_verified() is False:
-            raise ValueError("Invalid Signature")
-        self.current_transactions.append(transaction)
+        new_transaction = Transaction(sender=sender, recipient=recipient, amount=amount, fee=fee)
+        new_transaction.create_signature(sender_private_key)
+        self.current_transactions.append(new_transaction)
 
-        return self.last_block['index'] + 1
+        return self.last_block.index + 1
 
     @property
     def last_block(self):
