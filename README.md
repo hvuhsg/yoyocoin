@@ -46,7 +46,7 @@ Score:
 
 
 If Wallet-A will forge new block and Wallet-B will forge new block,
-the block of Wallet-A has less score so its will the chosen one in a <a href="#dispute">dispute</a>.
+the block of Wallet-A has less score so it will be the chosen one in a <a href="#dispute">dispute</a>.
 </pre>
 
 

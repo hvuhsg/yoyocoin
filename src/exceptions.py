@@ -1,6 +1,13 @@
 from ecdsa import BadSignatureError
 
-__all__ = ["ValidationError", "InsufficientBalanceError", "NonMatchingHash"]
+__all__ = [
+    "ValidationError",
+    "InsufficientBalanceError",
+    "NonMatchingHash",
+    "DuplicateNonce",
+    "NonLotteryMember",
+    "WalletLotteryFreeze",
+]
 
 
 class ValidationError(BadSignatureError):
@@ -12,5 +19,17 @@ class InsufficientBalanceError(ValidationError):
 
 
 class NonMatchingHash(ValidationError):
+    pass
+
+
+class DuplicateNonce(ValidationError):
+    pass
+
+
+class NonLotteryMember(ValidationError):
+    pass
+
+
+class WalletLotteryFreeze(ValidationError):
     pass
 

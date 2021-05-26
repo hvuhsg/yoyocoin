@@ -1,21 +1,22 @@
-import hashlib
+from typing import List
 from urllib.parse import urlparse
 
 import requests
 
-from src.transaction import Transaction
-from src.block import Block
-from src.exceptions import ValidationError
+from .transaction import Transaction
+from .block import Block
+from .exceptions import ValidationError
 
 
 class Blockchain:
     def __init__(self):
-        self.current_transactions = []
-        self.chain = []
+        self.current_transactions: List[Transaction] = []
+        self.chain: List[Block] = []
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='0', proof=100, forger=b'')
+        genesis_block = Block(index=0, previous_hash='0', forger=b'')
+        self.new_block(genesis_block, forger_private_key=b'')
 
     def register_node(self, address):
         """
@@ -101,24 +102,18 @@ class Blockchain:
             return True
         return False
 
-    def new_block(self, proof, previous_hash, forger):
+    def new_block(self, block: Block, forger_private_key):
         """
         Create a new Block in the Blockchain
 
-        :param proof: The proof given by the Proof of Work algorithm 
         TODO: replace with PoS
-        :param previous_hash: Hash of previous Block
-        :param forger: public key of the forger (to get reward)
+        block: the new Block object
         :return: New Block
         """
-        if previous_hash is None:
-            previous_hash = self.last_block.hash
-        block = Block(
-            index=len(self.chain)+1,
-            transactions=self.current_transactions,
-            previous_hash=previous_hash,
-            forger=forger,
-        )
+
+        block.transactions = self.current_transactions
+        if block.index > 0:
+            block.create_signature(forger_private_key)
 
         # Reset the current list of transactions
         self.current_transactions = []
@@ -126,22 +121,17 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount, nonce, signature):
+    def new_transaction(self, transaction: Transaction):
         """
         Creates a new transaction to go into the next mined Block
 
-        :param sender: Public key of the Sender (ECDSA)
-        :param recipient: Public key of the Recipient (ECDSA)
-        :param amount: Coin amount to transfer
-        :param signature: Signature of the transaction (ECDSA)
-        :param nonce: Number only sent once for double spending protection
+        :param transaction: Transaction object
         :raise ValueError: when the signature doesn't match the transaction.
         :return: The index of the Block that will hold this transaction
         """
-        transaction = Transaction(sender=sender, recipient=recipient, amount=amount, nonce=nonce, signature=signature)
         if transaction.is_signature_verified() is False:
             raise ValueError("Invalid Signature")
-        self.current_transactions.append(transaction.to_dict())
+        self.current_transactions.append(transaction)
 
         return self.last_block['index'] + 1
 
