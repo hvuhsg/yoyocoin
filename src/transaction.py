@@ -9,7 +9,7 @@ from .blockchain_state import BlockchainState
 
 
 class Transaction:
-    def __init__(self, sender, recipient, amount, fee=None, nonce=None, signature=None):
+    def __init__(self, sender, recipient, amount, fee=None, nonce=None, signature=None, **kwargs):
         if nonce is None:
             nonce = random.randrange(-1*(2**60), 2**60)
         if fee is None:
@@ -70,6 +70,9 @@ class Transaction:
             raise ValidationError("invalid sender public key")
         base64_sender = self._raw_transaction()['sender']
         sender_wallet = blockchain_state.wallets.get(base64_sender, None)
+        if sender_wallet is None:
+            sender_wallet = {'balance': 200, 'last_won': 0, 'used_nonce': []}
+            blockchain_state.wallets[self.sender] = sender_wallet
         if sender_wallet is None or sender_wallet['balance'] < (self.amount + self.fee):
             raise InsufficientBalanceError()
         if type(self.amount) != int or self.amount <= 0:
@@ -107,7 +110,5 @@ class Transaction:
 
     @classmethod
     def from_dict(cls, sender, recipient, signature, **kwargs):
-        sender = b64decode(sender)
-        recipient = b64decode(recipient)
-        signature = b64decode(signature)
+        signature = b64decode(signature.encode())
         return Transaction(sender=sender, recipient=recipient, signature=signature, **kwargs)

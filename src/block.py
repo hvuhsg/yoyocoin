@@ -2,7 +2,7 @@ from typing import List
 import json
 import hashlib
 from time import time
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 import ecdsa
 
@@ -19,7 +19,8 @@ class Block:
             timestamp=None,
             forger=None,
             transactions: List[Transaction] = None,
-            block_signature=None
+            signature=None,
+            **kwargs
     ):
         """
         Create block
@@ -28,7 +29,7 @@ class Block:
         :param timestamp: block creation time
         :param forger: public key of the forger
         :param transactions: list of transactions
-        :param block_signature: signature of the block hash by the forger
+        :param signature: signature of the block hash by the forger
         """
         if timestamp is None:
             timestamp = time()
@@ -39,7 +40,7 @@ class Block:
         self.timestamp = timestamp
         self.forger = forger
         self.transactions = transactions
-        self.signature = block_signature
+        self.signature = signature
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -107,8 +108,8 @@ class Block:
     def to_dict(self):
         return {
             **self._raw_data(),
-            'hash': self.hash,
-            'signature': b64encode(self.signature),
+            'hash': self.hash(),
+            'signature': b64encode(self.signature).decode(),
         }
 
     def validate(self, blockchain_state):
@@ -125,15 +126,21 @@ class Block:
         :raises ValidationError
         :return: None
         """
+        if self.index == 0 and len(blockchain_state.blocks) == 0:
+            return
         if self.index-1 != blockchain_state.blocks[-1].index:
             raise ValidationError("block index not sequential")
-        if self.previous_hash != blockchain_state.blocks[-1].hash:
+        if self.previous_hash != blockchain_state.blocks[-1].hash():
             raise ValidationError("previous hash not match previous block hash")
-        base64_forger = self._raw_data()['forger']
-        forger_wallet = blockchain_state.get(base64_forger, None)
+        forger_address = self._raw_data()['forger']
+        forger_wallet = blockchain_state.wallets.get(forger_address, None)
+        if forger_wallet is None:  # TODO: remove in prod
+            forger_wallet = {'balance': 200, 'last_won': 0, 'used_nonce': []}
+            blockchain_state.wallets[forger_address] = forger_wallet
         if forger_wallet is None or forger_wallet['balance'] < 100:
             raise NonLotteryMember()
-        if forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN > blockchain_state.blocks[-1].index:
+        if forger_wallet['last_won'] and\
+                forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN > blockchain_state.blocks[-1].index:
             raise WalletLotteryFreeze()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
@@ -141,3 +148,13 @@ class Block:
             transaction.validate(blockchain_state=blockchain_state)  # raises ValidationError
         # TODO: Add timestamp validation
 
+    @classmethod
+    def from_dict(cls, index: int, previous_hash, forger, transactions: dict, **kwargs):
+        transactions = list(map(lambda t: Transaction.from_dict(**t), transactions))
+        return cls(
+            index=index,
+            previous_hash=previous_hash,
+            forger=forger,
+            transactions=transactions,
+            **kwargs
+        )

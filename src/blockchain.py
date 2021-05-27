@@ -3,9 +3,11 @@ from urllib.parse import urlparse
 
 import requests
 
+from .exceptions import ValidationError
+from .constents import GENESIS_BLOCK
 from .transaction import Transaction
 from .block import Block
-from .exceptions import ValidationError
+from .blockchain_state import BlockchainState
 
 
 class Blockchain:
@@ -13,9 +15,11 @@ class Blockchain:
         self.current_transactions: List[Transaction] = []
         self.chain: List[Block] = []
         self.nodes = set()
+        self.state = BlockchainState()
 
         # Create the genesis block
-        self.new_block(forger='0', forger_private_key='0', previous_hash='0', index=0)
+        genesis_block = Block.from_dict(**GENESIS_BLOCK)
+        self.add_block(genesis_block)
 
     def register_node(self, address):
         """
@@ -121,8 +125,12 @@ class Blockchain:
         # Reset the current list of transactions
         self.current_transactions = []
 
-        self.chain.append(new_block)
+        self.add_block(new_block)
         return new_block
+
+    def add_block(self, block):
+        self.chain.append(block)
+        self.state.add_block(block)
 
     def new_transaction(self, sender, recipient, amount, sender_private_key, fee=1):
         """
