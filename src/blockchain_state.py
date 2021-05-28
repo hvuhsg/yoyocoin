@@ -13,11 +13,13 @@ class BlockchainState:
         for transaction in block.transactions:
             if block.index == 0:
                 self.wallets[transaction.recipient]['balance'] = transaction.amount
+                self.wallets[transaction.recipient]['last_won'] = 0
+                self.wallets[transaction.recipient]['used_nonce'] = []
                 continue
             self.wallets[transaction.sender]['balance'] -= transaction.amount
             recipient_wallet = self.wallets.get(transaction.recipient, None)
             if recipient_wallet is None:
-                recipient_wallet = {'balance': 0, 'last_won': 0}
+                recipient_wallet = {'balance': 0, 'last_won': 0, 'used_nonce': []}
                 self.wallets[transaction.recipient] = recipient_wallet
             self.wallets[transaction.recipient]['balance'] += transaction.amount
             self.wallets[transaction.sender]['balance'] -= transaction.fee

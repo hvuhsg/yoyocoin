@@ -64,6 +64,7 @@ class Transaction:
         :return: None
         """
         # TODO: validate sender balance
+
         try:
             sender_public_key = self.sender_pub_key
         except ecdsa.MalformedPointError:
@@ -71,7 +72,7 @@ class Transaction:
         base64_sender = self._raw_transaction()['sender']
         sender_wallet = blockchain_state.wallets.get(base64_sender, None)
         if sender_wallet is None:
-            sender_wallet = {'balance': 200, 'last_won': 0, 'used_nonce': []}
+            sender_wallet = {'balance': 0, 'last_won': 0, 'used_nonce': []}
             blockchain_state.wallets[self.sender] = sender_wallet
         if sender_wallet is None or sender_wallet['balance'] < (self.amount + self.fee):
             raise InsufficientBalanceError()

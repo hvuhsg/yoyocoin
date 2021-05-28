@@ -17,8 +17,21 @@ class Blockchain:
         self.nodes = set()
         self.state = BlockchainState()
 
-        # Create the genesis block
+    def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
+        self.add_block(genesis_block)
+
+    def create_genesis(self, developer_pub_address, developer_pri_key, developer_pri_address, initial_coins: int):
+        create_coins_transaction = Transaction(
+            sender='0',
+            recipient=developer_pub_address,
+            amount=initial_coins,
+        )
+        signature = create_coins_transaction.sign(developer_pri_key)
+        create_coins_transaction.signature = signature
+        transactions = [create_coins_transaction]
+        genesis_block = Block(index=0, previous_hash='0', transactions=transactions, forger=developer_pub_address)
+        genesis_block.create_signature(developer_pri_address)
         self.add_block(genesis_block)
 
     def register_node(self, address):
@@ -105,7 +118,7 @@ class Blockchain:
             return True
         return False
 
-    def new_block(self, forger, forger_private_key, previous_hash=None, index=None):
+    def new_block(self, forger, forger_private_addr, previous_hash=None, index=None):
         """
         Create a new Block in the Blockchain
 
@@ -120,7 +133,7 @@ class Blockchain:
 
         new_block.transactions = self.current_transactions
         if new_block.index > 0:
-            new_block.create_signature(forger_private_key)
+            new_block.create_signature(forger_private_addr)
 
         # Reset the current list of transactions
         self.current_transactions = []
@@ -132,12 +145,12 @@ class Blockchain:
         self.chain.append(block)
         self.state.add_block(block)
 
-    def new_transaction(self, sender, recipient, amount, sender_private_key, fee=1):
+    def new_transaction(self, sender, recipient, amount, sender_private_addr, fee=1):
         """
         Creates a new transaction to go into the next mined Block
 
         :param fee: integer >= 1
-        :param sender_private_key: sender private key : ecdsa.SigningKey
+        :param sender_private_addr: sender private key : string
         :param amount: integer > 0
         :param recipient: recipient public key
         :param sender: sender public key
@@ -145,7 +158,8 @@ class Blockchain:
         :return: The index of the Block that will hold this transaction
         """
         new_transaction = Transaction(sender=sender, recipient=recipient, amount=amount, fee=fee)
-        new_transaction.create_signature(sender_private_key)
+        new_transaction.create_signature(sender_private_addr)
+        new_transaction.validate(blockchain_state=self.state)
         self.current_transactions.append(new_transaction)
 
         return self.last_block.index + 1
