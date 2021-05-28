@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-28T12:50:13.121Z" agent="5.0 (Windows)" etag="gII0rEAqc_tM9NHnpnni" version="14.7.2" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-28T12:53:45.069Z" agent="5.0 (Windows)" etag="V92zglvA5X7TG3Dk6Rxd" version="14.7.2" type="github" pages="2">
   <diagram id="kD5HeXQGoQ9XkrsHSEOE" name="node protocol">
     <mxGraphModel dx="3743" dy="2670" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -140,12 +140,20 @@
         <mxCell id="Yiz7-srcqHhmHwWrODTn-50" value="&lt;font color=&quot;#0000FF&quot;&gt;new transaction&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="1240" y="-80" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="Yiz7-srcqHhmHwWrODTn-53" value="&lt;font color=&quot;#0000FF&quot;&gt;broadcast to nodes&lt;br&gt;&amp;nbsp;and clients&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-53" value="&lt;font color=&quot;#0000FF&quot;&gt;broadcast to nodes&lt;br&gt;&amp;nbsp;and wallet&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="355" y="850" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Yiz7-srcqHhmHwWrODTn-55" value="&lt;div&gt;&lt;font color=&quot;#0000FF&quot;&gt;broadcast to nodes&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="1180" y="850" width="120" height="60" as="geometry" />
         </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="3srZ8is90JpDTUXAqBGp" name="wallet protocol">
+    <mxGraphModel dx="868" dy="471" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="o0UPEpSSWdRQ-_9SHf2p-0" />
+        <mxCell id="o0UPEpSSWdRQ-_9SHf2p-1" parent="o0UPEpSSWdRQ-_9SHf2p-0" />
       </root>
     </mxGraphModel>
   </diagram>
