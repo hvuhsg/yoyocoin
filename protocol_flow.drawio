@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-28T13:14:42.168Z" agent="5.0 (Windows)" etag="gNHA-u-ijqR3wqx2SkLk" version="14.7.2" type="github" pages="2">
+<mxfile host="app.diagrams.net" modified="2021-05-28T13:27:33.944Z" agent="5.0 (Windows)" etag="YNCdOt7WHgRY1sdMkJms" version="14.7.2" type="github" pages="2">
   <diagram id="kD5HeXQGoQ9XkrsHSEOE" name="node protocol">
     <mxGraphModel dx="3743" dy="2670" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -150,12 +150,12 @@
     </mxGraphModel>
   </diagram>
   <diagram id="3srZ8is90JpDTUXAqBGp" name="wallet protocol">
-    <mxGraphModel dx="1573" dy="393" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="3870" dy="1178" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="o0UPEpSSWdRQ-_9SHf2p-0" />
         <mxCell id="o0UPEpSSWdRQ-_9SHf2p-1" parent="o0UPEpSSWdRQ-_9SHf2p-0" />
         <mxCell id="n61OuyF5iMT8gwBD2mx8-0" value="&lt;div&gt;block listener&lt;/div&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;width=90;height=30;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="60" y="100" width="1380" height="930" as="geometry" />
+          <mxGeometry x="-10" y="100" width="1250" height="930" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-1" target="n61OuyF5iMT8gwBD2mx8-2">
           <mxGeometry relative="1" as="geometry" />
@@ -226,6 +226,9 @@
         <mxCell id="n61OuyF5iMT8gwBD2mx8-20" value="&lt;font color=&quot;#0000FF&quot;&gt;forge block, sign it, send it has non full block&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
           <mxGeometry x="680" y="570" width="120" height="60" as="geometry" />
         </mxCell>
+        <mxCell id="n61OuyF5iMT8gwBD2mx8-66" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-23" target="n61OuyF5iMT8gwBD2mx8-65">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-23" value="&lt;font color=&quot;#00FF00&quot;&gt;valid non full block&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
           <mxGeometry x="790" y="680" width="120" height="60" as="geometry" />
         </mxCell>
@@ -278,7 +281,7 @@
           <mxGeometry x="400" y="620" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-43" value="chain listener" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=30;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-710" y="330" width="630" height="470" as="geometry" />
+          <mxGeometry x="-1000" y="290" width="810" height="510" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-48" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-63" target="n61OuyF5iMT8gwBD2mx8-52">
           <mxGeometry relative="1" as="geometry" />
@@ -293,16 +296,16 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-50" value="&lt;font color=&quot;#0000FF&quot;&gt;get chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-470" y="340" width="120" height="60" as="geometry" />
+          <mxGeometry x="-760" y="340" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-52" target="n61OuyF5iMT8gwBD2mx8-53">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-52" value="&lt;font color=&quot;#FF0000&quot;&gt;invalid chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-590" y="500" width="120" height="60" as="geometry" />
+          <mxGeometry x="-800" y="500" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-53" value="&lt;font color=&quot;#FF0000&quot;&gt;decrease node score&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-590" y="600" width="120" height="60" as="geometry" />
+          <mxGeometry x="-800" y="610" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-54" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-56" target="n61OuyF5iMT8gwBD2mx8-58">
           <mxGeometry relative="1" as="geometry" />
@@ -311,25 +314,34 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-56" value="&lt;font color=&quot;#00FF00&quot;&gt;valid chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-370" y="500" width="120" height="60" as="geometry" />
+          <mxGeometry x="-500" y="500" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-57" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-58" target="n61OuyF5iMT8gwBD2mx8-60">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-58" value="&lt;font color=&quot;#00FF00&quot;&gt;new chain have more credibility&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-260" y="600" width="120" height="60" as="geometry" />
+          <mxGeometry x="-370" y="600" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-59" value="&lt;font color=&quot;#FF0000&quot;&gt;new chain have less credibility&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-450" y="600" width="120" height="60" as="geometry" />
+          <mxGeometry x="-630" y="610" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-60" value="&lt;font color=&quot;#0000FF&quot;&gt;update chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-260" y="700" width="120" height="60" as="geometry" />
+          <mxGeometry x="-370" y="690" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-61" value="&lt;font color=&quot;#FF0000&quot;&gt;is current chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-670" y="390" width="120" height="60" as="geometry" />
+          <mxGeometry x="-960" y="410" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="n61OuyF5iMT8gwBD2mx8-63" value="&lt;font color=&quot;#00FF00&quot;&gt;is different chain&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
-          <mxGeometry x="-470" y="430" width="120" height="60" as="geometry" />
+          <mxGeometry x="-600" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n61OuyF5iMT8gwBD2mx8-70" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="o0UPEpSSWdRQ-_9SHf2p-1" source="n61OuyF5iMT8gwBD2mx8-65" target="n61OuyF5iMT8gwBD2mx8-69">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n61OuyF5iMT8gwBD2mx8-65" value="&lt;font color=&quot;#0000FF&quot;&gt;sign non full block&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
+          <mxGeometry x="790" y="790" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n61OuyF5iMT8gwBD2mx8-69" value="&lt;font color=&quot;#0000FF&quot;&gt;send the block&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="o0UPEpSSWdRQ-_9SHf2p-1">
+          <mxGeometry x="790" y="900" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
