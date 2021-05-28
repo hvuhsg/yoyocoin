@@ -1,9 +1,21 @@
-<mxfile host="app.diagrams.net" modified="2021-05-28T12:36:02.205Z" agent="5.0 (Windows)" etag="JZETzbV9tetH6OC9OxKc" version="14.7.2" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-28T12:49:19.115Z" agent="5.0 (Windows)" etag="dotBanya534KyyOCKVC0" version="14.7.2" type="github">
   <diagram id="kD5HeXQGoQ9XkrsHSEOE" name="block listner">
-    <mxGraphModel dx="1240" dy="673" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="3743" dy="2670" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-39" value="message listner" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=30;" vertex="1" parent="1">
+          <mxGeometry x="-60" y="-320" width="1860" height="1420" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-25" target="Yiz7-srcqHhmHwWrODTn-55">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-25" value="transaction listner" style="shape=umlFrame;whiteSpace=wrap;html=1;width=130;height=30;" vertex="1" parent="1">
+          <mxGeometry x="870" y="60" width="740" height="610" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-2" target="Yiz7-srcqHhmHwWrODTn-53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="Yiz7-srcqHhmHwWrODTn-2" value="&lt;div&gt;blocks listner&lt;/div&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;width=90;height=30;" vertex="1" parent="1">
           <mxGeometry x="60" y="60" width="710" height="610" as="geometry" />
         </mxCell>
@@ -61,6 +73,78 @@
         </mxCell>
         <mxCell id="Yiz7-srcqHhmHwWrODTn-23" value="&lt;font color=&quot;#0000FF&quot;&gt;replace with the other block&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
           <mxGeometry x="350" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-26" target="Yiz7-srcqHhmHwWrODTn-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-26" target="Yiz7-srcqHhmHwWrODTn-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-26" value="&lt;font color=&quot;#0000FF&quot;&gt;new transaction&lt;br&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-28" value="&lt;font color=&quot;#FF0000&quot;&gt;invalid transaction&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="910" y="230" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-30" target="Yiz7-srcqHhmHwWrODTn-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-30" target="Yiz7-srcqHhmHwWrODTn-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-30" value="&lt;font color=&quot;#00FF00&quot;&gt;valid transaction&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="230" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-32" value="&lt;font color=&quot;#FF0000&quot;&gt;exist in pool&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="335" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-38" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-34" target="Yiz7-srcqHhmHwWrODTn-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-34" value="&lt;div&gt;&lt;font color=&quot;#00FF00&quot;&gt;not exist in pool&lt;/font&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="335" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-37" value="&lt;font color=&quot;#0000FF&quot;&gt;add to pool&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-40" target="Yiz7-srcqHhmHwWrODTn-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-44" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-40" target="Yiz7-srcqHhmHwWrODTn-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-40" value="&lt;font color=&quot;#0000FF&quot;&gt;message received&lt;br&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="-290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-41" value="&lt;font color=&quot;#FF0000&quot;&gt;unsupported message&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="-180" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-47" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-43" target="Yiz7-srcqHhmHwWrODTn-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-43" target="Yiz7-srcqHhmHwWrODTn-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-43" value="&lt;font color=&quot;#00FF00&quot;&gt;supported message&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="-180" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.478;entryY=0.001;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-46" target="Yiz7-srcqHhmHwWrODTn-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-46" value="&lt;font color=&quot;#0000FF&quot;&gt;new block&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="-80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.581;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Yiz7-srcqHhmHwWrODTn-50" target="Yiz7-srcqHhmHwWrODTn-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-50" value="&lt;font color=&quot;#0000FF&quot;&gt;new transaction&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="-80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-53" value="&lt;font color=&quot;#0000FF&quot;&gt;broadcast to nodes&lt;br&gt;&amp;nbsp;and clients&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="355" y="850" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Yiz7-srcqHhmHwWrODTn-55" value="&lt;div&gt;&lt;font color=&quot;#0000FF&quot;&gt;broadcast to nodes&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="850" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
