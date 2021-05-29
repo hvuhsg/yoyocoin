@@ -63,10 +63,9 @@ class Transaction:
         :raises ValidationError
         :return: None
         """
-        # TODO: validate sender balance
 
         try:
-            sender_public_key = self.sender_pub_key
+            _ = self.sender_pub_key
         except ecdsa.MalformedPointError:
             raise ValidationError("invalid sender public key")
         sender_wallet = blockchain_state.wallets.get(self.sender, None)
