@@ -89,6 +89,7 @@ class BlockchainTestCase(TestCase):
             sender=None,
             recipient=None,
             amount=1,
+            fee=1,
             sender_private_addr=None,
     ):
         if sender is None:
@@ -97,11 +98,8 @@ class BlockchainTestCase(TestCase):
             recipient = self.wallet_b['pub_addr']
         if sender_private_addr is None:
             sender_private_addr = self.wallet_a['pri_addr']
-        # print(self.blockchain.state.wallets)
-        # print(sender)
-        # print(recipient)
         self.blockchain.new_transaction(
-            sender=sender, recipient=recipient, amount=amount, sender_private_addr=sender_private_addr
+            sender=sender, recipient=recipient, amount=amount, fee=fee, sender_private_addr=sender_private_addr
         )
 
 
@@ -266,4 +264,25 @@ class TestInvalidTransactions(BlockchainTestCase):
             recipient=self.wallet_a['pub_addr'],
             amount=self.max_coins+1,
             sender_private_addr=new_empty_wallet['pri_addr'],
+        )
+
+    def test_negative_amount(self):
+        self.assertRaises(
+            ValidationError,
+            self.create_transaction,
+            sender=self.wallet_b['pub_addr'],
+            recipient=self.wallet_a['pub_addr'],
+            amount=-1,
+            sender_private_addr=self.wallet_b['pri_addr'],
+        )
+
+    def test_negative_fee(self):
+        self.assertRaises(
+            ValidationError,
+            self.create_transaction,
+            sender=self.wallet_b['pub_addr'],
+            recipient=self.wallet_a['pub_addr'],
+            amount=1,
+            fee=-1,
+            sender_private_addr=self.wallet_b['pri_addr'],
         )
