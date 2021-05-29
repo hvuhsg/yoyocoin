@@ -264,7 +264,7 @@ class TestInvalidTransactions(BlockchainTestCase):
             sender_private_addr=new_empty_wallet['pri_addr'],
         )
 
-    def test_negative_amount(self):
+    def test_invalid_amount(self):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
@@ -273,8 +273,16 @@ class TestInvalidTransactions(BlockchainTestCase):
             amount=-1,
             sender_private_addr=self.wallet_b['pri_addr'],
         )
+        self.assertRaises(
+            ValidationError,
+            self.create_transaction,
+            sender=self.wallet_b['pub_addr'],
+            recipient=self.wallet_a['pub_addr'],
+            amount=0,
+            sender_private_addr=self.wallet_b['pri_addr'],
+        )
 
-    def test_negative_fee(self):
+    def test_invalid_fee(self):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
@@ -282,5 +290,15 @@ class TestInvalidTransactions(BlockchainTestCase):
             recipient=self.wallet_a['pub_addr'],
             amount=1,
             fee=-1,
+            sender_private_addr=self.wallet_b['pri_addr'],
+        )
+
+        self.assertRaises(
+            ValidationError,
+            self.create_transaction,
+            sender=self.wallet_b['pub_addr'],
+            recipient=self.wallet_a['pub_addr'],
+            amount=1,
+            fee=0,
             sender_private_addr=self.wallet_b['pri_addr'],
         )
