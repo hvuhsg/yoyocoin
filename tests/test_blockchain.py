@@ -34,7 +34,7 @@ class BlockchainTestCase(TestCase):
     def setup_blockchain_history(self):
         self.developer_wallet = self.create_wallet()
         self.max_coins = 10000
-        self.initial_blocks_number = 11
+        self.initial_blocks_number = 5
 
         self.blockchain = Blockchain()
         self.blockchain.create_genesis(
@@ -58,13 +58,13 @@ class BlockchainTestCase(TestCase):
             forger_private_addr=self.developer_wallet['pri_addr']
         )
         for _ in range(self.initial_blocks_number-1):
-            for _ in range(10):
+            for _ in range(5):
                 sender_wallet = wallets[randint(0, len(wallets)-1)]
                 recipient_wallet = wallets[randint(0, len(wallets)-1)]
                 self.create_transaction(
                     sender=sender_wallet['pub_addr'],
                     recipient=recipient_wallet['pub_addr'],
-                    amount=randint(1, 30),
+                    amount=randint(1, 2),
                     sender_private_addr=sender_wallet['pri_addr'],
                 )
             self.create_block(
