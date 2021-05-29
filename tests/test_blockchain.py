@@ -50,7 +50,7 @@ class BlockchainTestCase(TestCase):
             self.create_transaction(
                 sender=self.developer_wallet['pub_addr'],
                 recipient=recipient_wallet['pub_addr'],
-                amount=200,
+                amount=300,
                 sender_private_addr=self.developer_wallet['pri_addr'],
             )
         self.create_block(
@@ -79,9 +79,9 @@ class BlockchainTestCase(TestCase):
 
     def create_block(self, forger=None, forger_private_addr=None):
         if forger is None:
-            forger = self.wallet_a['pub_addr']
+            forger = self.developer_wallet['pub_addr']
         if forger_private_addr is None:
-            forger_private_addr = self.wallet_a['pri_addr']
+            forger_private_addr = self.developer_wallet['pri_addr']
         self.blockchain.new_block(forger, forger_private_addr)
 
     def create_transaction(
@@ -142,7 +142,6 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         assert latest_block['index'] == self.initial_blocks_number+1
         assert latest_block['timestamp'] is not None
         assert latest_block['previous_hash'] == self.blockchain.chain[-2].hash()
-        assert latest_block['forger'] == self.wallet_a['pub_addr']
 
     def test_create_transaction(self):
         self.create_transaction()
@@ -228,11 +227,10 @@ class TestKeysSignatureAndVerification(BlockchainTestCase):
         new_block = self.blockchain.last_block
 
         assert new_block.is_signature_verified()
-        assert self.wallet_a['pub_key'].verify(new_block.signature, new_block.hash().encode())
+        assert self.developer_wallet['pub_key'].verify(new_block.signature, new_block.hash().encode())
 
         # The signature is verified but the signing key not sign the same signature every time
-        assert self.wallet_a['pri_key'].sign(b"test") != self.wallet_a['pri_key'].sign(b"test")
-        assert new_block.sign(self.wallet_a['pri_key']) != new_block.sign(self.wallet_a['pri_key'])
+        assert new_block.sign(self.developer_wallet['pri_key']) != new_block.sign(self.developer_wallet['pri_key'])
 
         correct_signature = new_block.signature
         new_block.signature = new_block.sign(forger_private_key=self.wallet_b['pri_key'])

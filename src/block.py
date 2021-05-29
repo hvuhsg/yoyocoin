@@ -27,7 +27,7 @@ class Block:
         :param index: the block index at the chain (0 for the genesis block and so on)
         :param previous_hash: hash of previous block
         :param timestamp: block creation time
-        :param forger: public key of the forger
+        :param forger: public_address of forger wallet
         :param transactions: list of transactions
         :param signature: signature of the block hash by the forger
         """
@@ -127,20 +127,17 @@ class Block:
         :return: None
         """
         if self.index == 0 and len(blockchain_state.blocks) == 0:
-            return
+            return  # TODO: check in production if hash if equal to hard coded hash
         if self.index-1 != blockchain_state.blocks[-1].index:
             raise ValidationError("block index not sequential")
         if self.previous_hash != blockchain_state.blocks[-1].hash():
             raise ValidationError("previous hash not match previous block hash")
-        forger_address = self._raw_data()['forger']
-        forger_wallet = blockchain_state.wallets.get(forger_address, None)
-        if forger_wallet is None:  # TODO: remove in prod
-            forger_wallet = {'balance': 200, 'last_won': 0, 'used_nonce': []}
-            blockchain_state.wallets[forger_address] = forger_wallet
+        forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet['balance'] < 100:
             raise NonLotteryMember()
-        if forger_wallet['last_won'] and\
-                forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN > blockchain_state.blocks[-1].index:
+        if forger_wallet['last_won'] != 0 and \
+                forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN \
+                > blockchain_state.blocks[-1].index:
             raise WalletLotteryFreeze()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
