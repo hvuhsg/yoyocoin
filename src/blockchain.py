@@ -145,10 +145,11 @@ class Blockchain:
         self.chain.append(block)
         self.state.add_block(block)
 
-    def new_transaction(self, sender, recipient, amount, sender_private_addr, fee=1):
+    def new_transaction(self, sender, recipient, amount, fee=1, sender_private_addr=None, signature=None):
         """
         Creates a new transaction to go into the next mined Block
 
+        :param signature: transaction signature (signed by the sender)
         :param fee: integer >= 1
         :param sender_private_addr: sender private key : string
         :param amount: integer > 0
@@ -157,8 +158,11 @@ class Blockchain:
         :raise ValueError: when the signature doesn't match the transaction.
         :return: The index of the Block that will hold this transaction
         """
-        new_transaction = Transaction(sender=sender, recipient=recipient, amount=amount, fee=fee)
-        new_transaction.create_signature(sender_private_addr)
+        if not (sender_private_addr or signature):
+            raise ValueError("required signature or private address")
+        new_transaction = Transaction(sender=sender, recipient=recipient, amount=amount, fee=fee, signature=signature)
+        if sender_private_addr is not None:
+            new_transaction.create_signature(sender_private_addr)
         new_transaction.validate(blockchain_state=self.state)
         self.current_transactions.append(new_transaction)
 

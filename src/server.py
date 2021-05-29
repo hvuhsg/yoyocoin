@@ -24,13 +24,19 @@ def new_transaction():
     values = request.get_json()
 
     # Check that the required fields are in the POST'ed data
-    required = ['sender', 'recipient', 'amount', 'signature']
+    required = ['sender', 'recipient', 'amount', 'fee', 'signature']
     if not all(k in values for k in required):
         return 'Missing values', 400
 
     # Create a new Transaction
     try:
-        index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['signature'])
+        index = blockchain.new_transaction(
+            sender=values['sender'],
+            recipient=values['recipient'],
+            amount=values['amount'],
+            fee=values['fee'],
+            signature=values['signature'],
+        )
     except ValueError:  # invalid signature
         return 'Invalid Signature', 400
 
@@ -42,6 +48,16 @@ def new_transaction():
 def full_chain():
     response = {
         'chain': blockchain.chain,
+    }
+    return jsonify(response), 200
+
+
+@app.route('/chain_length', methods=['GET'])
+def chain_info():
+    response = {
+        'length': blockchain.state.length,
+        'last_hash': blockchain.state.last_block_hash,
+        'score': blockchain.state.score,
     }
     return jsonify(response), 200
 

@@ -6,7 +6,8 @@ class BlockchainState:
         self.wallets = defaultdict(lambda: dict())
         self.total_coins = 0
         self.score = 0
-        self.blocks = []
+        self.length = 0
+        self.last_block_hash = []
 
     def add_block(self, block):
         block.validate(blockchain_state=self)
@@ -25,7 +26,8 @@ class BlockchainState:
             self.wallets[transaction.sender]['balance'] -= transaction.fee
             self.wallets[block.forger]['balance'] += transaction.fee
         # TODO: update score
-        self.blocks.append(block)
+        self.last_block_hash = block.hash()
+        self.length += 1
 
     def add_chain(self, chain):
         for block in chain:

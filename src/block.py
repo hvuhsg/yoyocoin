@@ -126,18 +126,18 @@ class Block:
         :raises ValidationError
         :return: None
         """
-        if self.index == 0 and len(blockchain_state.blocks) == 0:
+        if self.index == 0 and blockchain_state.length == 0:
             return  # TODO: check in production if hash if equal to hard coded hash
-        if self.index-1 != blockchain_state.blocks[-1].index:
+        if self.index != blockchain_state.length:
             raise ValidationError("block index not sequential")
-        if self.previous_hash != blockchain_state.blocks[-1].hash():
+        if self.previous_hash != blockchain_state.last_block_hash:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet['balance'] < 100:
             raise NonLotteryMember()
         if forger_wallet['last_won'] != 0 and \
                 forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN \
-                > blockchain_state.blocks[-1].index:
+                > blockchain_state.length:
             raise WalletLotteryFreeze()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
