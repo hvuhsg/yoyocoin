@@ -102,17 +102,22 @@ class Blockchain:
             response = requests.get(f'http://{node}/chain')
 
             if response.status_code == 200:
+                response_score = response.json()['score']
+                if response_score < max_score:
+                    continue
                 chain = response.json()['chain']
                 if not self.valid_chain(chain):
-                    continue
-                score = self.chain_score(chain)
+                    continue  # decrease node integrity score
+                actual_score = self.chain_score(chain)
+                if actual_score != response_score:
+                    pass  # decrease node integrity score
 
                 # Check if the length is longer and the chain is valid
-                if score > max_score:
-                    max_score = score
+                if actual_score > max_score:
+                    max_score = actual_score
                     new_chain = chain
 
-        # Replace our chain if we discovered a new, valid chain longer than ours
+        # Replace our chain if we discovered a new, valid chain with more score than ours
         if new_chain:
             self.chain = new_chain
             return True
