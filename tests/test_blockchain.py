@@ -5,8 +5,7 @@ from random import randint
 from unittest import TestCase
 
 import ecdsa
-from src.blockchain import Blockchain
-from src.exceptions import ValidationError
+from src.blockchain import Blockchain, ValidationError
 
 
 class BlockchainTestCase(TestCase):

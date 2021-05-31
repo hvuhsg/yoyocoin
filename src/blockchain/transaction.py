@@ -5,7 +5,6 @@ from base64 import b64encode, b64decode
 import ecdsa
 
 from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonce
-from .blockchain_state import BlockchainState
 
 
 class Transaction:
@@ -51,7 +50,7 @@ class Transaction:
     def sign(self, private_key: ecdsa.SigningKey):
         return private_key.sign(self.hash().encode())
 
-    def validate(self, blockchain_state: BlockchainState):
+    def validate(self, blockchain_state):
         """
         Check validation of transaction
         1. check sender key (is valid ECDSA key)
