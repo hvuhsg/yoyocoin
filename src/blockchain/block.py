@@ -118,9 +118,8 @@ class Block:
         1. check block index (is the next block in the blockchain state)
         2. check previous hash (is the hash of the previous block)
         3. check forger wallet (balance > 100)
-        4. check if forger has won the lottery in the last 10080 blocks (one week if one block == 1 minute)
-        5. check block signature
-        6. validate transactions
+        4. check block signature
+        5. validate transactions
 
         :param blockchain_state: Blockchain state object
         :raises ValidationError
@@ -135,10 +134,6 @@ class Block:
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet['balance'] < 100:
             raise NonLotteryMember()
-        if forger_wallet['last_won'] != 0 and \
-                forger_wallet['last_won'] + BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN \
-                > blockchain_state.length:
-            raise WalletLotteryFreeze()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:

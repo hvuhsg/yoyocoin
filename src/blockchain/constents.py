@@ -27,3 +27,6 @@ GENESIS_BLOCK = {
     'hash': 'c82993ce06e6fc7430f3e2a72acbbed42afb5141c4dac2ca9e1e8e1ef95493d2',
     'signature': 'icZgIY8RP1HzSF39UQFn3be+o0KsJ3u0MPIwO+Q8E43grJVQhMMKTwlb0PTtwzCI'
 }
+
+MAX_BLOCKS_FOR_SCORE = 200
+
