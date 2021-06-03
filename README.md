@@ -4,57 +4,28 @@ PoS blockchain python (but a bit different)
 [![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin)  
 
 #### Explanation
-This coin will use PoS to determine witch wallet has won the lottery and can forge the next block (and get the fee's)
+This coin will use PoS to determine witch wallet has won and can forge the next block (incentive: get the fee's)
 
-The lottery function gets hash 256 bit as input and outputs number (float) in range of 0-1000.
-it's uses the hash of the last block.
+##### PoS mechanism
+**The wallet with the most score win and can forge the next block**,
+in the time period of the block creation every wallet who have more then X score can forge the next block, every node select the one with the highest score.
 
+If node receive block that is more than 2 blocks old (Example: current block index 20, old block index < 18)
+the block add punishment data to the transaction pull (the punishment data must contain valid block signature)
+the punished node __block count__ is reset.
 ```python
-def wallet_number(wallet_address):
-    #  return number (float) in range of 0-1000
-    pass
-
-def score (wallet_address, wallet_history, lottery_number):
-    #  return number (float) in range of 0-1000
-    pass
+import math
+def _calculate_forger_score(self, forger_wallet):
+    MAX_BLOCKS_FOR_SCORE = 200
+    current_block_index = self.length
+    blocks_number = min((current_block_index - forger_wallet["last_transaction"]), MAX_BLOCKS_FOR_SCORE)
+    multiplier = (blocks_number**math.e)/(111**math.e)+0.0000000001
+    return forger_wallet["balance"] * multiplier
 ```
 
-The score algorithm return's lower number for wallet that hold more coins for more blocks (the block count stop with win of the lottery),
-in addition to wallet_number distance to lottery_number.
-
-The wallet with the smallest score that have more then 100 coins wins and can forge the new block.
-
-<pre>
-Wallet-A is the wallet number of wallet-a
-Wallet-B is the wallet number of wallet-b
-lottery is the number that created from the last block hash
-
-Distance:
-0                         wallet-A    lottery                       wallet-B                      1000
-|                             |          |                              |                           |
-|---------------------------------------------------------------------------------------------------|
-
-wallet-power = wallet sum(coin's per block sins last win)/10000000
-(million coins for 200 blocks it's 2 power)
-
-wallet-score = {wallet distance from lottery} - {wallet-power}
-
-Score:
-1000                                                     wallet-b-score      wallet-a-score          0
-  |                                                            |                    |                | <- the goal
-  |--------------------------------------------------------------------------------------------------|
-
-
-If Wallet-A will forge new block and Wallet-B will forge new block,
-the block of Wallet-A has less score so it will be the chosen one in a <a href="#dispute">dispute</a>.
-</pre>
-
-
 #### code parts
-
 | Name          | Description                                          |
 | ------------- | ---------------------------------------------------- |
-| server        | listen to transactions and blocks                    |
+| node          | coin p2p network client and server                   |
 | blockchain    | manage chain + block foreign + maintaining consensus |
-| client        | menage p2p network                                   |
 
