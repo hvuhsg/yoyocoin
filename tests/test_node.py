@@ -39,10 +39,10 @@ class TestDataTransfer(NodeTestCase):
     def test_one_way_data_transfer(self):
         self.one_way_connection(self.node1, self.node2)
         data = {"test": True}
-        self.node1.send_to_nodes(data)
+        self.node1.send_to_peers(data)
 
         sleep(0.5)
-        assert self.node2.get_last_message() == data
+        assert self.node2.get_last_message().payload == data
 
 
 class TestBroadcast(NodeTestCase):
@@ -54,21 +54,15 @@ class TestBroadcast(NodeTestCase):
         self.node1.send_broadcast(message)
 
         sleep(0.5)
-        assert self.node3.get_last_message()["type"] == message["type"] == "broadcast"
-        assert self.node3.get_last_message()["test"] == message["test"]
-        assert self.node3.get_last_message()["ttl"] < message["ttl"]
+        assert self.node3.get_last_message().payload == message
 
     def test_circular_broadcast(self):
         self.one_way_connection(self.node1, self.node2)
         self.one_way_connection(self.node2, self.node3)
         self.one_way_connection(self.node3, self.node2)
 
-        message = {"test": "broadcast test"}
+        message = {"test": "broadcast test 2"}
         self.node1.send_broadcast(message)
 
         sleep(0.5)
-        assert self.node3.get_last_message()["type"] == message["type"] == "broadcast"
-        assert self.node3.get_last_message()["test"] == message["test"]
-        assert self.node3.get_last_message()["ttl"] < message["ttl"]
-        sleep(1)
-        assert self.node3.get_last_message()["ttl"] == 0
+        assert self.node3.get_last_message().payload == message

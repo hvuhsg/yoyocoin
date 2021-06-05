@@ -1,4 +1,5 @@
 from p2pnetwork.node import Node
+from .message import Message, MessageType, Route
 
 
 BROADCAST_MAX_TTL = 10
@@ -12,20 +13,31 @@ class BlockchainNode(Node):
         host="0.0.0.0",
         port=2424,
         debug=False,
+        message_memory_max_size=30,
     ):
         self.domains = []
         self.peers_address = []
         self.new_block_callback = new_block_callback
         self.new_transaction_callback = new_transaction_callback
         self._last_message = None
+        self._messages_hash_memory = []
+        self._messages_hash_memory_max_size = message_memory_max_size
         super().__init__(host, port)
         self.debug = debug
 
-    def get_last_message(self):
+    def get_last_message(self) -> Message:
         return self._last_message
 
     def get_peers_from_dns(self):
         pass
+
+    def save_for_flood_detection(self, message: Message):
+        self._messages_hash_memory.append(message.hash)
+        if len(self._messages_hash_memory) > self._messages_hash_memory_max_size:
+            self._messages_hash_memory.pop(0)
+
+    def is_second_broadcast(self, message: Message) -> bool:
+        return message.hash in self._messages_hash_memory
 
     def connect_to_network(self):
         if len(self.peers_address) == 0:
@@ -35,31 +47,32 @@ class BlockchainNode(Node):
                 continue  # do not connect to you'r self
             self.connect_with_node(host=peer_host, port=peer_port)
 
-    def process_message(self, data):
-        if data.get("route", None) == "/new_block":
-            self.new_block_callback(data["block"])
-        elif data.get("route", None) == "/new_transaction":
-            self.new_transaction_callback(data["transaction"])
+    def process_message(self, message: Message):
+        if message.route == Route.NewBlock:
+            self.new_block_callback(message.payload)
+        elif message.route == Route.NewTX:
+            self.new_transaction_callback(message.payload)
         if self.debug:
-            self._last_message = data
+            self._last_message = message
 
     def node_message(self, node, data):
-        if (
-            data.get("type", None) == "broadcast"
-            and BROADCAST_MAX_TTL >= data["ttl"] > 0
-        ):
-            data["ttl"] -= 1
-            self.send_to_nodes(data, exclude=[node])
-        self.process_message(data)
+        message = Message.from_dict(data)
+        if message.is_alive() \
+                and message.message_type == MessageType.BROADCAST.value \
+                and not self.is_second_broadcast(message):
+            self.save_for_flood_detection(message)
+            self.send_to_nodes(message.to_dict(), exclude=[node])
+        self.process_message(message)
         print("node_message from " + node.id + ": " + str(data))
 
     def send_broadcast(self, data: dict):
-        data["type"] = "broadcast"
-        data["ttl"] = BROADCAST_MAX_TTL
+        message = Message(payload=data, route=Route.Test.value, message_type=MessageType.BROADCAST.value, ttl=BROADCAST_MAX_TTL)
+        data = message.to_dict()
         self.send_to_nodes(data)
         print("send broadcast", data)
 
-    def forge_block(self, block):
-        route = "/new_block"
-        data = {"block": block, "route": route}
-        self.send_broadcast(data)
+    def send_to_peers(self, data: str):
+        message = Message(payload=data, route=Route.Test.value, message_type=MessageType.DIRECT.value)
+        data = message.to_dict()
+        self.send_to_nodes(data)
+        print("send broadcast", data)
