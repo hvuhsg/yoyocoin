@@ -24,14 +24,14 @@ class Route(Enum):
 
 class Message:
     def __init__(
-            self,
-            payload: dict,
-            route: Route,
-            message_type: MessageType,
-            ttl: int = 0,
-            signature: str = None,
-            sender_wallet_address: str = None,
-            **kwargs
+        self,
+        payload: dict,
+        route: Route,
+        message_type: MessageType,
+        ttl: int = 0,
+        signature: str = None,
+        sender_wallet_address: str = None,
+        **kwargs
     ):
         self.payload = payload
         self.message_type = message_type
@@ -72,7 +72,7 @@ class Message:
                 "signature": self.signature,
                 "route": self.route,
                 "sender_wallet_address": self.from_wallet_address,
-            }
+            },
         }
 
     @classmethod

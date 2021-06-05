@@ -57,22 +57,31 @@ class BlockchainNode(Node):
 
     def node_message(self, node, data):
         message = Message.from_dict(data)
-        if message.is_alive() \
-                and message.message_type == MessageType.BROADCAST.value \
-                and not self.is_second_broadcast(message):
+        if (
+            message.is_alive()
+            and message.message_type == MessageType.BROADCAST.value
+            and not self.is_second_broadcast(message)
+        ):
             self.save_for_flood_detection(message)
             self.send_to_nodes(message.to_dict(), exclude=[node])
         self.process_message(message)
         print("node_message from " + node.id + ": " + str(data))
 
     def send_broadcast(self, data: dict):
-        message = Message(payload=data, route=Route.Test.value, message_type=MessageType.BROADCAST.value, ttl=BROADCAST_MAX_TTL)
+        message = Message(
+            payload=data,
+            route=Route.Test.value,
+            message_type=MessageType.BROADCAST.value,
+            ttl=BROADCAST_MAX_TTL,
+        )
         data = message.to_dict()
         self.send_to_nodes(data)
         print("send broadcast", data)
 
     def send_to_peers(self, data: str):
-        message = Message(payload=data, route=Route.Test.value, message_type=MessageType.DIRECT.value)
+        message = Message(
+            payload=data, route=Route.Test.value, message_type=MessageType.DIRECT.value
+        )
         data = message.to_dict()
         self.send_to_nodes(data)
         print("send broadcast", data)
