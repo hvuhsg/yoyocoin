@@ -5,7 +5,14 @@ BROADCAST_MAX_TTL = 10
 
 
 class BlockchainNode(Node):
-    def __init__(self, new_block_callback, new_transaction_callback, host="0.0.0.0", port=2424, debug=False):
+    def __init__(
+        self,
+        new_block_callback,
+        new_transaction_callback,
+        host="0.0.0.0",
+        port=2424,
+        debug=False,
+    ):
         self.domains = []
         self.peers_address = []
         self.new_block_callback = new_block_callback
@@ -37,7 +44,10 @@ class BlockchainNode(Node):
             self._last_message = data
 
     def node_message(self, node, data):
-        if data.get("type", None) == "broadcast" and BROADCAST_MAX_TTL >= data["ttl"] > 0:
+        if (
+            data.get("type", None) == "broadcast"
+            and BROADCAST_MAX_TTL >= data["ttl"] > 0
+        ):
             data["ttl"] -= 1
             self.send_to_nodes(data, exclude=[node])
         self.process_message(data)

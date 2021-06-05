@@ -32,4 +32,3 @@ class NonLotteryMember(ValidationError):
 
 class WalletLotteryFreeze(ValidationError):
     pass
-

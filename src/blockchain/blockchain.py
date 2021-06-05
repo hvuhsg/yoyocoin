@@ -21,16 +21,27 @@ class Blockchain:
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
         self.add_block(genesis_block)
 
-    def create_genesis(self, developer_pub_address, developer_pri_key, developer_pri_address, initial_coins: int):
+    def create_genesis(
+        self,
+        developer_pub_address,
+        developer_pri_key,
+        developer_pri_address,
+        initial_coins: int,
+    ):
         create_coins_transaction = Transaction(
-            sender='0',
+            sender="0",
             recipient=developer_pub_address,
             amount=initial_coins,
         )
         signature = create_coins_transaction.sign(developer_pri_key)
         create_coins_transaction.signature = signature
         transactions = [create_coins_transaction]
-        genesis_block = Block(index=0, previous_hash='0', transactions=transactions, forger=developer_pub_address)
+        genesis_block = Block(
+            index=0,
+            previous_hash="0",
+            transactions=transactions,
+            forger=developer_pub_address,
+        )
         genesis_block.create_signature(developer_pri_address)
         self.add_block(genesis_block)
 
@@ -48,7 +59,7 @@ class Blockchain:
             # Accepts an URL without scheme like '192.168.0.5:5000'.
             self.nodes.add(parsed_url.path)
         else:
-            raise ValueError('Invalid URL')
+            raise ValueError("Invalid URL")
 
     @staticmethod
     def valid_chain(chain):
@@ -64,12 +75,12 @@ class Blockchain:
 
         while current_index < len(chain):
             block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
+            print(f"{last_block}")
+            print(f"{block}")
             print("\n-----------\n")
             # Check that the hash of the block is correct
             last_block_hash = last_block.hash
-            if block['previous_hash'] != last_block_hash:
+            if block["previous_hash"] != last_block_hash:
                 return False
             try:
                 block.validate()
@@ -99,13 +110,13 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
+            response = requests.get(f"http://{node}/chain")
 
             if response.status_code == 200:
-                response_score = response.json()['score']
+                response_score = response.json()["score"]
                 if response_score < max_score:
                     continue
-                chain = response.json()['chain']
+                chain = response.json()["chain"]
                 if not self.valid_chain(chain):
                     continue  # decrease node integrity score
                 actual_score = self.chain_score(chain)
@@ -150,7 +161,9 @@ class Blockchain:
         self.chain.append(block)
         self.state.add_block(block)
 
-    def new_transaction(self, sender, recipient, amount, fee=1, sender_private_addr=None, signature=None):
+    def new_transaction(
+        self, sender, recipient, amount, fee=1, sender_private_addr=None, signature=None
+    ):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -165,7 +178,13 @@ class Blockchain:
         """
         if not (sender_private_addr or signature):
             raise ValueError("required signature or private address")
-        new_transaction = Transaction(sender=sender, recipient=recipient, amount=amount, fee=fee, signature=signature)
+        new_transaction = Transaction(
+            sender=sender,
+            recipient=recipient,
+            amount=amount,
+            fee=fee,
+            signature=signature,
+        )
         if sender_private_addr is not None:
             new_transaction.create_signature(sender_private_addr)
         new_transaction.validate(blockchain_state=self.state)

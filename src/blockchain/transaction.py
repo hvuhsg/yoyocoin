@@ -8,9 +8,11 @@ from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonc
 
 
 class Transaction:
-    def __init__(self, sender, recipient, amount, fee=None, nonce=None, signature=None, **kwargs):
+    def __init__(
+        self, sender, recipient, amount, fee=None, nonce=None, signature=None, **kwargs
+    ):
         if nonce is None:
-            nonce = random.randrange(-1*(2**60), 2**60)
+            nonce = random.randrange(-1 * (2 ** 60), 2 ** 60)
         if fee is None:
             fee = 1
         self.sender = sender
@@ -25,13 +27,15 @@ class Transaction:
         return {
             **raw_transaction,
             "hash": self.hash(),
-            "signature": self.base64_signature
+            "signature": self.base64_signature,
         }
 
     def is_signature_verified(self):
         verification_key = self.sender_pub_key
         try:
-            return verification_key.verify(signature=self.signature, data=self.hash().encode())
+            return verification_key.verify(
+                signature=self.signature, data=self.hash().encode()
+            )
         except ecdsa.BadSignatureError:
             return False
 
@@ -44,7 +48,7 @@ class Transaction:
         private_key_string = b64decode(private_key.encode())
         private_key = ecdsa.SigningKey.from_string(private_key_string)
         if self.sender_pub_key != private_key.get_verifying_key():
-            raise ValueError('SigningKey is not the sender')
+            raise ValueError("SigningKey is not the sender")
         self.signature = self.sign(private_key)
 
     def sign(self, private_key: ecdsa.SigningKey):
@@ -68,13 +72,13 @@ class Transaction:
         except ecdsa.MalformedPointError:
             raise ValidationError("invalid sender public key")
         sender_wallet = blockchain_state.wallets.get(self.sender, None)
-        if sender_wallet is None or sender_wallet['balance'] < (self.amount + self.fee):
+        if sender_wallet is None or sender_wallet["balance"] < (self.amount + self.fee):
             raise InsufficientBalanceError()
         if type(self.amount) != int or self.amount <= 0:
             raise ValidationError("amount must be integer grater then 0")
         if type(self.fee) != int or self.fee <= 0:
             raise ValidationError("fee must be integer grater then 0")
-        if self.nonce in sender_wallet['used_nonce']:
+        if self.nonce in sender_wallet["used_nonce"]:
             raise DuplicateNonce()
         if not self.is_signature_verified():
             raise ValidationError("transaction signature is not valid")
@@ -90,7 +94,9 @@ class Transaction:
 
     def hash(self):
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
-        transaction_string = json.dumps(self._raw_transaction(), sort_keys=True).encode()
+        transaction_string = json.dumps(
+            self._raw_transaction(), sort_keys=True
+        ).encode()
         return hashlib.sha256(transaction_string).hexdigest()
 
     @property
@@ -106,4 +112,6 @@ class Transaction:
     @classmethod
     def from_dict(cls, sender, recipient, signature, **kwargs):
         signature = b64decode(signature.encode())
-        return Transaction(sender=sender, recipient=recipient, signature=signature, **kwargs)
+        return Transaction(
+            sender=sender, recipient=recipient, signature=signature, **kwargs
+        )

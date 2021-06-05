@@ -13,14 +13,14 @@ from .exceptions import ValidationError, NonLotteryMember, WalletLotteryFreeze
 
 class Block:
     def __init__(
-            self,
-            index,
-            previous_hash,
-            timestamp=None,
-            forger=None,
-            transactions: List[Transaction] = None,
-            signature=None,
-            **kwargs
+        self,
+        index,
+        previous_hash,
+        timestamp=None,
+        forger=None,
+        transactions: List[Transaction] = None,
+        signature=None,
+        **kwargs
     ):
         """
         Create block
@@ -47,11 +47,13 @@ class Block:
 
     def _raw_data(self):
         return {
-            'index': self.index,
-            'timestamp': self.timestamp,
-            'transactions': [transaction.to_dict() for transaction in self.transactions],
-            'previous_hash': self.previous_hash,
-            'forger': self.forger,
+            "index": self.index,
+            "timestamp": self.timestamp,
+            "transactions": [
+                transaction.to_dict() for transaction in self.transactions
+            ],
+            "previous_hash": self.previous_hash,
+            "forger": self.forger,
         }
 
     @property
@@ -108,8 +110,8 @@ class Block:
     def to_dict(self):
         return {
             **self._raw_data(),
-            'hash': self.hash(),
-            'signature': b64encode(self.signature).decode(),
+            "hash": self.hash(),
+            "signature": b64encode(self.signature).decode(),
         }
 
     def validate(self, blockchain_state):
@@ -132,12 +134,14 @@ class Block:
         if self.previous_hash != blockchain_state.last_block_hash:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
-        if forger_wallet is None or forger_wallet['balance'] < 100:
+        if forger_wallet is None or forger_wallet["balance"] < 100:
             raise NonLotteryMember()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:
-            transaction.validate(blockchain_state=blockchain_state)  # raises ValidationError
+            transaction.validate(
+                blockchain_state=blockchain_state
+            )  # raises ValidationError
         # TODO: Add timestamp validation
 
     @classmethod

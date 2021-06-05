@@ -25,4 +25,3 @@ class Storage:
 
     def write(self, key, value):
         return NotImplemented
-

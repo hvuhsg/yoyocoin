@@ -6,9 +6,15 @@ from random import randrange
 
 class NodeTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.node1 = BlockchainNode(None, None, host="127.0.0.1", port=randrange(1024, 65000), debug=True)
-        self.node2 = BlockchainNode(None, None, host="127.0.0.2", port=randrange(1024, 65000), debug=True)
-        self.node3 = BlockchainNode(None, None, host="127.0.0.3", port=randrange(1024, 65000), debug=True)
+        self.node1 = BlockchainNode(
+            None, None, host="127.0.0.1", port=randrange(1024, 65000), debug=True
+        )
+        self.node2 = BlockchainNode(
+            None, None, host="127.0.0.2", port=randrange(1024, 65000), debug=True
+        )
+        self.node3 = BlockchainNode(
+            None, None, host="127.0.0.3", port=randrange(1024, 65000), debug=True
+        )
         self.node1.start()
         self.node2.start()
         self.node3.start()

@@ -7,7 +7,7 @@ from .exceptions import (
     InsufficientBalanceError,
     WalletLotteryFreeze,
     DuplicateNonce,
-    NonLotteryMember
+    NonLotteryMember,
 )
 
 __all__ = [
