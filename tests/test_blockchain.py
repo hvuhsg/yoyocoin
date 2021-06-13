@@ -20,6 +20,7 @@ class BlockchainTestCase(TestCase):
             "pri_key": private_key,
             "pub_addr": public_address,
             "pri_addr": private_address,
+            "nonce_counter": 0
         }
 
     def setUp(self):
@@ -46,10 +47,9 @@ class BlockchainTestCase(TestCase):
         for wallet in wallets:
             recipient_wallet = wallet
             self.create_transaction(
-                sender=self.developer_wallet["pub_addr"],
-                recipient=recipient_wallet["pub_addr"],
+                sender=self.developer_wallet,
+                recipient=recipient_wallet,
                 amount=300,
-                sender_private_addr=self.developer_wallet["pri_addr"],
             )
         self.create_block(
             forger=self.developer_wallet["pub_addr"],
@@ -60,10 +60,9 @@ class BlockchainTestCase(TestCase):
                 sender_wallet = wallets[randint(0, len(wallets) - 1)]
                 recipient_wallet = wallets[randint(0, len(wallets) - 1)]
                 self.create_transaction(
-                    sender=sender_wallet["pub_addr"],
-                    recipient=recipient_wallet["pub_addr"],
+                    sender=sender_wallet,
+                    recipient=recipient_wallet,
                     amount=randint(1, 2),
-                    sender_private_addr=sender_wallet["pri_addr"],
                 )
             self.create_block(
                 forger=self.developer_wallet["pub_addr"],
@@ -88,21 +87,23 @@ class BlockchainTestCase(TestCase):
         recipient=None,
         amount=1,
         fee=1,
-        sender_private_addr=None,
+        sender_private_addr=None
     ):
         if sender is None:
-            sender = self.wallet_a["pub_addr"]
+            sender = self.wallet_a
         if recipient is None:
-            recipient = self.wallet_b["pub_addr"]
+            recipient = self.wallet_b
         if sender_private_addr is None:
-            sender_private_addr = self.wallet_a["pri_addr"]
+            sender_private_addr = sender["pri_addr"]
         self.blockchain.new_transaction(
-            sender=sender,
-            recipient=recipient,
+            sender=sender["pub_addr"],
+            recipient=recipient["pub_addr"],
             amount=amount,
             fee=fee,
+            nonce=sender["nonce_counter"],
             sender_private_addr=sender_private_addr,
         )
+        sender["nonce_counter"] += 1
 
 
 class TestRegisterNodes(BlockchainTestCase):
@@ -262,10 +263,9 @@ class TestInvalidTransactions(BlockchainTestCase):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=new_empty_wallet["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=new_empty_wallet,
+            recipient=self.wallet_a,
             amount=1,
-            sender_private_addr=new_empty_wallet["pri_addr"],
         )
 
     def test_send_more_then_balance(self):
@@ -273,47 +273,42 @@ class TestInvalidTransactions(BlockchainTestCase):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=new_empty_wallet["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=new_empty_wallet,
+            recipient=self.wallet_a,
             amount=self.max_coins + 1,
-            sender_private_addr=new_empty_wallet["pri_addr"],
         )
 
     def test_invalid_amount(self):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=self.wallet_b["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=self.wallet_b,
+            recipient=self.wallet_a,
             amount=-1,
-            sender_private_addr=self.wallet_b["pri_addr"],
         )
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=self.wallet_b["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=self.wallet_b,
+            recipient=self.wallet_a,
             amount=0,
-            sender_private_addr=self.wallet_b["pri_addr"],
         )
 
     def test_invalid_fee(self):
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=self.wallet_b["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=self.wallet_b,
+            recipient=self.wallet_a,
             amount=1,
             fee=-1,
-            sender_private_addr=self.wallet_b["pri_addr"],
         )
 
         self.assertRaises(
             ValidationError,
             self.create_transaction,
-            sender=self.wallet_b["pub_addr"],
-            recipient=self.wallet_a["pub_addr"],
+            sender=self.wallet_b,
+            recipient=self.wallet_a,
             amount=1,
             fee=0,
-            sender_private_addr=self.wallet_b["pri_addr"],
         )

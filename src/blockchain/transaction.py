@@ -9,10 +9,8 @@ from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonc
 
 class Transaction:
     def __init__(
-        self, sender, recipient, amount, fee=None, nonce=None, signature=None, **kwargs
+        self, sender, recipient, amount, nonce: int, fee=None, signature=None, **kwargs
     ):
-        if nonce is None:
-            nonce = random.randrange(-1 * (2 ** 60), 2 ** 60)
         if fee is None:
             fee = 1
         self.sender = sender
@@ -78,7 +76,7 @@ class Transaction:
             raise ValidationError("amount must be integer grater then 0")
         if type(self.fee) != int or self.fee <= 0:
             raise ValidationError("fee must be integer grater then 0")
-        if self.nonce in sender_wallet["used_nonce"]:
+        if self.nonce < sender_wallet["nonce_counter"]:
             raise DuplicateNonce()
         if not self.is_signature_verified():
             raise ValidationError("transaction signature is not valid")
