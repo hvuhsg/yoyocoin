@@ -3,7 +3,12 @@ from hashlib import sha256
 from random import choices, seed
 
 from .block import Block
-from .constents import MAX_BLOCKS_FOR_SCORE, MAX_BALANCE_FOR_SCORE, LOTTERY_PRIZES, LOTTERY_WEIGHTS
+from .constents import (
+    MAX_BLOCKS_FOR_SCORE,
+    MAX_BALANCE_FOR_SCORE,
+    LOTTERY_PRIZES,
+    LOTTERY_WEIGHTS,
+)
 
 
 class BlockchainState:
@@ -16,7 +21,12 @@ class BlockchainState:
         self.last_block = None  # type: Block
 
     def _new_wallet_data(self, wallet_address):
-        return {"balance": 0, "nonce_counter": 0, "last_transaction": 0, "address": wallet_address}
+        return {
+            "balance": 0,
+            "nonce_counter": 0,
+            "last_transaction": 0,
+            "address": wallet_address,
+        }
 
     def _get_wallet(self, wallet_address):
         wallet = self.wallets.get(wallet_address, None)
@@ -27,7 +37,9 @@ class BlockchainState:
 
     def _calculate_lottery_block_bonus(self, wallet_address: str):
         current_block_index = self.length
-        lottery_hash = sha256(f"{current_block_index}{self.last_block_hash}{wallet_address}".encode())
+        lottery_hash = sha256(
+            f"{current_block_index}{self.last_block_hash}{wallet_address}".encode()
+        )
         lottery_number = int.from_bytes(lottery_hash.digest(), "big")
         seed(lottery_number)
         lottery_multiplier = choices(LOTTERY_PRIZES, LOTTERY_WEIGHTS)[0]

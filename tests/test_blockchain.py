@@ -20,7 +20,7 @@ class BlockchainTestCase(TestCase):
             "pri_key": private_key,
             "pub_addr": public_address,
             "pri_addr": private_address,
-            "nonce_counter": 0
+            "nonce_counter": 0,
         }
 
     def setUp(self):
@@ -82,12 +82,7 @@ class BlockchainTestCase(TestCase):
         self.blockchain.new_block(forger, forger_private_addr)
 
     def create_transaction(
-        self,
-        sender=None,
-        recipient=None,
-        amount=1,
-        fee=1,
-        sender_private_addr=None
+        self, sender=None, recipient=None, amount=1, fee=1, sender_private_addr=None
     ):
         if sender is None:
             sender = self.wallet_a

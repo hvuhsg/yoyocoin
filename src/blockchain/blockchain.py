@@ -29,10 +29,7 @@ class Blockchain:
         initial_coins: int,
     ):
         create_coins_transaction = Transaction(
-            sender="0",
-            recipient=developer_pub_address,
-            amount=initial_coins,
-            nonce=0
+            sender="0", recipient=developer_pub_address, amount=initial_coins, nonce=0
         )
         signature = create_coins_transaction.sign(developer_pri_key)
         create_coins_transaction.signature = signature
@@ -163,7 +160,14 @@ class Blockchain:
         self.state.add_block(block)
 
     def new_transaction(
-        self, sender, recipient, amount, nonce: int, fee=1, sender_private_addr=None, signature=None
+        self,
+        sender,
+        recipient,
+        amount,
+        nonce: int,
+        fee=1,
+        sender_private_addr=None,
+        signature=None,
     ):
         """
         Creates a new transaction to go into the next mined Block
