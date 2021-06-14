@@ -86,6 +86,7 @@ class Message:
                 "signature": self.signature,
                 "route": self.route.value,
                 "sender_wallet_address": self.from_wallet_address,
+                "unsupported": self.unsupported,
             },
         }
 
