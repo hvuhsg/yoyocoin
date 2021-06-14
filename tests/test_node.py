@@ -1,7 +1,8 @@
 import unittest
 from time import sleep
-from src.node import BlockchainNode
 from random import randrange
+
+from src.node import BlockchainNode, Message
 
 
 class NodeTestCase(unittest.TestCase):
@@ -39,7 +40,8 @@ class TestDataTransfer(NodeTestCase):
     def test_one_way_data_transfer(self):
         self.one_way_connection(self.node1, self.node2)
         data = {"test": True}
-        self.node1.send_to_peers(data)
+        message = Message.test_message(data, from_wallet_address=None)
+        self.node1.send(message)
 
         sleep(0.5)
         assert self.node2.get_last_message().payload == data
@@ -50,19 +52,21 @@ class TestBroadcast(NodeTestCase):
         self.one_way_connection(self.node1, self.node2)
         self.one_way_connection(self.node2, self.node3)
 
-        message = {"test": "broadcast test"}
-        self.node1.send_broadcast(message)
+        data = {"test": "broadcast test"}
+        message = Message.test_message(data, from_wallet_address=None)
+        self.node1.send(message)
 
         sleep(0.5)
-        assert self.node3.get_last_message().payload == message
+        assert self.node3.get_last_message().payload == data
 
     def test_circular_broadcast(self):
         self.one_way_connection(self.node1, self.node2)
         self.one_way_connection(self.node2, self.node3)
         self.one_way_connection(self.node3, self.node2)
 
-        message = {"test": "broadcast test 2"}
-        self.node1.send_broadcast(message)
+        data = {"test": "broadcast test 2"}
+        message = Message.test_message(data, from_wallet_address=None)
+        self.node1.send(message)
 
         sleep(0.5)
-        assert self.node3.get_last_message().payload == message
+        assert self.node3.get_last_message().payload == data
