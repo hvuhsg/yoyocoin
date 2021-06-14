@@ -76,8 +76,6 @@ class Transaction:
             raise ValidationError("amount must be integer grater then 0")
         if type(self.fee) != int or self.fee <= 0:
             raise ValidationError("fee must be integer grater then 0")
-        if self.nonce < sender_wallet["nonce_counter"]:
-            raise DuplicateNonce()
         if not self.is_signature_verified():
             raise ValidationError("transaction signature is not valid")
 

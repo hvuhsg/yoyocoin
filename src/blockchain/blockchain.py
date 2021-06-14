@@ -145,7 +145,7 @@ class Blockchain:
             index = len(self.chain)
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
-        new_block.transactions = self.current_transactions
+        new_block.transactions = sorted(self.current_transactions, key=lambda t: t.nonce)
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
 
