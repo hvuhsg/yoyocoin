@@ -6,6 +6,8 @@ from .block import Block
 from .constents import (
     MAX_BLOCKS_FOR_SCORE,
     MAX_BALANCE_FOR_SCORE,
+    BLOCKS_CURVE_NUMBER,
+    MIN_SCORE,
     LOTTERY_PRIZES,
     LOTTERY_WEIGHTS,
 )
@@ -54,7 +56,7 @@ class BlockchainState:
         )
         lottery_blocks = self._calculate_lottery_block_bonus(forger_wallet["address"])
         blocks_number += lottery_blocks
-        multiplier = (blocks_number ** math.e + 0.1) / (111 ** math.e)
+        multiplier = (blocks_number ** math.e + MIN_SCORE) / (BLOCKS_CURVE_NUMBER ** math.e)
         wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
         score = wallet_balance * multiplier
         return score
