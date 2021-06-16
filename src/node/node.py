@@ -1,7 +1,6 @@
 from p2pnetwork.node import Node
 
-from .message import Message, MessageType, Route
-from .constants import MAX_TTL
+from .message import Message, Route
 
 
 class BlockchainNode(Node):

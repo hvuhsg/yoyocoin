@@ -1,7 +1,6 @@
 from enum import Enum
 from hashlib import sha256
 from json import dumps
-from base64 import b64decode
 
 from .constants import MAX_TTL
 
@@ -33,25 +32,30 @@ class Message:
         message_type: MessageType,
         ttl: int = 0,
         signature: str = None,
-        from_wallet_address: str = None,
+        node_address: str = None,
         **kwargs
     ):
         if type(message_type) is int:
             message_type = MessageType(message_type)
         if type(route) is int:
             route = Route(route)
-        self.payload = payload
-        self.message_type = message_type
-        self.ttl = ttl
+
+        self.node_address = node_address
         self.signature = signature
+
+        self.ttl = ttl
+        self.message_type = message_type
         self.route = route
-        self.from_wallet_address = from_wallet_address
+
+        self.payload = payload
         self.valid = True
         self.unsupported = kwargs
+
         self.process()
 
     def process(self):
-        self.ttl -= 1
+        if self.message_type == MessageType.BROADCAST:
+            self.ttl -= 1
         if not self.validate():
             self.valid = False
 
@@ -61,18 +65,17 @@ class Message:
         return sha256(payload_json.encode()).hexdigest()
 
     def broadcast_forward(self):
-        return self.is_alive() and self.message_type == MessageType.BROADCAST
+        return self.valid and self.message_type == MessageType.BROADCAST
 
     def validate(self):
         # TODO: validate ttl max size and more
         if not self.validate_signature():
             return False
-        if self.ttl > MAX_TTL:
+        if self.message_type == MessageType.BROADCAST and self.ttl > MAX_TTL:
+            return False
+        if self.message_type == MessageType.BROADCAST and self.ttl < 0:
             return False
         return True
-
-    def is_alive(self):
-        return self.ttl > 0 and self.valid
 
     def validate_signature(self) -> bool:
         return True  # TODO: validate signature
@@ -81,47 +84,20 @@ class Message:
         return {
             "payload": self.payload,
             "metadata": {
+                "node_address": self.node_address,
+                "signature": self.signature,
                 "ttl": self.ttl,
                 "message_type": self.message_type.value,
-                "signature": self.signature,
                 "route": self.route.value,
-                "sender_wallet_address": self.from_wallet_address,
                 "unsupported": self.unsupported,
             },
         }
+
+    def sign(self, private_address):
+        pass
 
     @classmethod
     def from_dict(cls, data):
         metadata = data["metadata"]
         payload = data["payload"]
         return cls(payload, **metadata)
-
-    @classmethod
-    def test_message(cls, data: dict, from_wallet_address):
-        return cls(
-            payload=data,
-            route=Route.Test,
-            message_type=MessageType.BROADCAST,
-            ttl=MAX_TTL,
-            from_wallet_address=from_wallet_address,
-        )
-
-    @classmethod
-    def new_transaction(cls, data: dict, from_wallet_address):
-        return cls(
-            payload=data,
-            route=Route.NewTX,
-            message_type=MessageType.BROADCAST,
-            ttl=MAX_TTL,
-            from_wallet_address=from_wallet_address,
-        )
-
-    @classmethod
-    def new_block(cls, data: dict, from_wallet_address):
-        return cls(
-            payload=data,
-            route=Route.NewBlock,
-            message_type=MessageType.BROADCAST,
-            ttl=MAX_TTL,
-            from_wallet_address=from_wallet_address,
-        )

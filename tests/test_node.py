@@ -2,11 +2,12 @@ import unittest
 from time import sleep
 from random import randrange
 
-from src.node import BlockchainNode, Message
+from src.node import BlockchainNode, Message, MessageFactory
 
 
 class NodeTestCase(unittest.TestCase):
     def setUp(self) -> None:
+        self.message_factory = MessageFactory("public", "private")
         self.node1 = BlockchainNode(
             None, None, host="127.0.0.1", port=randrange(1024, 65000), debug=True
         )
@@ -40,7 +41,7 @@ class TestDataTransfer(NodeTestCase):
     def test_one_way_data_transfer(self):
         self.one_way_connection(self.node1, self.node2)
         data = {"test": True}
-        message = Message.test_message(data, from_wallet_address=None)
+        message = self.message_factory.test_direct(data)
         self.node1.send(message)
 
         sleep(0.5)
@@ -53,7 +54,7 @@ class TestBroadcast(NodeTestCase):
         self.one_way_connection(self.node2, self.node3)
 
         data = {"test": "broadcast test"}
-        message = Message.test_message(data, from_wallet_address=None)
+        message = self.message_factory.test_broadcast(data)
         self.node1.send(message)
 
         sleep(0.5)
@@ -65,7 +66,7 @@ class TestBroadcast(NodeTestCase):
         self.one_way_connection(self.node3, self.node2)
 
         data = {"test": "broadcast test 2"}
-        message = Message.test_message(data, from_wallet_address=None)
+        message = self.message_factory.test_broadcast(data)
         self.node1.send(message)
 
         sleep(0.5)
