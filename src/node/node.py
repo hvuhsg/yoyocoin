@@ -56,10 +56,7 @@ class BlockchainNode(Node):
             self._last_message = message
 
     def node_message(self, node, data):
-        print("message from", node)
         message = Message.from_dict(data)
-        print(message.broadcast_forward())
-        print(not self.is_broadcast_relay(message))
         if message.broadcast_forward() and not self.is_broadcast_relay(message):
             self.save_for_relay_detection(message)
             self.send_to_nodes(message.to_dict(), exclude=[node])
