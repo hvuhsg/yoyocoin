@@ -11,11 +11,13 @@ from .blockchain_state import BlockchainState
 
 
 class Blockchain:
-    def __init__(self):
+    def __init__(self, pruned=True):
         self.current_transactions: List[Transaction] = []
         self.chain: List[Block] = []
+        self.chain_length = 0
         self.nodes = set()
         self.state = BlockchainState()
+        self.pruned = pruned
 
     def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
@@ -142,7 +144,8 @@ class Blockchain:
         """
         if previous_hash is None:
             previous_hash = self.last_block.hash()
-            index = len(self.chain)
+        if index is None:
+            index = self.chain_length
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
         new_block.transactions = sorted(self.current_transactions, key=lambda t: t.nonce)
@@ -156,7 +159,11 @@ class Blockchain:
         return new_block
 
     def add_block(self, block):
-        self.chain.append(block)
+        if self.pruned:
+            self.chain = [block]
+        else:
+            self.chain.append(block)
+        self.chain_length += 1
         self.state.add_block(block)
 
     def new_transaction(

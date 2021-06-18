@@ -24,7 +24,7 @@ class BlockchainTestCase(TestCase):
         }
 
     def setUp(self):
-        self.blockchain = Blockchain()
+        self.blockchain = Blockchain(pruned=False)
         self.blockchain.default_genesis()
 
         self.wallet_a = self.create_wallet()
@@ -137,7 +137,8 @@ class TestBlocksAndTransactions(BlockchainTestCase):
         # The genesis block is create at initialization, so the length should be 2
         assert latest_block["index"] == self.initial_blocks_number + 1
         assert latest_block["timestamp"] is not None
-        assert latest_block["previous_hash"] == self.blockchain.chain[-2].hash()
+        if not self.blockchain.pruned and self.blockchain.chain_length > 1:
+            assert latest_block["previous_hash"] == self.blockchain.chain[-2].hash()
 
     def test_create_transaction(self):
         self.create_transaction()
