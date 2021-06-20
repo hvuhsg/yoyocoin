@@ -79,7 +79,8 @@ class BlockchainTestCase(TestCase):
             forger = self.developer_wallet["pub_addr"]
         if forger_private_addr is None:
             forger_private_addr = self.developer_wallet["pri_addr"]
-        self.blockchain.new_block(forger, forger_private_addr)
+        block = self.blockchain.new_block(forger, forger_private_addr)
+        self.blockchain.add_block(block)
 
     def create_transaction(
         self, sender=None, recipient=None, amount=1, fee=1, sender_private_addr=None

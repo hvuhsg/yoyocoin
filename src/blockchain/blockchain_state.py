@@ -1,6 +1,6 @@
 import math
 from hashlib import sha256
-from random import choices, seed
+from random import choices, seed, random
 
 from .block import Block
 from .constents import (
@@ -15,13 +15,14 @@ from .exceptions import DuplicateNonce
 
 
 class BlockchainState:
-    def __init__(self):
+    def __init__(self, is_test_net=False):
         self.wallets = {}  # type: dict
         self.total_coins = 0  # type: int
         self.score = 0  # type: float
         self.length = 0  # type: int
         self.last_block_hash = None  # type: str
         self.last_block = None  # type: Block
+        self.is_test_net = is_test_net
 
     def _new_wallet_data(self, wallet_address):
         return {
@@ -48,6 +49,10 @@ class BlockchainState:
         lottery_multiplier = choices(LOTTERY_PRIZES, LOTTERY_WEIGHTS)[0]
         return lottery_multiplier
 
+    def _tie_brake(self, wallet_address: str) -> float:
+        seed(f"{wallet_address}{self.last_block_hash}")
+        return random()
+
     def _calculate_forger_score(self, forger_wallet):
         current_block_index = self.length
         blocks_number = min(
@@ -59,10 +64,16 @@ class BlockchainState:
         multiplier = (blocks_number ** math.e + MIN_SCORE) / (BLOCKS_CURVE_NUMBER ** math.e)
         wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
         score = wallet_balance * multiplier
-        return score
+        tie_brake_number = self._tie_brake(forger_wallet["address"])
+        return score+MIN_SCORE + tie_brake_number
+
+    def block_score(self, block: Block):
+        forger_wallet_address = block.forger
+        forger_wallet = self._get_wallet(forger_wallet_address)
+        return self._calculate_forger_score(forger_wallet)
 
     def add_block(self, block: Block):
-        block.validate(blockchain_state=self)
+        block.validate(blockchain_state=self, is_test_net=self.is_test_net)
         fees = 0
         for transaction in block.transactions:
             if block.index == 0:

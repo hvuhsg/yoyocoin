@@ -114,7 +114,7 @@ class Block:
             "signature": b64encode(self.signature).decode(),
         }
 
-    def validate(self, blockchain_state):
+    def validate(self, blockchain_state, is_test_net=False):
         """
         Validate block
         1. check block index (is the next block in the blockchain state)
@@ -135,22 +135,26 @@ class Block:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet["balance"] < 100:
-            raise NonLotteryMember()
+            if not is_test_net:
+                raise NonLotteryMember()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:
             transaction.validate(
-                blockchain_state=blockchain_state
+                blockchain_state=blockchain_state,
+                is_test_net=is_test_net
             )  # raises ValidationError
         # TODO: Add timestamp validation
 
     @classmethod
-    def from_dict(cls, index: int, previous_hash, forger, transactions: dict, **kwargs):
+    def from_dict(cls, index: int, previous_hash, forger, transactions: dict, signature: str, **kwargs):
         transactions = list(map(lambda t: Transaction.from_dict(**t), transactions))
+        signature = b64decode(signature.encode())
         return cls(
             index=index,
             previous_hash=previous_hash,
             forger=forger,
             transactions=transactions,
+            signature=signature,
             **kwargs
         )

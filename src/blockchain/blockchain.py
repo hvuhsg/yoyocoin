@@ -11,13 +11,16 @@ from .blockchain_state import BlockchainState
 
 
 class Blockchain:
-    def __init__(self, pruned=True):
+    def __init__(self, pruned=True, is_test_net=False):
         self.current_transactions: List[Transaction] = []
         self.chain: List[Block] = []
         self.chain_length = 0
         self.nodes = set()
-        self.state = BlockchainState()
+        self.state = BlockchainState(is_test_net=is_test_net)
         self.pruned = pruned
+        self.is_test_net = is_test_net
+        if self.is_test_net:
+            self.default_genesis()
 
     def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
@@ -155,7 +158,6 @@ class Blockchain:
         # Reset the current list of transactions
         self.current_transactions = []
 
-        self.add_block(new_block)
         return new_block
 
     def add_block(self, block):
@@ -164,6 +166,11 @@ class Blockchain:
         else:
             self.chain.append(block)
         self.chain_length += 1
+        for tx in block.transactions:
+            try:
+                self.current_transactions.remove(tx)
+            except ValueError:
+                pass
         self.state.add_block(block)
 
     def new_transaction(
@@ -187,7 +194,7 @@ class Blockchain:
         :param recipient: recipient public key
         :param sender: sender public key
         :raise ValueError: when the signature doesn't match the transaction.
-        :return: The index of the Block that will hold this transaction
+        :return: The transaction object
         """
         if not (sender_private_addr or signature):
             raise ValueError("required signature or private address")
@@ -201,10 +208,10 @@ class Blockchain:
         )
         if sender_private_addr is not None:
             new_transaction.create_signature(sender_private_addr)
-        new_transaction.validate(blockchain_state=self.state)
+        new_transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
         self.current_transactions.append(new_transaction)
 
-        return self.last_block.index + 1
+        return new_transaction
 
     @property
     def last_block(self):

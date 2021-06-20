@@ -52,7 +52,7 @@ class Transaction:
     def sign(self, private_key: ecdsa.SigningKey):
         return private_key.sign(self.hash().encode())
 
-    def validate(self, blockchain_state):
+    def validate(self, blockchain_state, is_test_net=False):
         """
         Check validation of transaction
         1. check sender key (is valid ECDSA key)
@@ -71,7 +71,8 @@ class Transaction:
             raise ValidationError("invalid sender public key")
         sender_wallet = blockchain_state.wallets.get(self.sender, None)
         if sender_wallet is None or sender_wallet["balance"] < (self.amount + self.fee):
-            raise InsufficientBalanceError()
+            if not is_test_net:
+                raise InsufficientBalanceError()
         if type(self.amount) != int or self.amount <= 0:
             raise ValidationError("amount must be integer grater then 0")
         if type(self.fee) != int or self.fee <= 0:

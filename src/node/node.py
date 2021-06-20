@@ -14,7 +14,7 @@ class BlockchainNode(Node):
         message_memory_max_size=30,
     ):
         self.domains = []
-        self.peers_address = []
+        self.peers_address = [("127.0.0.1", 12345)]
         self.new_block_callback = new_block_callback
         self.new_transaction_callback = new_transaction_callback
         self._last_message = None
@@ -22,7 +22,7 @@ class BlockchainNode(Node):
         self._messages_hash_memory_max_size = message_memory_max_size
         super().__init__(host, port)
         self.debug = debug
-        print("Node", (host, port))
+        self.connect_to_network()
 
     def get_last_message(self) -> Message:
         return self._last_message
