@@ -4,7 +4,7 @@ PoS blockchain python (but a bit different)
 [![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin)  
 
 #### Explanation
-This coin will use PoS to determine witch wallet has won and can forge the next block (incentive: get the fee's)
+This coin will use PoS to determine witch wallet has won and can forge the next block (incentive: get the fee's, block creation is free...)
 
 ##### PoS mechanism
 **The wallet with the most score win and can forge the next block**,
@@ -13,16 +13,11 @@ every block have specific time frame for creation.
 
 ```python
     def _calculate_lottery_block_bonus(self, wallet_address: str):
-        current_block_index = self.length
-        lottery_hash = sha256(
-            f"{current_block_index}{self.last_block_hash}{wallet_address}".encode()
-        )
-        lottery_number = int.from_bytes(lottery_hash.digest(), "big")
-        seed(lottery_number)
+        seed(f"{wallet_address}{self.last_block_hash}")
         lottery_multiplier = choices(LOTTERY_PRIZES, LOTTERY_WEIGHTS)[0]
         return lottery_multiplier
 
-    def _tie_brake(self, wallet_address: str) -> float:
+    def _tie_break(self, wallet_address: str) -> float:
         seed(f"{wallet_address}{self.last_block_hash}")
         return random()
 
@@ -37,8 +32,9 @@ every block have specific time frame for creation.
         multiplier = (blocks_number ** math.e + MIN_SCORE) / (BLOCKS_CURVE_NUMBER ** math.e)
         wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
         score = wallet_balance * multiplier
-        tie_brake_number = self._tie_brake(forger_wallet["address"])
+        tie_brake_number = self._tie_break(forger_wallet["address"])
         return score+MIN_SCORE + tie_brake_number
+
 ```
 
 #### code parts
