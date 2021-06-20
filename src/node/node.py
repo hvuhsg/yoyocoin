@@ -65,4 +65,3 @@ class BlockchainNode(Node):
     def send(self, message: Message):
         data = message.to_dict()
         self.send_to_nodes(data)
-

@@ -141,13 +141,20 @@ class Block:
             raise ValidationError("invalid signature")
         for transaction in self.transactions:
             transaction.validate(
-                blockchain_state=blockchain_state,
-                is_test_net=is_test_net
+                blockchain_state=blockchain_state, is_test_net=is_test_net
             )  # raises ValidationError
         # TODO: Add timestamp validation
 
     @classmethod
-    def from_dict(cls, index: int, previous_hash, forger, transactions: dict, signature: str, **kwargs):
+    def from_dict(
+        cls,
+        index: int,
+        previous_hash,
+        forger,
+        transactions: dict,
+        signature: str,
+        **kwargs
+    ):
         transactions = list(map(lambda t: Transaction.from_dict(**t), transactions))
         signature = b64decode(signature.encode())
         return cls(

@@ -39,7 +39,7 @@ class MessageFactory:
             message_type=MessageType.BROADCAST if is_broadcast else MessageType.DIRECT,
             route=route,
             ttl=MAX_TTL if is_broadcast else None,
-            node_address=self.public_address
+            node_address=self.public_address,
         )
         m.sign(self.private_address)
         return m

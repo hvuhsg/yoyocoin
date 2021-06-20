@@ -32,7 +32,9 @@ class Manager:
             node_pri_address=self.private_address,
         )
 
-        self.public_address_recipient = b64encode(SigningKey.generate().get_verifying_key().to_string()).decode()
+        self.public_address_recipient = b64encode(
+            SigningKey.generate().get_verifying_key().to_string()
+        ).decode()
         # For testing , TODO: remove in prod
 
         self.best_block = None
@@ -103,6 +105,7 @@ class Manager:
         self.new_tx_every_x_seconds(15)
         self.new_block_every_x_seconds(20)
         sleep(200)
+
 
 if __name__ == "__main__":
     manager = Manager()

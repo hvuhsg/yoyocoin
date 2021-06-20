@@ -56,11 +56,13 @@ class BlockchainState:
         )
         lottery_blocks = self._calculate_lottery_block_bonus(forger_wallet["address"])
         blocks_number += lottery_blocks
-        multiplier = (blocks_number ** math.e + MIN_SCORE) / (BLOCKS_CURVE_NUMBER ** math.e)
+        multiplier = (blocks_number ** math.e + MIN_SCORE) / (
+            BLOCKS_CURVE_NUMBER ** math.e
+        )
         wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
         score = wallet_balance * multiplier
         tie_brake_number = self._tie_break(forger_wallet["address"])
-        return score+MIN_SCORE + tie_brake_number
+        return score + MIN_SCORE + tie_brake_number
 
     def block_score(self, block: Block):
         forger_wallet_address = block.forger

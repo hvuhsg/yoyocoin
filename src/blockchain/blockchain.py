@@ -151,7 +151,9 @@ class Blockchain:
             index = self.chain_length
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
-        new_block.transactions = sorted(self.current_transactions, key=lambda t: t.nonce)
+        new_block.transactions = sorted(
+            self.current_transactions, key=lambda t: t.nonce
+        )
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
 
@@ -208,7 +210,9 @@ class Blockchain:
         )
         if sender_private_addr is not None:
             new_transaction.create_signature(sender_private_addr)
-        new_transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
+        new_transaction.validate(
+            blockchain_state=self.state, is_test_net=self.is_test_net
+        )
         self.current_transactions.append(new_transaction)
 
         return new_transaction
