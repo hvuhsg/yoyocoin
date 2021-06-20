@@ -1,8 +1,6 @@
 from typing import List
 from urllib.parse import urlparse
 
-import requests
-
 from .exceptions import ValidationError
 from .constents import GENESIS_BLOCK
 from .transaction import Transaction
@@ -48,22 +46,6 @@ class Blockchain:
         genesis_block.create_signature(developer_pri_address)
         self.add_block(genesis_block)
 
-    def register_node(self, address):
-        """
-        Add a new node to the list of nodes
-
-        :param address: Address of node. Eg. 'http://192.168.0.5:5000'
-        """
-
-        parsed_url = urlparse(address)
-        if parsed_url.netloc:
-            self.nodes.add(parsed_url.netloc)
-        elif parsed_url.path:
-            # Accepts an URL without scheme like '192.168.0.5:5000'.
-            self.nodes.add(parsed_url.path)
-        else:
-            raise ValueError("Invalid URL")
-
     @staticmethod
     def valid_chain(chain):
         """
@@ -104,38 +86,7 @@ class Blockchain:
 
         :return: True if our chain was replaced, False if not
         """
-
-        neighbours = self.nodes
-        new_chain = None
-
-        # We're only looking for chains with more score then ours
-        max_score = self.chain_score(self.chain)
-
-        # Grab and verify the chains from all the nodes in our network
-        for node in neighbours:
-            response = requests.get(f"http://{node}/chain")
-
-            if response.status_code == 200:
-                response_score = response.json()["score"]
-                if response_score < max_score:
-                    continue
-                chain = response.json()["chain"]
-                if not self.valid_chain(chain):
-                    continue  # decrease node integrity score
-                actual_score = self.chain_score(chain)
-                if actual_score != response_score:
-                    pass  # decrease node integrity score
-
-                # Check if the length is longer and the chain is valid
-                if actual_score > max_score:
-                    max_score = actual_score
-                    new_chain = chain
-
-        # Replace our chain if we discovered a new, valid chain with more score than ours
-        if new_chain:
-            self.chain = new_chain
-            return True
-        return False
+        pass
 
     def new_block(self, forger, forger_private_addr, previous_hash=None, index=None):
         """

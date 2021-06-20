@@ -1,4 +1,2 @@
-flask==1.0
-requests==2.20.0
 ecdsa==0.16.1
 p2pnetwork==1.0

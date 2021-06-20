@@ -102,30 +102,6 @@ class BlockchainTestCase(TestCase):
         sender["nonce_counter"] += 1
 
 
-class TestRegisterNodes(BlockchainTestCase):
-    def test_valid_nodes(self):
-        blockchain = Blockchain()
-
-        blockchain.register_node("http://192.168.0.1:5000")
-
-        self.assertIn("192.168.0.1:5000", blockchain.nodes)
-
-    def test_malformed_nodes(self):
-        blockchain = Blockchain()
-
-        blockchain.register_node("http//192.168.0.1:5000")
-
-        self.assertNotIn("192.168.0.1:5000", blockchain.nodes)
-
-    def test_idempotency(self):
-        blockchain = Blockchain()
-
-        blockchain.register_node("http://192.168.0.1:5000")
-        blockchain.register_node("http://192.168.0.1:5000")
-
-        assert len(blockchain.nodes) == 1
-
-
 class TestBlocksAndTransactions(BlockchainTestCase):
     def setUp(self):
         self.setup_blockchain_history()
