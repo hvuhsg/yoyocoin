@@ -17,11 +17,16 @@ from .exceptions import DuplicateNonce
 class BlockchainState:
     def __init__(self, is_test_net=False):
         self.wallets = {}  # type: dict
+
         self.total_coins = 0  # type: int
+
         self.score = 0  # type: float
         self.length = 0  # type: int
+        self.block_hashs = []  # type: list
+
         self.last_block_hash = None  # type: str
         self.last_block = None  # type: Block
+
         self.is_test_net = is_test_net
 
     def _new_wallet_data(self, wallet_address):
@@ -94,6 +99,7 @@ class BlockchainState:
         forger_wallet["last_transaction"] = block.index
         self.last_block = block
         self.last_block_hash = block.hash()
+        self.block_hashs.append(self.last_block_hash)
         self.length += 1
 
     def add_chain(self, chain):

@@ -8,6 +8,8 @@ class BlockchainNode(Node):
         self,
         new_block_callback,
         new_transaction_callback,
+        chain_score_request_callback,
+        chain_blocks_request_callback,
         host="0.0.0.0",
         port=2424,
         debug=False,
@@ -15,8 +17,12 @@ class BlockchainNode(Node):
     ):
         self.domains = []
         self.peers_address = [("127.0.0.1", 12345)]
+
+        self.chain_blocks_request_callback = chain_blocks_request_callback
+        self.chain_score_request_callback = chain_score_request_callback
         self.new_block_callback = new_block_callback
         self.new_transaction_callback = new_transaction_callback
+
         self._last_message = None
         self._messages_hash_memory = []
         self._messages_hash_memory_max_size = message_memory_max_size
@@ -46,11 +52,19 @@ class BlockchainNode(Node):
                 continue  # do not connect to you'r self
             self.connect_with_node(host=peer_host, port=peer_port)
 
-    def process_message(self, message: Message):
+    def process_message(self, message: Message, node):
+        response: Message = None
         if message.route == Route.NewBlock:
-            self.new_block_callback(message.payload)
+            response = self.new_block_callback(message.payload)
         elif message.route == Route.NewTX:
-            self.new_transaction_callback(message.payload)
+            response = self.new_transaction_callback(message.payload)
+        elif message.route == Route.ChainSummery:
+            response = self.chain_score_request_callback(message.payload, node)
+        elif message.route == Route.ChainHistory:
+            response = self.chain_blocks_request_callback(message.payload, node)
+
+        if response is not None:
+            self.send_to_node(node, response.to_dict())
 
         if self.debug:
             self._last_message = message
@@ -60,7 +74,7 @@ class BlockchainNode(Node):
         if message.broadcast_forward() and not self.is_broadcast_relay(message):
             self.save_for_relay_detection(message)
             self.send_to_nodes(message.to_dict(), exclude=[node])
-        self.process_message(message)
+        self.process_message(message, node)
 
     def send(self, message: Message):
         data = message.to_dict()

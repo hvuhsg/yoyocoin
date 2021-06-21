@@ -8,17 +8,12 @@ from base64 import b64encode
 from storage import Storage
 from node import BlockchainNode, MessageFactory
 from blockchain import Blockchain, Block, Transaction
+from protocol.protocol import Protocol
 
 
 class Manager:
     def __init__(self):
         self.storage = Storage(filename="json.db")
-        self.node = BlockchainNode(
-            new_block_callback=self.new_block_callback,
-            new_transaction_callback=self.new_transaction_callback,
-            host="127.0.0.1",
-            port=int(input("Enter port: ")),
-        )
         self.blockchain = Blockchain(pruned=False, is_test_net=True)
 
         self.private_key = SigningKey.generate()
@@ -37,25 +32,15 @@ class Manager:
         ).decode()
         # For testing , TODO: remove in prod
 
-        self.best_block = None
-        self.best_score = 0
-
-    def check_block_score(self, block):
-        block.validate(blockchain_state=self.blockchain.state, is_test_net=True)
-        block_score = self.blockchain.state.block_score(block)
-        if block_score > self.best_score:
-            print("new best block", block.hash())
-            self.best_block = block
-            self.best_score = block_score
-
-    def new_block_callback(self, block):
-        block = Block.from_dict(**block)
-        self.check_block_score(block)
-
-    def new_transaction_callback(self, transaction):
-        transaction = Transaction.from_dict(**transaction)
-        transaction.validate(blockchain_state=self.blockchain.state, is_test_net=True)
-        self.blockchain.current_transactions.append(transaction)
+        self.protocol = Protocol(self.blockchain)
+        self.node = BlockchainNode(
+            chain_score_request_callback=self.protocol.chain_info,
+            chain_blocks_request_callback=self.protocol.chain_blocks,
+            new_block_callback=self.protocol.new_block,
+            new_transaction_callback=self.protocol.new_transaction,
+            host="127.0.0.1",
+            port=int(input("Enter port: ")),
+        )
 
     def create_transaction(self, to=None, amount=5, fee=1):
         if to is None:
@@ -77,7 +62,7 @@ class Manager:
             forger=self.public_address,
             forger_private_addr=self.private_address,
         )
-        self.check_block_score(block)
+        self.protocol.check_block_score(block)
         message = self.message_factory.new_block(block.to_dict())
         self.node.send(message)
 
@@ -88,11 +73,7 @@ class Manager:
         self.create_transaction()
 
     def new_block_every_x_seconds(self, x: int):
-        if self.best_block is not None:
-            print("insert", self.best_block.hash())
-            self.blockchain.add_block(self.best_block)
-        self.best_block = None
-        self.best_score = 0
+        self.protocol.insert_new_blocks()
         sleep(10)
         t = Timer(x, self.new_block_every_x_seconds, [x])
         t.daemon = True

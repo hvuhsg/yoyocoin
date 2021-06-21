@@ -5,7 +5,12 @@ from json import dumps
 from .constants import MAX_TTL
 
 
-__all__ = ["MessageType", "Message", "Route"]
+__all__ = ["MessageType", "Message", "Route", "MessageDirection"]
+
+
+class MessageDirection(Enum):
+    REQUEST = 0
+    RESPONSE = 1
 
 
 class MessageType(Enum):
@@ -20,7 +25,8 @@ class Route(Enum):
     ForgeBlock = 3
     PeersList = 4
     ChainHistory = 5
-    Test = 6
+    ChainSummery = 6
+    Test = 7
     OTHER = 100
 
 
@@ -30,6 +36,7 @@ class Message:
         payload: dict,
         route: Route,
         message_type: MessageType,
+        message_direction: MessageDirection,
         ttl: int = 0,
         signature: str = None,
         node_address: str = None,
@@ -44,6 +51,7 @@ class Message:
         self.signature = signature
 
         self.ttl = ttl
+        self.message_direction = message_direction
         self.message_type = message_type
         self.route = route
 
@@ -88,6 +96,7 @@ class Message:
                 "signature": self.signature,
                 "ttl": self.ttl,
                 "message_type": self.message_type.value,
+                "message_direction": self.message_direction,
                 "route": self.route.value,
                 "unsupported": self.unsupported,
             },
