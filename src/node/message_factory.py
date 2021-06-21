@@ -35,6 +35,10 @@ class MessageFactory:
     def get_chain_history(self, data: dict):
         return self._new_message(data=data, is_broadcast=True, route=Route.ChainHistory, direction=MessageDirection.REQUEST)
 
+    def get_chain_info(self, data: dict):
+        return self._new_message(data=data, is_broadcast=True, route=Route.ChainSummery,
+                                 direction=MessageDirection.REQUEST)
+
     def route_response(self, data: dict, route: Route):
         return self._new_message(data, is_broadcast=False, route=route, direction=MessageDirection.RESPONSE)
 

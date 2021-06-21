@@ -130,7 +130,7 @@ class Block:
         if self.index == 0 and blockchain_state.length == 0:
             return  # TODO: check in production if hash if equal to hard coded hash
         if self.index != blockchain_state.length:
-            raise ValidationError("block index not sequential")
+            raise ValidationError(f"block index not sequential index: {self.index} chain: {blockchain_state.length}")
         if self.previous_hash != blockchain_state.last_block_hash:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)

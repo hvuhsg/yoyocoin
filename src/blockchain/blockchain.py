@@ -46,48 +46,6 @@ class Blockchain:
         genesis_block.create_signature(developer_pri_address)
         self.add_block(genesis_block)
 
-    @staticmethod
-    def valid_chain(chain):
-        """
-        Determine if a given blockchain is valid
-
-        :param chain: A blockchain
-        :return: True if valid, False if not
-        """
-
-        last_block = chain[0]
-        current_index = 1
-
-        while current_index < len(chain):
-            block = chain[current_index]
-            print(f"{last_block}")
-            print(f"{block}")
-            print("\n-----------\n")
-            # Check that the hash of the block is correct
-            last_block_hash = last_block.hash
-            if block["previous_hash"] != last_block_hash:
-                return False
-            try:
-                block.validate()
-            except ValidationError:
-                return False
-            last_block = block
-            current_index += 1
-        return True
-
-    @staticmethod
-    def chain_score(chain):
-        return 1  # TODO: create chain score calculation algorithm
-
-    def resolve_conflicts(self):
-        """
-        This is our consensus algorithm, it resolves conflicts
-        by replacing our chain with the chain with the most score on the network.
-
-        :return: True if our chain was replaced, False if not
-        """
-        pass
-
     def new_block(self, forger, forger_private_addr, previous_hash=None, index=None):
         """
         Create a new Block in the Blockchain
@@ -99,7 +57,7 @@ class Blockchain:
         if previous_hash is None:
             previous_hash = self.last_block.hash()
         if index is None:
-            index = self.chain_length
+            index = self.state.length
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
         new_block.transactions = sorted(

@@ -1,6 +1,6 @@
 from p2pnetwork.node import Node
 
-from .message import Message, Route
+from .message import Message, Route, MessageDirection
 
 
 class BlockchainNode(Node):
@@ -8,8 +8,10 @@ class BlockchainNode(Node):
         self,
         new_block_callback,
         new_transaction_callback,
-        chain_score_request_callback,
+        chain_info_request_callback,
         chain_blocks_request_callback,
+        chain_info_response_callback,
+        chain_blocks_response_callback,
         host="0.0.0.0",
         port=2424,
         debug=False,
@@ -18,8 +20,10 @@ class BlockchainNode(Node):
         self.domains = []
         self.peers_address = [("127.0.0.1", 12345)]
 
+        self.chain_info_response_callback = chain_info_response_callback
+        self.chain_blocks_response_callback = chain_blocks_response_callback
         self.chain_blocks_request_callback = chain_blocks_request_callback
-        self.chain_score_request_callback = chain_score_request_callback
+        self.chain_info_request_callback = chain_info_request_callback
         self.new_block_callback = new_block_callback
         self.new_transaction_callback = new_transaction_callback
 
@@ -55,13 +59,19 @@ class BlockchainNode(Node):
     def process_message(self, message: Message, node):
         response: Message = None
         if message.route == Route.NewBlock:
-            response = self.new_block_callback(message.payload)
+            response = self.new_block_callback(message)
         elif message.route == Route.NewTX:
-            response = self.new_transaction_callback(message.payload)
+            response = self.new_transaction_callback(message)
         elif message.route == Route.ChainSummery:
-            response = self.chain_score_request_callback(message.payload, node)
+            if message.message_direction == MessageDirection.REQUEST:
+                response = self.chain_info_request_callback(message)
+            else:
+                response = self.chain_info_response_callback(message)
         elif message.route == Route.ChainHistory:
-            response = self.chain_blocks_request_callback(message.payload, node)
+            if message.message_direction == MessageDirection.REQUEST:
+                response = self.chain_blocks_request_callback(message)
+            else:
+                response = self.chain_blocks_response_callback(message)
 
         if response is not None:
             self.send_to_node(node, response.to_dict())

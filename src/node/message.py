@@ -44,6 +44,8 @@ class Message:
     ):
         if type(message_type) is int:
             message_type = MessageType(message_type)
+        if type(message_direction) is int:
+            message_direction = MessageDirection(message_direction)
         if type(route) is int:
             route = Route(route)
 
@@ -96,7 +98,7 @@ class Message:
                 "signature": self.signature,
                 "ttl": self.ttl,
                 "message_type": self.message_type.value,
-                "message_direction": self.message_direction,
+                "message_direction": self.message_direction.value,
                 "route": self.route.value,
                 "unsupported": self.unsupported,
             },

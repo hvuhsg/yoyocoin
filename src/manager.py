@@ -32,15 +32,30 @@ class Manager:
         ).decode()
         # For testing , TODO: remove in prod
 
-        self.protocol = Protocol(self.blockchain)
+        self.protocol = Protocol(
+            self.blockchain,
+            is_test_net=True,
+            update_blockchain_callback=self.update_blockchain_callback,
+            sync_node=self.sync_blockchain,
+        )
         self.node = BlockchainNode(
-            chain_score_request_callback=self.protocol.chain_info,
-            chain_blocks_request_callback=self.protocol.chain_blocks,
             new_block_callback=self.protocol.new_block,
             new_transaction_callback=self.protocol.new_transaction,
+            chain_blocks_response_callback=self.protocol.chain_blocks_response,
+            chain_blocks_request_callback=self.protocol.chain_blocks,
+            chain_info_request_callback=self.protocol.chain_info,
+            chain_info_response_callback=self.protocol.chain_info_response,
             host="127.0.0.1",
             port=int(input("Enter port: ")),
         )
+        self.sync_blockchain()
+
+    def sync_blockchain(self):
+        message = self.message_factory.get_chain_info({})
+        self.node.send(message)
+
+    def update_blockchain_callback(self, blockchain):
+        self.blockchain = blockchain
 
     def create_transaction(self, to=None, amount=5, fee=1):
         if to is None:
@@ -70,22 +85,25 @@ class Manager:
         t = Timer(x, self.new_tx_every_x_seconds, [x])
         t.daemon = True
         t.start()
-        self.create_transaction()
+        if self.protocol.is_sync or self.node.port == 12345:
+            self.create_transaction()
 
     def new_block_every_x_seconds(self, x: int):
-        self.protocol.insert_new_blocks()
-        sleep(10)
+        if self.protocol.is_sync or self.node.port == 12345:
+            self.protocol.insert_new_blocks()
+        sleep(20)
         t = Timer(x, self.new_block_every_x_seconds, [x])
         t.daemon = True
         t.start()
-        self.create_block()
+        if self.protocol.is_sync or self.node.port == 12345:
+            self.create_block()
 
     def run(self):
         self.node.start()
-        sleep(15)
-        self.new_tx_every_x_seconds(15)
-        self.new_block_every_x_seconds(20)
-        sleep(200)
+        #self.new_tx_every_x_seconds(15)
+        self.new_block_every_x_seconds(10)
+        while True:
+            sleep(1)
 
 
 if __name__ == "__main__":
