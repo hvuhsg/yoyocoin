@@ -42,7 +42,7 @@ async def inbound_only_middleware(
 
 
 @app.on_event("startup")
-def startup():
+async def startup():
     nm = NetworkManager(max_inbound_connection=20, max_outbound_connection=20, max_node_list=100, port=port)
     nm.setup()
     # Setup singleton
@@ -52,28 +52,28 @@ def startup():
 
 
 @app.on_event("shutdown")
-def shutdown():
+async def shutdown():
     cm.stop()
     cm.join()
 
 
 @app.get("/block")
-def request_block(block_hash: str):
+async def request_block(block_hash: str):
     pass
 
 
 @app.get("/transaction")
-def request_transaction(transaction_hash: str):
+async def request_transaction(transaction_hash: str):
     pass
 
 
 @app.get("/blockchain_info")
-def request_blockchain_info():
+async def request_blockchain_info():
     return {"score": blockchain.state.score, "length": blockchain.state.length, "hashs": blockchain.state.block_hashs}
 
 
 @app.get("/blockchain_blocks")
-def request_blockchain_blocks(start: int, end: int = -1):
+async def request_blockchain_blocks(start: int, end: int = -1):
     blocks = []
     for b in blockchain.chain[start:end]:
         blocks.append(b.to_dict())
@@ -81,21 +81,21 @@ def request_blockchain_blocks(start: int, end: int = -1):
 
 
 @app.post("/nodes_list")
-def request_nodes_list(max: int, network_manager: NetworkManager = Depends(get_network_manager)):
+async def request_nodes_list(max: int, network_manager: NetworkManager = Depends(get_network_manager)):
     return {"nodes": list(network_manager.nodes_list)[:min(len(network_manager.nodes_list), max)]}
 
 
 @app.post("/connect")
-def connect_to_node(request: Request, network_manager: NetworkManager = Depends(get_network_manager)):
+async def connect_to_node(request: Request, network_manager: NetworkManager = Depends(get_network_manager)):
     ip = request.client.host
-    if network_manager.can_add_inbound_connection(ip):
+    if True:  # network_manager.can_add_inbound_connection(ip):
         network_manager.add_inbound_connection(ip)
         return {"connected": True}
     return {"connected": False}
 
 
 @app.get('/address')
-def get_node_address(
+async def get_node_address(
         host: str,
         port: int,
         nm: NetworkManager = Depends(get_network_manager),
@@ -110,5 +110,5 @@ def get_node_address(
 
 
 @app.post("/ping")
-def ping():
+async def ping():
     return {"message": "pong"}
