@@ -17,6 +17,8 @@ class Client:
             response = requests.post(url + "/ping", timeout=PING_TIMEOUT)
         except requests.ConnectionError:
             return False
+        except requests.ReadTimeout:
+            return False
         return response.status_code == 200
 
     @staticmethod
@@ -55,4 +57,6 @@ class Client:
         try:
             requests.get(url + "/address", params={"host": host, "port": port}, timeout=REQUEST_TIMEOUT)
         except requests.ConnectionError:
-            return
+            pass
+        except requests.ReadTimeout:
+            pass
