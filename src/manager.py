@@ -10,6 +10,8 @@ from node import BlockchainNode, MessageFactory
 from blockchain import Blockchain, Block, Transaction
 from protocol.protocol import Protocol
 
+from server.server import app
+
 
 class Manager:
     def __init__(self):
@@ -107,12 +109,13 @@ class Manager:
 
 
 if __name__ == "__main__":
-    manager = Manager()
-    try:
-        manager.run()
-    except KeyboardInterrupt:
-        print("Stopping... plz wait.")
-        manager.node.stop()
-    for b in manager.blockchain.chain:
-        for tx in b.transactions:
-            pprint(tx.to_dict())
+    pass
+    # manager = Manager()
+    # try:
+    #     manager.run()
+    # except KeyboardInterrupt:
+    #     print("Stopping... plz wait.")
+    #     manager.node.stop()
+    # for b in manager.blockchain.chain:
+    #     for tx in b.transactions:
+    #         pprint(tx.to_dict())
