@@ -1,4 +1,5 @@
 import requests
+from json import dumps
 
 REQUEST_TIMEOUT = 10
 PING_TIMEOUT = 60
@@ -56,6 +57,15 @@ class Client:
     def send_address(url, host, port):
         try:
             requests.get(url + "/address", params={"host": host, "port": port}, timeout=REQUEST_TIMEOUT)
+        except requests.ConnectionError:
+            pass
+        except requests.ReadTimeout:
+            pass
+
+    @staticmethod
+    def send_best_lottery_block(url, block_dict: dict):
+        try:
+            requests.get(url + "/lottery_block", params={"block": dumps(block_dict)}, timeout=REQUEST_TIMEOUT)
         except requests.ConnectionError:
             pass
         except requests.ReadTimeout:

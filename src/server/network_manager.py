@@ -94,6 +94,11 @@ class NetworkManager:
             url = self.url_from_address(node)
             Client.send_address(url, address[0], address[1])
 
+    def broadcast_best_lottery_block(self, block):
+        for node in self.outbound_connections.copy():
+            url = self.url_from_address(node)
+            Client.send_best_lottery_block(url, block.to_dict())
+
     @staticmethod
     def url_from_address(address: NodeAddress):
         return f"http://{address[0]}:{address[1]}"

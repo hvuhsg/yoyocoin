@@ -1,15 +1,16 @@
 from fastapi import FastAPI, Request, Depends, Response, status
+from json import loads
 
-from blockchain import Blockchain
+from blockchain import Blockchain, Block
 from wallet import Wallet
+from scheduler import Scheduler
+from config import PORT
 
 from .network_manager import NetworkManager
 from .connections_monitor import ConnectionsMonitor
+from .lottery_manager import LotteryManager
 
 app = FastAPI()
-
-port = int(input("Enter port: "))
-cm = ConnectionsMonitor(port=port)
 
 secret = input("Enter wallet secret: ")
 if not secret:
@@ -17,6 +18,7 @@ if not secret:
 wallet = Wallet(secret_passcode=secret)
 
 blockchain = Blockchain(is_test_net=True)
+lottery_manager: LotteryManager = None
 
 
 def get_network_manager() -> NetworkManager:
@@ -43,18 +45,24 @@ async def inbound_only_middleware(
 
 @app.on_event("startup")
 async def startup():
-    nm = NetworkManager(max_inbound_connection=20, max_outbound_connection=20, max_node_list=100, port=port)
+    global lottery_manager
+    scheduler = Scheduler(min_time_step=1)
+    scheduler.daemon = True
+    scheduler.start()
+
+    nm = NetworkManager(max_inbound_connection=20, max_outbound_connection=20, max_node_list=100, port=PORT)
     nm.setup()
     # Setup singleton
 
-    cm.start()
-    # Start ConnectionsMonitor thread
+    ConnectionsMonitor(port=PORT)
+    lottery_manager = LotteryManager(blockchain=blockchain, wallet=wallet)
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    cm.stop()
-    cm.join()
+    s: Scheduler = Scheduler.get_instance()
+    s.stop()
+    s.join()
 
 
 @app.get("/block")
@@ -92,6 +100,13 @@ async def connect_to_node(request: Request, network_manager: NetworkManager = De
         network_manager.add_inbound_connection(ip)
         return {"connected": True}
     return {"connected": False}
+
+
+@app.get("/lottery_block")
+async def get_lottery_block(block):
+    block = loads(block)
+    block = Block.from_dict(**block)
+    lottery_manager.check_lottery_block(block)
 
 
 @app.get('/address')
