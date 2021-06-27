@@ -1,6 +1,6 @@
 from threading import Thread
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from time import sleep
 
 
@@ -56,7 +56,7 @@ class Scheduler(Thread):
     def __init__(self, time_start: datetime = None, min_time_step: float = 1.0):
         super().__init__()
         if time_start is None:
-            time_start = datetime.utcnow()
+            time_start = datetime.fromtimestamp(0)  # TODO: set to utc time zone
         self.time_start = time_start
         self.min_time_step = min_time_step  # check jobs every <min_time_step> seconds
         self._stop = False
