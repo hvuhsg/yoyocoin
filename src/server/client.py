@@ -70,3 +70,12 @@ class Client:
             pass
         except requests.ReadTimeout:
             pass
+
+    @staticmethod
+    def request_chain_info(url):
+        try:
+            requests.get(url + "/blockchain_info", timeout=REQUEST_TIMEOUT)
+        except requests.ConnectionError:
+            pass
+        except requests.ReadTimeout:
+            pass
