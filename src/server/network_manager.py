@@ -18,10 +18,8 @@ class NetworkManager:
             raise ValueError("Initiate NetworkManager first")
         return cls._instance
 
-    def __init__(self, max_inbound_connection: int, max_outbound_connection: int, max_node_list: int, port: int):
-        self.max_inbound_connection = max_inbound_connection
+    def __init__(self, max_outbound_connection: int, max_node_list: int, port: int):
         self.max_outbound_connection = max_outbound_connection
-        self.inbound_connections: Set[NodeIP] = set()
         self.outbound_connections: Set[NodeAddress] = set()
         self.max_node_list = max_node_list
         self.nodes_list: Set[NodeAddress] = set(KNOWN_NODES)
@@ -64,18 +62,9 @@ class NetworkManager:
                 print("Connected to", address)
                 self.add_outbound_connection(address)
 
-    def add_inbound_connection(self, ip: NodeIP):
-        if self.can_add_inbound_connection(ip):
-            self.inbound_connections.add(ip)
-
     def add_outbound_connection(self, address: NodeAddress):
         if self.can_add_outbound_connection(address):
             self.outbound_connections.add(address)
-
-    def can_add_inbound_connection(self, ip: NodeIP) -> bool:
-        if ip not in self.inbound_connections and len(self.inbound_connections) < self.max_inbound_connection:
-            return True
-        return False
 
     def can_add_outbound_connection(self, address: NodeAddress) -> bool:
         if address[1] == self.port:

@@ -9,7 +9,7 @@ from .blockchain_state import BlockchainState
 
 
 class Blockchain:
-    def __init__(self, pruned=True, is_test_net=False):
+    def __init__(self, pruned=False, is_test_net=False):
         self.current_transactions: List[Transaction] = []
         self.chain: List[Block] = []
         self.chain_length = 0
@@ -125,6 +125,11 @@ class Blockchain:
         self.current_transactions.append(new_transaction)
 
         return new_transaction
+
+    def update_chain(self, blockchain):
+        self.chain = blockchain.chain
+        self.state = blockchain.state
+        self.chain_length = self.chain_length
 
     @property
     def last_block(self):

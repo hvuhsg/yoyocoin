@@ -72,9 +72,18 @@ class Client:
             pass
 
     @staticmethod
+    def get_chain_blocks(url, start: int):
+        try:
+            return requests.get(url + "/blockchain_blocks", params={"start": start}, timeout=REQUEST_TIMEOUT).json()
+        except requests.ConnectionError:
+            pass
+        except requests.ReadTimeout:
+            pass
+
+    @staticmethod
     def request_chain_info(url):
         try:
-            requests.get(url + "/blockchain_info", timeout=REQUEST_TIMEOUT)
+            return requests.get(url + "/blockchain_info", timeout=REQUEST_TIMEOUT).json()
         except requests.ConnectionError:
             pass
         except requests.ReadTimeout:

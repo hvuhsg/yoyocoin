@@ -13,21 +13,21 @@ class ConnectionsMonitor:
         Scheduler.get_instance().add_job(
             func=self.check_connections_status,
             name="check_connections_status",
-            interval=20,
+            interval=30,
             sync=False,
             run_thread=False,
         )
         Scheduler.get_instance().add_job(
             func=self.fill_connection_pool,
             name="fill_connection_pool",
-            interval=5,
+            interval=10,
             sync=False,
             run_thread=True,
         )
         Scheduler.get_instance().add_job(
             func=self.publish_my_address,
             name="publish_my_node_address",
-            interval=5,
+            interval=10,
             sync=False,
             run_thread=True,
         )
