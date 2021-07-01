@@ -1,7 +1,8 @@
 from typing import Tuple, Set
 from random import choice
 
-from .client import Client
+from config import PORT
+from client import Client
 
 NodeAddress = Tuple[str, int]  # ("123.123.123.123", 8564)
 NodeIP = str
@@ -18,12 +19,12 @@ class NetworkManager:
             raise ValueError("Initiate NetworkManager first")
         return cls._instance
 
-    def __init__(self, max_outbound_connection: int, max_node_list: int, port: int):
+    def __init__(self, max_outbound_connection: int, max_node_list: int):
         self.max_outbound_connection = max_outbound_connection
         self.outbound_connections: Set[NodeAddress] = set()
         self.max_node_list = max_node_list
         self.nodes_list: Set[NodeAddress] = set(KNOWN_NODES)
-        self.port = port
+        self.port = PORT
 
         self.__class__._instance = self  # Initialize Singleton
 
@@ -77,16 +78,6 @@ class NetworkManager:
         self.nodes_list.add(address)
         if len(self.nodes_list) > self.max_node_list:
             self.nodes_list.remove(choice(list(self.nodes_list)))
-
-    def broadcast_address(self, address: NodeAddress):
-        for node in self.outbound_connections.copy():
-            url = self.url_from_address(node)
-            Client.send_address(url, address[0], address[1])
-
-    def broadcast_best_lottery_block(self, block):
-        for node in self.outbound_connections.copy():
-            url = self.url_from_address(node)
-            Client.send_best_lottery_block(url, block.to_dict())
 
     @staticmethod
     def url_from_address(address: NodeAddress):

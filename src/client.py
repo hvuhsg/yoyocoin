@@ -2,6 +2,7 @@ import requests
 from json import dumps
 
 REQUEST_TIMEOUT = 10
+SHORT_TIMEOUT = 4
 PING_TIMEOUT = 60
 
 
@@ -83,7 +84,7 @@ class Client:
     @staticmethod
     def request_chain_info(url):
         try:
-            return requests.get(url + "/blockchain_info", timeout=REQUEST_TIMEOUT).json()
+            return requests.get(url + "/blockchain_info", timeout=SHORT_TIMEOUT).json()
         except requests.ConnectionError:
             pass
         except requests.ReadTimeout:

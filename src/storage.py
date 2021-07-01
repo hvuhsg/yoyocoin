@@ -18,10 +18,12 @@ class Storage:
 
     def __init__(self, filename: str):
         self.filename = filename
+        self.ram_storage = {}
         self._instance = self
 
     def read(self, key):
-        return NotImplemented
+        return self.ram_storage.get(key, None)
 
     def write(self, key, value):
-        return NotImplemented
+        self.ram_storage[key] = value
+

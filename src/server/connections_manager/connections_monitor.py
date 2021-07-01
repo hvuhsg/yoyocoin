@@ -1,19 +1,20 @@
 from threading import Thread
 
+from config import PORT
 from scheduler import Scheduler
+from client import Client
 
 from .network_manager import NetworkManager
-from .client import Client
 
 
 class ConnectionsMonitor:
-    def __init__(self, port):
-        self.port = port
+    def __init__(self):
+        self.port = PORT
 
         Scheduler.get_instance().add_job(
             func=self.check_connections_status,
             name="check_connections_status",
-            interval=30,
+            interval=60*2,
             sync=False,
             run_thread=False,
         )
@@ -27,7 +28,7 @@ class ConnectionsMonitor:
         Scheduler.get_instance().add_job(
             func=self.publish_my_address,
             name="publish_my_node_address",
-            interval=10,
+            interval=30,
             sync=False,
             run_thread=True,
         )
@@ -53,4 +54,6 @@ class ConnectionsMonitor:
 
     def publish_my_address(self):
         nm: NetworkManager = NetworkManager.get_instance()
-        nm.broadcast_address(("0.0.0.0", self.port))
+        for node in nm.outbound_connections.copy():
+            url = nm.url_from_address(node)
+            Client.send_address(url, "0.0.0.0", self.port)

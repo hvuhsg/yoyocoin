@@ -1,7 +1,5 @@
 from typing import List
-from urllib.parse import urlparse
 
-from .exceptions import ValidationError
 from .constents import GENESIS_BLOCK
 from .transaction import Transaction
 from .block import Block
@@ -9,6 +7,16 @@ from .blockchain_state import BlockchainState
 
 
 class Blockchain:
+    main_chain = None
+
+    @classmethod
+    def set_main_chain(cls, blockchain):
+        cls.main_chain = blockchain
+
+    @classmethod
+    def get_main_chain(cls):
+        return cls.main_chain
+
     def __init__(self, pruned=False, is_test_net=False):
         self.current_transactions: List[Transaction] = []
         self.chain: List[Block] = []
@@ -72,17 +80,17 @@ class Blockchain:
         return new_block
 
     def add_block(self, block):
-        if self.pruned:
-            self.chain = [block]
-        else:
-            self.chain.append(block)
-        self.chain_length += 1
         for tx in block.transactions:
             try:
                 self.current_transactions.remove(tx)
             except ValueError:
                 pass
         self.state.add_block(block)
+        if self.pruned:
+            self.chain = [block]
+        else:
+            self.chain.append(block)
+        self.chain_length += 1
 
     def new_transaction(
         self,

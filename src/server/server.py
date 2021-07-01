@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends, Response, status, BackgroundTasks
+from fastapi import FastAPI, Request, Depends, BackgroundTasks
 from json import loads
 
 from blockchain import Blockchain, Block
@@ -6,21 +6,10 @@ from wallet import Wallet
 from scheduler import Scheduler
 from config import PORT
 
-from .network_manager import NetworkManager
-from .connections_monitor import ConnectionsMonitor
-from .lottery_manager import LotteryManager
-from .chain_syncer import ChainSyncer
+from consensus import LotteryManager, ChainSyncer
+from .connections_manager import ConnectionsMonitor, NetworkManager
 
 app = FastAPI()
-
-secret = input("Enter wallet secret: ")
-if not secret:
-    secret = None
-wallet = Wallet(secret_passcode=secret)
-
-blockchain = Blockchain(pruned=False, is_test_net=True)
-lottery_manager: LotteryManager = None
-syncer: ChainSyncer = None
 
 
 def get_network_manager() -> NetworkManager:
@@ -33,20 +22,13 @@ def get_connection_address(request: Request) -> tuple:
 
 @app.on_event("startup")
 async def startup():
-    global lottery_manager
-    global syncer
-    scheduler = Scheduler(min_time_step=1)
-    scheduler.daemon = True
-    scheduler.start()
-
-    nm = NetworkManager(max_outbound_connection=20, max_node_list=100, port=PORT)
+    # Setup singleton's
+    nm = NetworkManager(max_outbound_connection=20, max_node_list=100)
     nm.setup()
-    # Setup singleton
 
-    ConnectionsMonitor(port=PORT)
-    lottery_manager = LotteryManager(blockchain=blockchain, wallet=wallet)
-
-    syncer = ChainSyncer(blockchain=blockchain, network_manager=nm, is_test_net=True)
+    ConnectionsMonitor()
+    LotteryManager()
+    ChainSyncer()
 
 
 @app.on_event("shutdown")
@@ -68,11 +50,13 @@ def request_transaction(transaction_hash: str):
 
 @app.get("/blockchain_info")
 def request_blockchain_info():
+    blockchain = Blockchain.get_main_chain()
     return {"score": blockchain.state.score, "length": blockchain.state.length, "hashs": blockchain.state.block_hashs}
 
 
 @app.get("/blockchain_blocks")
 def request_blockchain_blocks(start: int):
+    blockchain = Blockchain.get_main_chain()
     blocks = []
     for b in blockchain.chain[start:]:
         blocks.append(b.to_dict())
@@ -90,12 +74,16 @@ def connect_to_node():
 
 
 @app.get("/lottery_block")
-def get_lottery_block(block):
+def get_lottery_block(block: str):
+    lottery_manager = LotteryManager.get_instance()
+    blockchain = Blockchain.get_main_chain()
+    syncer = ChainSyncer.get_instance()
+
     block = loads(block)
     block = Block.from_dict(**block)
-    lottery_manager.check_lottery_block(block)
-    if block.index+1 > blockchain.chain_length:
-        print(blockchain.chain_length, block.index)
+    is_best = lottery_manager.check_lottery_block(block)
+    if not is_best and block.index > blockchain.chain_length\
+            or (block.index == blockchain.chain_length and block.previous_hash != blockchain.state.last_block_hash):
         syncer.sync()
 
 
@@ -116,7 +104,8 @@ def get_node_address(
 
     if address not in nm.nodes_list:
         nm.add_to_node_list(address)
-        background_tasks.add_task(lambda: nm.broadcast_address(address))
+        # TODO: broadcast forward the address
+        # background_tasks.add_task(lambda: nm.broadcast_address(address))
 
 
 @app.post("/ping")
