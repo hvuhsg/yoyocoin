@@ -64,9 +64,11 @@ class Client:
             pass
 
     @staticmethod
-    def send_best_lottery_block(url, block_dict: dict):
+    def send_best_lottery_block(url, block_dict: dict) -> bool:
         try:
-            requests.get(url + "/lottery_block", params={"block": dumps(block_dict)}, timeout=REQUEST_TIMEOUT)
+            return requests.get(
+                url + "/lottery_block", params={"block": dumps(block_dict)}, timeout=REQUEST_TIMEOUT
+            ).json()["ok"]
         except requests.ConnectionError:
             pass
         except requests.ReadTimeout:

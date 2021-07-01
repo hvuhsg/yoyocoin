@@ -31,22 +31,23 @@ class LotteryManager:
         Scheduler.get_instance().add_job(
             func=self.declare_winner,
             name="insert_winning_block_to_chain",
-            interval=33,
+            interval=60,
             sync=True,
             run_thread=True,
+            offset=5,
         )
         Scheduler.get_instance().add_job(
             func=self.create_block,
             name="create_lottery_block",
-            interval=30,
+            interval=60,
             sync=True,
             run_thread=True,
         )
         Scheduler.get_instance().add_job(
             func=self.broadcast_best_block_so_far,
             name="broadcast_best_lottery_block",
-            interval=10,
-            sync=True,
+            interval=20,
+            sync=False,
             run_thread=True,
         )
 
@@ -62,14 +63,12 @@ class LotteryManager:
         :param block: new forged block (block index must be sequential with the blockchain)
         :return: True if is the best score so far else False
         """
-        print("Block index:", block.index, "chain len", self.blockchain.state.length)
         if block.index != self.blockchain.state.length or block.previous_hash != self.blockchain.state.last_block_hash:
             return False
         score = self.blockchain.state.block_score(block)
         if score > self.best_score:
             self.winning_block = block
             self.best_score = score
-            print("Is currently winning")
             return True
         return False
 
@@ -98,5 +97,6 @@ class LotteryManager:
             node_lottery_status = self.nodes_lottery_status.get(node, None)
             if node_lottery_status is None or node_lottery_status != self.winning_block.hash():
                 url = nm.url_from_address(node)
-                Client.send_best_lottery_block(url, self.winning_block.to_dict())
-                self.nodes_lottery_status[node] = self.winning_block.hash()
+                res = Client.send_best_lottery_block(url, self.winning_block.to_dict())
+                if res:
+                    self.nodes_lottery_status[node] = self.winning_block.hash()

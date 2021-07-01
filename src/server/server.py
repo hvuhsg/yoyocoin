@@ -82,9 +82,12 @@ def get_lottery_block(block: str):
     block = loads(block)
     block = Block.from_dict(**block)
     is_best = lottery_manager.check_lottery_block(block)
+    ok = True
     if not is_best and block.index > blockchain.chain_length\
             or (block.index == blockchain.chain_length and block.previous_hash != blockchain.state.last_block_hash):
         syncer.sync()
+        ok = False
+    return {"ok": ok}
 
 
 @app.get('/address')
