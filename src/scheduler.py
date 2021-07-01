@@ -5,25 +5,28 @@ from time import sleep
 
 
 class Job:
-    def __init__(self, func, name, interval, sync, run_thread: bool):
+    def __init__(self, func, name, interval, sync, run_thread: bool, offset: int):
         self.func = func
         self.name = name
         self.interval = interval
         self.sync = sync
         self.run_thread = run_thread
+        self.offset = offset
         self.last_run = datetime.utcnow()
 
     def is_revoke_time(self, start_time: datetime) -> bool:
         utcnow = datetime.utcnow()
         if not self.sync:
             return utcnow - self.last_run >= timedelta(seconds=self.interval)
-        # print(utcnow, self.last_run, int((utcnow - start_time).total_seconds()), self.interval)
-        return utcnow > self.last_run and int((utcnow - start_time).total_seconds()) % self.interval == 0
+        current_time_in_seconds = int((utcnow - start_time).total_seconds())
+        return utcnow > self.last_run and (current_time_in_seconds + self.offset) % self.interval == 0
 
     def update_last_run(self):
         self.last_run = datetime.utcnow()
 
     def execute(self):
+        if self.sync:
+            print(f"{datetime.now()} Execute {self.name}")
         if self.run_thread:
             t = Thread(target=self.func)
             t.daemon = True
@@ -42,7 +45,7 @@ class Scheduler(Thread):
         return cls._instance
 
     @classmethod
-    def schedule(cls, name: str, interval: float, sync: bool = True, run_thread: bool = True):
+    def schedule(cls, name: str, interval: float, sync: bool = True, run_thread: bool = True, offset: int = 0):
         scheduler = cls.get_instance()
 
         def decorator(func):
@@ -65,8 +68,8 @@ class Scheduler(Thread):
 
         self.__class__._instance = self
 
-    def add_job(self, func, name, interval, sync, run_thread):
-        self.jobs[name] = Job(func=func, name=name, interval=interval, sync=sync, run_thread=run_thread)
+    def add_job(self, func, name, interval, sync, run_thread, offset: int = 0):
+        self.jobs[name] = Job(func=func, name=name, interval=interval, sync=sync, run_thread=run_thread, offset=offset)
 
     def remove_job(self, name):
         return self.jobs.pop(name, None)
