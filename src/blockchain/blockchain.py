@@ -127,12 +127,14 @@ class Blockchain:
         )
         if sender_private_addr is not None:
             new_transaction.create_signature(sender_private_addr)
-        new_transaction.validate(
-            blockchain_state=self.state, is_test_net=self.is_test_net
-        )
-        self.current_transactions.append(new_transaction)
+
+        self.add_transaction(new_transaction)
 
         return new_transaction
+
+    def add_transaction(self, transaction: Transaction):
+        transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
+        self.current_transactions.append(transaction)
 
     def update_chain(self, blockchain):
         self.chain = blockchain.chain
