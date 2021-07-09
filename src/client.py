@@ -24,14 +24,8 @@ class Client:
         return response.status_code == 200
 
     @staticmethod
-    def get_block(url, block_hash):
-        response = requests.get(url + "/get_block", params={"hash": block_hash}, timeout=REQUEST_TIMEOUT)
-        if response.status_code == 200:
-            return response.json()["block"]
-
-    @staticmethod
     def get_transaction(url, transaction_hash):
-        response = requests.get(url + "/get_block", params={"hash": transaction_hash}, timeout=REQUEST_TIMEOUT)
+        response = requests.get(url + "/transaction", params={"hash": transaction_hash}, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             return response.json()["transaction"]
 
@@ -87,6 +81,15 @@ class Client:
     def request_chain_info(url):
         try:
             return requests.get(url + "/blockchain_info", timeout=SHORT_TIMEOUT).json()
+        except requests.ConnectionError:
+            pass
+        except requests.ReadTimeout:
+            pass
+
+    @staticmethod
+    def gossip_transaction(url: str, transaction_hash: str):
+        try:
+            return requests.post(url + "/transaction_hash", timeout=SHORT_TIMEOUT).json()
         except requests.ConnectionError:
             pass
         except requests.ReadTimeout:

@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Request, Depends, BackgroundTasks
+from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
 from json import loads
 
-from blockchain import Blockchain, Block
-from wallet import Wallet
+from blockchain import Blockchain, Block, Transaction
 from scheduler import Scheduler
 from config import PORT
+from client import Client
 
 from consensus import LotteryManager, ChainSyncer
 from .connections_manager import ConnectionsMonitor, NetworkManager
@@ -43,9 +43,35 @@ def request_block(block_hash: str):
     pass
 
 
+@app.post("/transaction_hash")
+def transaction_hash(hash: str):
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    transaction_stored = list(filter(lambda t: t.hash() == hash, blockchain.current_transactions))
+    if not transaction_stored:
+        pass
+        # TODO: request transaction from sender node
+        # Client.get_transaction()
+
+
 @app.get("/transaction")
-def request_transaction(transaction_hash: str):
-    pass
+def request_transaction(hash: str):
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    transactions = list(filter(lambda t: t.hash() == hash, blockchain.current_transactions))
+    if not transactions:
+        return {}, 404
+    transaction = transactions[0]
+    return {"transaction": transaction.to_dict()}
+
+
+@app.post("/transaction")
+def publish_transaction(transaction: str, nm: NetworkManager = Depends(get_network_manager)):
+    transaction = loads(transaction)
+    transaction = Transaction.from_dict(**transaction)
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    blockchain.add_transaction(transaction)
+    for node in nm.outbound_connections.copy():
+        node_url = nm.url_from_address(node)
+        Client.gossip_transaction(node_url, transaction.hash())
 
 
 @app.get("/blockchain_info")
@@ -94,7 +120,6 @@ def get_lottery_block(block: str):
 def get_node_address(
         host: str,
         port: int,
-        background_tasks: BackgroundTasks,
         nm: NetworkManager = Depends(get_network_manager),
         address=Depends(get_connection_address),
 ):
@@ -107,8 +132,9 @@ def get_node_address(
 
     if address not in nm.nodes_list:
         nm.add_to_node_list(address)
-        # TODO: broadcast forward the address
-        # background_tasks.add_task(lambda: nm.broadcast_address(address))
+        for node in nm.outbound_connections.copy():
+            node_url = nm.url_from_address(node)
+            Client.send_address(node_url, address[0], address[1])
 
 
 @app.post("/ping")
