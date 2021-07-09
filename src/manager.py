@@ -23,7 +23,7 @@ def setup():
 
 def main():
     setup()
-    uvicorn.run("server:app", host="127.0.0.1", port=PORT, log_level="warning")
+    uvicorn.run("node:app", host="127.0.0.1", port=PORT, log_level="info")
 
 if __name__ == "__main__":
     main()
