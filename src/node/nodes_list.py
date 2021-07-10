@@ -1,5 +1,5 @@
 from random import choice
-from .singleton import Singleton
+from globals.singleton import Singleton
 
 
 class NodesList(Singleton):

@@ -1,6 +1,6 @@
 from globals.singleton import Singleton
-from .blueprints.message import Message
-from .blueprints.protocol import Protocol
+from node.blueprints.protocol import Protocol
+from node.blueprints.message import Message
 
 
 class ProtocolManager(Singleton):

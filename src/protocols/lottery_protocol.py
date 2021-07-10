@@ -1,13 +1,14 @@
-from blockchain import Blockchain, Block, ValidationError
+from enum import Enum, auto
+
 from wallet import Wallet
+from blockchain import Block, Blockchain, ValidationError
 from scheduler import Scheduler
-from globals.singleton import Singleton
 
-from ..connections_manager import ConnectionManager, get_connection_manager
-from ..blueprints.message import Message
+from node.blueprints.protocol import Protocol
+from node.blueprints.message import Message
 
 
-class LotteryManager(Singleton):
+class LotteryManager:
     def __init__(self):
         self.wallet = Wallet.get_main_wallet()
         self.nodes_lottery_status = {}
@@ -35,13 +36,6 @@ class LotteryManager(Singleton):
             name="create_lottery_block",
             interval=60,
             sync=True,
-            run_thread=True,
-        )
-        Scheduler.get_instance().add_job(
-            func=self.broadcast_best_block_so_far,
-            name="broadcast_best_lottery_block",
-            interval=20,
-            sync=False,
             run_thread=True,
         )
 
@@ -83,17 +77,44 @@ class LotteryManager(Singleton):
         )
         self.check_lottery_block(block)
 
+
+class Routes(Enum):
+    NewBlock = auto()
+
+
+class LotteryProtocol(Protocol):
+    name: str = "LotteryProtocol"
+
+    def __init__(self):
+        super().__init__()
+        self.lottery_manager = LotteryManager()
+        Scheduler.get_instance().add_job(
+            func=self.broadcast_best_block_so_far,
+            name="broadcast_best_lottery_block",
+            interval=20,
+            sync=False,
+            run_thread=True,
+        )
+
+    def broadcast_best_block_so_far(self):
+        if self.lottery_manager.winning_block is None:
+            return
+        message = self.new_block(self.lottery_manager.winning_block)
+        self.broadcast(message)
+
+    def process(self, message: Message) -> dict:
+
+        if Routes(message.route) == Routes.NewBlock:
+            if "block" not in message.params:
+                return {"Error": "block is required"}
+            block = message.params["block"]
+            block = Block.from_dict(**block)
+            self.lottery_manager.check_lottery_block(block)
+
     @staticmethod
     def new_block(self, block: Block) -> Message:
         return Message.from_dict({
             "protocol": self.__class__.name,
-            "route": 0,
+            "route": Routes.NewBlock.value,
             "params": {"block": block.to_dict()}
         })
-
-    def broadcast_best_block_so_far(self):
-        if self.winning_block is None:
-            return
-        connections_manager: ConnectionManager = get_connection_manager()
-        message = self.new_block(self.winning_block)
-        connections_manager.broadcast(message)

@@ -1,9 +1,8 @@
 from enum import auto
 
-from globals import get_nodes_list
-
-from ..blueprints.protocol import Protocol
-from ..blueprints.message import Message
+from node.blueprints.message import Message
+from node.blueprints.protocol import Protocol
+from ..nodes_list import get_nodes_list
 
 
 class Routes:

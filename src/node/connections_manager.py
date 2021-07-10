@@ -2,7 +2,8 @@ from fastapi import WebSocket as InboundWS
 from websocket import WebSocket as OutboundWS
 
 from globals.singleton import Singleton
-from .blueprints.message import Message
+
+from node.blueprints.message import Message
 
 __all__ = ["ConnectionManager", "get_connection_manager"]
 

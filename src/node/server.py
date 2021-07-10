@@ -1,28 +1,54 @@
+import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 
 from .connections_manager import ConnectionManager, get_connection_manager
 from .protocols_manager import ProtocolManager, get_protocol_manager
 
-from .cronjobs import OutboundConnectionsMonitor, LotteryManager
-from .protocols import NodesListProtocol, LotteryProtocol
+from node.blueprints.protocol import Protocol
+from .protocols.nodes_list_protocols import NodesListProtocol
+from .cronjobs import OutboundConnectionsMonitor
+from .nodes_list import NodesList
 
 app = FastAPI()
 
 
+class Node:
+    def __init__(
+            self,
+            host: str,
+            port: int,
+            max_outbound_connections: int,
+            max_inbound_connections: int,
+            log_level: str = "info"
+    ):
+        self.host = host
+        self.port = port
+        self.log_level = log_level
+
+        # Setup managers
+        self._connections_manager = ConnectionManager(max_outbound_connections, max_inbound_connections)
+        self._protocol_manager = ProtocolManager()
+
+        # setup node
+        self._register_node_protocols()
+
+    def _register_node_protocols(self):
+        self._protocol_manager.register_protocol(NodesListProtocol())
+
+    def register_protocol(self, protocol: Protocol):
+        self._protocol_manager.register_protocol(protocol)
+
+    def run(self):
+        uvicorn.run("node.server:app", host=self.host, port=self.port, log_level=self.log_level)
+
+
 @app.on_event("startup")
 async def startup():
-    # Init singletons
-    ConnectionManager(max_inbound_connections=10, max_outbound_connections=10)
+    # init singletons
+    NodesList()
 
-    pm = ProtocolManager()
-    pm.register_protocol(LotteryProtocol())
-    pm.register_protocol(NodesListProtocol())
-
-    # start monitor
+    # start cron jobs
     OutboundConnectionsMonitor()
-
-    # start lottery manager
-    LotteryManager()
 
 
 @app.on_event("shutdown")

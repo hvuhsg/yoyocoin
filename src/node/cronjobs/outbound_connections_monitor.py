@@ -1,7 +1,7 @@
 from config import PORT
 from scheduler import Scheduler
 
-from globals.nodes_list import NodesList, get_nodes_list
+from ..nodes_list import NodesList, get_nodes_list
 from ..connections_manager import ConnectionManager, get_connection_manager
 from ..client import create_connection
 from ..protocols.nodes_list_protocols import NodesListProtocol
