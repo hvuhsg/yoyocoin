@@ -1,14 +1,14 @@
-from enum import auto
+from enum import Enum
 
 from node.blueprints.message import Message
 from node.blueprints.protocol import Protocol
 from ..nodes_list import get_nodes_list
 
 
-class Routes:
-    Publish = auto()
-    RequestList = auto()
-    ResponseList = auto()
+class Routes(Enum):
+    Publish = 1
+    RequestList = 2
+    ResponseList = 3
 
 
 class NodesListProtocol(Protocol):
@@ -35,16 +35,16 @@ class NodesListProtocol(Protocol):
 
     @classmethod
     def publish(cls, address):
-        return {"protocol": cls.name, "route": Routes.Publish.value, "params": {"address": address}}
+        return Message.from_dict({"protocol": cls.name, "route": Routes.Publish.value, "params": {"address": address}})
 
     @classmethod
     def request_list(cls, count: int):
-        return {"protocol": cls.name, "route": Routes.RequestList.value, "params": {"count": count}}
+        return Message.from_dict({"protocol": cls.name, "route": Routes.RequestList.value, "params": {"count": count}})
 
     @classmethod
     def response_list(cls, nodes_list, count: int):
-        return {
+        return Message.from_dict({
             "protocol": cls.name,
             "route": Routes.ResponseList.value,
-            "nodes": nodes_list.get_multiple_nodes(count)
-        }
+            "params": {"nodes": nodes_list.get_random_nodes(count)}
+        })

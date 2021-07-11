@@ -22,6 +22,14 @@ class OutboundConnectionsMonitor:
         # )
 
         Scheduler.get_instance().add_job(
+            func=self.update_nodes_list,
+            name="update_nodes_list",
+            interval=60,
+            sync=False,
+            run_thread=True,
+        )
+
+        Scheduler.get_instance().add_job(
             func=self.fill_connection_pool,
             name="fill_connection_pool",
             interval=30,
@@ -39,11 +47,14 @@ class OutboundConnectionsMonitor:
     def fill_connection_pool(self):
         connection_manager: ConnectionManager = get_connection_manager()
         node_list: NodesList = get_nodes_list()
-        for _ in range(connection_manager.max_outbound_connections - len(connection_manager.outbound_connections)):
-            if connection_manager.outbound_connections_is_full():
-                break
-            address = node_list.get_random_node()
-            if address in connection_manager.outbound_connections:
+        connections_left = connection_manager.max_outbound_connections - len(connection_manager.outbound_connections)
+        nodes_address = node_list.get_random_nodes(count=connections_left)
+        for address in nodes_address:
+            if address in list(connection_manager.connections.values()):
+                # already connected
+                continue
+            if address[1] == PORT:  # todo: change to ip
+                # do not connect to you'r self
                 continue
             create_connection(address)
 
@@ -51,3 +62,14 @@ class OutboundConnectionsMonitor:
         connection_manager: ConnectionManager = get_connection_manager()
         message = NodesListProtocol.publish(("127.0.0.1", PORT))
         connection_manager.broadcast(message)
+
+    def update_nodes_list(self):
+        connection_manager: ConnectionManager = get_connection_manager()
+        node_list: NodesList = get_nodes_list()
+        if node_list.count() < 50:
+            random_node = node_list.get_random_nodes(count=1)
+            if not random_node:
+                return
+            random_node_address = random_node[0]
+            message = NodesListProtocol.request_list(count=100)
+            connection_manager.send_to_node(random_node_address, message)

@@ -15,4 +15,4 @@ class Protocol(ABC):
         return NotImplemented
 
     def broadcast(self, message: Message):
-        return self.connection_manager.broadcast(message)
+        self.connection_manager.broadcast(message)

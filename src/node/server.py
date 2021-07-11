@@ -1,10 +1,14 @@
+from asyncio import get_event_loop
+from uuid import uuid4
+
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 
 from .connections_manager import ConnectionManager, get_connection_manager
 from .protocols_manager import ProtocolManager, get_protocol_manager
 
-from node.blueprints.protocol import Protocol
+from .blueprints.protocol import Protocol
+from .blueprints.message import Message
 from .protocols.nodes_list_protocols import NodesListProtocol
 from .cronjobs import OutboundConnectionsMonitor
 from .nodes_list import NodesList
@@ -26,7 +30,10 @@ class Node:
         self.log_level = log_level
 
         # Setup managers
-        self._connections_manager = ConnectionManager(max_outbound_connections, max_inbound_connections)
+        self._connections_manager = ConnectionManager(
+            max_outbound_connections,
+            max_inbound_connections,
+        )
         self._protocol_manager = ProtocolManager()
 
         # setup node
@@ -44,6 +51,9 @@ class Node:
 
 @app.on_event("startup")
 async def startup():
+    connections_manager: ConnectionManager = get_connection_manager()
+    connections_manager.set_event_loop(get_event_loop())
+
     # init singletons
     NodesList()
 
@@ -58,6 +68,8 @@ async def shutdown():
 
 @app.websocket("/connect_as_peer")
 async def connect_to_peer(
+        host: str,
+        port: int,
         ws: WebSocket,
         connection_manager: ConnectionManager = Depends(get_connection_manager),
         protocol_manager: ProtocolManager = Depends(get_protocol_manager),
@@ -67,14 +79,19 @@ async def connect_to_peer(
         return
 
     await ws.accept()
-    connection_manager.new_inbound_connection(ws)
+    ws_id = uuid4()
+    if host == "0.0.0.0":
+        host = ws.client.host
+    address = (host, port)
+    connection_manager.new_inbound_connection(ws_id, ws, address)
 
     try:
         while connection_manager.running:
             message = await ws.receive_json()
-            response = protocol_manager.process_message(message)
-            await ws.send_json(response)
+            response: Message = protocol_manager.process_message(message)
+            if response:
+                await ws.send_json(response.to_dict())
     except WebSocketDisconnect:
-        connection_manager.remove_inbound_connection(ws)
+        connection_manager.remove_inbound_connection(ws_id)
         await ws.close()
 

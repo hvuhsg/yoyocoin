@@ -1,11 +1,12 @@
-from enum import Enum, auto
+from enum import Enum
 
 from wallet import Wallet
 from blockchain import Block, Blockchain, ValidationError
 from scheduler import Scheduler
-
 from node.blueprints.protocol import Protocol
 from node.blueprints.message import Message
+
+from .sync_protocol import SyncProtocol
 
 
 class LotteryManager:
@@ -79,7 +80,7 @@ class LotteryManager:
 
 
 class Routes(Enum):
-    NewBlock = auto()
+    NewBlock = 0
 
 
 class LotteryProtocol(Protocol):
@@ -99,20 +100,25 @@ class LotteryProtocol(Protocol):
     def broadcast_best_block_so_far(self):
         if self.lottery_manager.winning_block is None:
             return
-        message = self.new_block(self.lottery_manager.winning_block)
+        message = self.send_best_block(self.lottery_manager.winning_block)
         self.broadcast(message)
 
     def process(self, message: Message) -> dict:
-
         if Routes(message.route) == Routes.NewBlock:
-            if "block" not in message.params:
-                return {"Error": "block is required"}
-            block = message.params["block"]
-            block = Block.from_dict(**block)
-            self.lottery_manager.check_lottery_block(block)
+            return self.process_best_block(message)
 
-    @staticmethod
-    def new_block(self, block: Block) -> Message:
+    def process_best_block(self, message: Message):
+        blockchain: Blockchain = Blockchain.get_main_chain()
+
+        if "block" not in message.params:
+            return {"Error": "block is required"}
+        block = message.params["block"]
+        block = Block.from_dict(**block)
+        result = self.lottery_manager.check_lottery_block(block)
+        if not result and blockchain.state.length < block.index:
+            return SyncProtocol.request_chain_info()
+
+    def send_best_block(self, block: Block) -> Message:
         return Message.from_dict({
             "protocol": self.__class__.name,
             "route": Routes.NewBlock.value,

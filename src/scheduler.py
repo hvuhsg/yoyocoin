@@ -25,8 +25,7 @@ class Job:
         self.last_run = datetime.utcnow()
 
     def execute(self):
-        if self.sync:
-            print(f"{datetime.now()} Execute {self.name}")
+        print(f"{datetime.now()} Execute {self.name}")
         if self.run_thread:
             t = Thread(target=self.func)
             t.daemon = True
