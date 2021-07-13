@@ -22,7 +22,12 @@ def setup_blockchain():
 
 
 def setup_node() -> Node:
-    node = Node(host="127.0.0.1", port=PORT, max_outbound_connections=2, max_inbound_connections=2)
+    node = Node(
+        host="127.0.0.1", port=PORT,
+        max_outbound_connections=2,
+        max_inbound_connections=2,
+        max_sub_nodes_connections=2,
+    )
     node.register_protocol(GossipTransactionsProtocol())
     node.register_protocol(LotteryProtocol())
     node.register_protocol(SyncProtocol())
@@ -35,8 +40,9 @@ def main():
     scheduler = Scheduler(min_time_step=1)
     scheduler.daemon = True
 
-    node = setup_node()
     setup_blockchain()
+
+    node = setup_node()
 
     scheduler.start()
     node.run()  # IDLE

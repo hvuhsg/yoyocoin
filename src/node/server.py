@@ -23,6 +23,7 @@ class Node:
             port: int,
             max_outbound_connections: int,
             max_inbound_connections: int,
+            max_sub_nodes_connections: int,
             log_level: str = "info"
     ):
         self.host = host
@@ -33,6 +34,7 @@ class Node:
         self._connections_manager = ConnectionManager(
             max_outbound_connections,
             max_inbound_connections,
+            max_sub_nodes_connections,
         )
         self._protocol_manager = ProtocolManager()
 
