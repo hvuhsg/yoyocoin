@@ -1,6 +1,8 @@
+from typing import Dict
+
 from globals.singleton import Singleton
 from node.blueprints.protocol import Protocol
-from node.blueprints.message import Message
+from node.blueprints.message import Message, SerializationError
 
 
 class ProtocolManager(Singleton):
@@ -8,22 +10,36 @@ class ProtocolManager(Singleton):
         if protocols is None:
             protocols = {}
 
-        self.protocols = protocols  # {protocol_name: protocol_object}
+        self.sub_nodes_protocols: Dict[str, Protocol] = {}  # {protocol_name: protocol_object}
+        self.protocols: Dict[str, Protocol] = protocols  # {protocol_name: protocol_object}
 
         super().__init__()
 
     def register_protocol(self, protocol: Protocol):
         self.protocols[protocol.name] = protocol
 
-    def process_message(self, message: dict) -> dict:
-        """Process message and return's the result"""
+    def register_sub_node_protocol(self, protocol: Protocol):
+        self.sub_nodes_protocols[protocol.name] = protocol
 
+    def process_sub_node_message(self, message: dict) -> Message:
+        message = self._serialize_message(message)
+        protocol_name = message.protocol
+        if protocol_name not in self.sub_nodes_protocols:
+            return {"Error": "Protocol not found"}
+        result = self.sub_nodes_protocols[protocol_name].process(message)
+        return result
+
+    def _serialize_message(self, message: dict) -> Message:
         # Serialize message
         try:
             message = Message.from_dict(message)
         except TypeError as TE:
-            return {"Error": "message serialize error", "error_message": str(TE)}
+            raise SerializationError(error="message serialize error", message=message)
+        return message
 
+    def process_message(self, message: dict) -> Message:
+        """Process message and return's the result"""
+        message = self._serialize_message(message)
         protocol_name = message.protocol
         if protocol_name not in self.protocols:
             return {"Error": "Protocol not found"}

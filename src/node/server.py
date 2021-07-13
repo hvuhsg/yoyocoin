@@ -66,6 +66,29 @@ async def shutdown():
     await get_connection_manager().stop()
 
 
+@app.websocket("/connect_as_sub_node")
+async def connect_as_sub_node(
+    ws: WebSocket,
+    connection_manager: ConnectionManager = Depends(get_connection_manager),
+    protocol_manager: ProtocolManager = Depends(get_protocol_manager),
+):
+    if connection_manager.sub_connections_is_full():
+        await ws.close()
+        return
+    await ws.accept()
+    ws_id = uuid4()
+    connection_manager.new_sub_node_connection(ws_id, ws)
+
+    try:
+        message = await ws.receive_json()
+        result = protocol_manager.process_sub_node_message(message)
+        if result:
+            await ws.send_json(result.to_dict())
+    except WebSocketDisconnect:
+        connection_manager.remove_sub_node_connection(ws_id)
+        await ws.close()
+
+
 @app.websocket("/connect_as_peer")
 async def connect_to_peer(
         host: str,

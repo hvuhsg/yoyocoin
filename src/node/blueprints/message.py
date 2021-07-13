@@ -1,6 +1,13 @@
 from json import dumps
 
 
+class SerializationError(Exception):
+    def __init__(self, error, message, *args):
+        self.error = error
+        self.message = message
+        super().__init__(args)
+
+
 class Message:
     def __init__(self, protocol: str, route: str = None, params: dict = None):
         self.protocol = protocol

@@ -11,9 +11,11 @@ __all__ = ["ConnectionManager", "get_connection_manager"]
 
 
 class ConnectionManager(Singleton):
-    def __init__(self, max_inbound_connections: int, max_outbound_connections: int):
+    def __init__(self, max_inbound_connections: int, max_outbound_connections: int, max_sub_nodes_connections: int):
         self.max_outbound_connections = max_outbound_connections
         self.max_inbound_connections = max_inbound_connections
+        self.max_sub_nodes_connections = max_sub_nodes_connections
+        self.sub_node_connections = {}  # {UUID: WebSocket}
         self.inbound_connections = {}  # {UUID: WebSocket}
         self.outbound_connections = {}  # {UUID: WebSocket}
         self.connections = {}  # {UUID: (ip, port)}
@@ -37,6 +39,15 @@ class ConnectionManager(Singleton):
             await ws.close()
         for ws in self.outbound_connections.keys():  # type: OutboundWS
             ws.close()
+
+    def new_sub_node_connection(self, ws_id: UUID, ws: InboundWS):
+        self.sub_node_connections[ws_id] = ws
+
+    def remove_sub_node_connection(self, ws_id: UUID):
+        self.sub_node_connections.pop(ws_id)
+
+    def sub_connections_is_full(self) -> bool:
+        return len(self.sub_node_connections) >= self.max_sub_nodes_connections
 
     def new_inbound_connection(self, ws_id: UUID, ws: InboundWS, address: tuple):
         """Add new inbound connection"""
