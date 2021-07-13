@@ -47,6 +47,9 @@ class Node:
     def register_protocol(self, protocol: Protocol):
         self._protocol_manager.register_protocol(protocol)
 
+    def register_sub_node_protocol(self, protocol: Protocol):
+        self._protocol_manager.register_sub_node_protocol(protocol)
+
     def run(self):
         uvicorn.run("node.server:app", host=self.host, port=self.port, log_level=self.log_level)
 

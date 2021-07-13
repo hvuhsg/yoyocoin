@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from .constents import GENESIS_BLOCK
 from .transaction import Transaction
@@ -18,7 +18,7 @@ class Blockchain:
         return cls.main_chain
 
     def __init__(self, pruned=False, is_test_net=False):
-        self.current_transactions: List[Transaction] = []
+        self.current_transactions: Dict[str, Transaction] = {}  # {transaction hash: transaction object}
         self.chain: List[Block] = []
         self.chain_length = 0
         self.nodes = set()
@@ -69,20 +69,20 @@ class Blockchain:
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
         new_block.transactions = sorted(
-            self.current_transactions, key=lambda t: t.nonce
+            self.current_transactions.values(), key=lambda t: t.nonce
         )
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
 
         # Reset the current list of transactions
-        self.current_transactions = []
+        self.current_transactions = {}
 
         return new_block
 
     def add_block(self, block):
         for tx in block.transactions:
             try:
-                self.current_transactions.remove(tx)
+                self.current_transactions.pop(tx.hash())
             except ValueError:
                 pass
         self.state.add_block(block)
@@ -134,7 +134,7 @@ class Blockchain:
 
     def add_transaction(self, transaction: Transaction):
         transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
-        self.current_transactions.append(transaction)
+        self.current_transactions[transaction.hash()] = transaction
 
     def update_chain(self, blockchain):
         self.chain = blockchain.chain

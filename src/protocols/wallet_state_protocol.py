@@ -15,14 +15,14 @@ class WalletStateProtocol(Protocol):
 
     def process(self, message: Message) -> dict:
         if Routes(message.route) == Routes.GetWalletBalanceRequest:
-            self.return_wallet_balance(message)
+            return self.return_wallet_balance(message)
 
     def return_wallet_balance(self, message: Message):
         blockchain: Blockchain = Blockchain.get_main_chain()
         if "wallet_address" not in message.params:
             return
         if message.params["wallet_address"] not in blockchain.state.wallets:
-            return
+            return {"Error": "No wallet found"}
         return Message(
             protocol=self.__class__.name,
             route=Routes.GetWalletBalanceResponse.value,
