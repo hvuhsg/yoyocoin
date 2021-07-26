@@ -13,6 +13,7 @@ class Routes(Enum):
 
 
 class AddTransactionProtocol(Protocol):
+    name: str = "AddTransactionProtocol"
 
     def process(self, message: Message) -> dict:
         if Routes(message.route) == Routes.SendTransaction:
@@ -25,6 +26,7 @@ class AddTransactionProtocol(Protocol):
             return {"Error": "transaction parameter is required"}
         transaction = message.params["transaction"]
         transaction = Transaction.from_dict(**transaction)
+        transaction.validate(blockchain.state, is_test_net=blockchain.is_test_net)
         blockchain.add_transaction(transaction)
 
         self.broadcast(GossipTransactionsProtocol.transaction_hash_gossip_message(transaction_hash=transaction.hash()))

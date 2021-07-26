@@ -2,7 +2,13 @@ from config import PORT, TEST_NET
 from wallet import Wallet
 from blockchain import Blockchain
 from scheduler import Scheduler
-from protocols import GossipTransactionsProtocol, LotteryProtocol, SyncProtocol, WalletStateProtocol
+from protocols import (
+    GossipTransactionsProtocol,
+    LotteryProtocol,
+    SyncProtocol,
+    WalletStateProtocol,
+    AddTransactionProtocol
+)
 from node import Node
 
 
@@ -32,6 +38,7 @@ def setup_node() -> Node:
     node.register_protocol(LotteryProtocol())
     node.register_protocol(SyncProtocol())
     node.register_sub_node_protocol(WalletStateProtocol())
+    node.register_sub_node_protocol(AddTransactionProtocol())
     return node
 
 
