@@ -38,6 +38,14 @@ class MessageInterface(ABC):
     def get_node_id(self) -> str:
         return NotImplemented
 
+    @abstractmethod
+    def has_cid(self) -> bool:
+        return NotImplemented
+
+    @abstractmethod
+    def get_cid(self) -> str:
+        return NotImplemented
+
 
 @dataclass
 class Message(MessageInterface):

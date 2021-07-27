@@ -1,6 +1,6 @@
 from typing import Callable
 from threading import Thread
-from api import IpfsAPI, MessageInterface, message_serializer
+from .api import IpfsAPI, MessageInterface, message_serializer
 
 
 class NetworkListener(Thread):

@@ -1,8 +1,8 @@
 import json
 from typing import Callable
 
-from api import IpfsAPI, MessageType, Message
-from network_listener import NetworkListener
+from .api import IpfsAPI, MessageType, Message
+from .network_listener import NetworkListener
 
 
 class CallbackIsNotCallable(TypeError):
@@ -46,13 +46,21 @@ class Node:
 
         self.setup_listeners()
 
-    def request_sync(self):
+    def request_chain_info(self):
         self.ipfs_api.publish_json_to_topic(
-            "chain",
+            "chain-request",
             Message(
                 type=MessageType.GET_CHAIN, meta={"node_id": self.ipfs_api.node_id}
             ).to_dict(),
         )
+
+    def send_chain_summery_and_cid(self, topic: str, cid: str, meta: dict = None):
+        if meta is None:
+            meta = {}
+        self.ipfs_api.publish_json_to_topic(topic=topic, data={"cid": cid, **meta})
+
+    def load_cid(self, cid: str):
+        return self.ipfs_api.get_data(cid)
 
     def publish_block(self, block: dict):
         block_json = json.dumps(block)
@@ -63,6 +71,15 @@ class Node:
         transaction_json = json.dumps(transaction)
         cid = self.ipfs_api.add_data(transaction_json)
         return cid
+
+    def publish_chain_info(self, chain_info: dict):
+        chain_info_json = json.dumps(chain_info)
+        cid = self.ipfs_api.add_data(chain_info_json)
+        return cid
+
+    def add_listener(self, handler):
+        listener = NetworkListener(topic=handler.topic, callback=handler, ipfs_api=self.ipfs_api)
+        listener.start()
 
     def setup_listeners(self):
         # Public listeners
@@ -83,7 +100,7 @@ class Node:
             ipfs_api=self.ipfs_api,
         )
         on_better_chain_listener = NetworkListener(
-            topic=f"chain", callback=self.on_better_chain, ipfs_api=self.ipfs_api
+            topic="chain", callback=self.on_better_chain, ipfs_api=self.ipfs_api
         )
 
         on_chain_request.start()

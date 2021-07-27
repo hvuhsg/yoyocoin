@@ -2,14 +2,8 @@ from config import PORT, TEST_NET
 from wallet import Wallet
 from blockchain import Blockchain
 from scheduler import Scheduler
-from protocols import (
-    GossipTransactionsProtocol,
-    LotteryProtocol,
-    SyncProtocol,
-    WalletStateProtocol,
-    AddTransactionProtocol,
-)
-from node import Node
+from ipfs import Node
+from network_handlers.on_chain_info_request import ChainInfoRequestHandler
 
 
 def setup_wallet():
@@ -27,20 +21,12 @@ def setup_blockchain():
     #  todo: sync chain
 
 
-def setup_node() -> Node:
-    node = Node(
-        host="0.0.0.0",
-        port=PORT,
-        max_outbound_connections=2,
-        max_inbound_connections=2,
-        max_sub_nodes_connections=2,
-    )
-    node.register_protocol(GossipTransactionsProtocol())
-    node.register_protocol(LotteryProtocol())
-    node.register_protocol(SyncProtocol())
-    node.register_sub_node_protocol(WalletStateProtocol())
-    node.register_sub_node_protocol(AddTransactionProtocol())
-    return node
+def setup_node():
+    callback = lambda x: print(x)
+    node = Node(callback, callback, callback, callback, callback, is_full_node=True)
+    chain_info_request_handler = ChainInfoRequestHandler(node)
+    node.add_listener(chain_info_request_handler)
+    node.request_chain_info()
 
 
 def main():
@@ -50,11 +36,6 @@ def main():
     scheduler.daemon = True
 
     setup_blockchain()
-
-    node = setup_node()
-
-    scheduler.start()
-    node.run()  # IDLE
 
 
 if __name__ == "__main__":
