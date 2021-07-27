@@ -46,9 +46,9 @@ class Transaction:
         private_key = ecdsa.SigningKey.from_string(private_key_string)
         if self.sender_pub_key != private_key.get_verifying_key():
             raise ValueError("SigningKey is not the sender")
-        self.signature = self.sign(private_key)
+        self.signature = self._sign(private_key)
 
-    def sign(self, private_key: ecdsa.SigningKey):
+    def _sign(self, private_key: ecdsa.SigningKey):
         return private_key.sign(self.hash().encode())
 
     def validate(self, blockchain_state, is_test_net=False):

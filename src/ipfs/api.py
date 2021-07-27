@@ -99,7 +99,7 @@ class IpfsAPI:
 
     def get_data(self, cid: str):
         response = requests.post(self.base_api_url + "/block/get", params={"arg": cid})
-        return response.text
+        return response.json()
 
     def block_stat(self, cid: str):
         response = requests.post(self.base_api_url + "/block/stat", params={"arg": cid})

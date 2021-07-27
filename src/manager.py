@@ -1,46 +1,93 @@
 from config import TEST_NET
 from wallet import Wallet
-from blockchain import Blockchain
+from blockchain import Blockchain, Transaction
 from scheduler import Scheduler
-from ipfs import Node
+from ipfs import Node, Message
+
 from network_handlers.on_chain_info_request import ChainInfoRequestHandler
 from network_handlers.on_chain_info import ChainInfoHandler
+from network_handlers.on_new_block import NewBlockHandler
+from network_handlers.on_new_transaction import NewTransactionHandler
+from network_handlers.on_transactions_request import TransactionsRequestHandler
+from network_handlers.on_transactions_response import TransactionsHandler
 
 
-def setup_wallet():
+def setup_wallet() -> Wallet:
     secret = input("Enter wallet secret: ")
     if not secret:
         secret = None
     wallet = Wallet(secret_passcode=secret)
     Wallet.set_main_wallet(wallet)
+    return wallet
 
 
-def setup_blockchain():
-    #  todo: load from disk
+def setup_blockchain() -> Blockchain:
+    #  TODO: load from disk
     blockchain = Blockchain(pruned=False, is_test_net=TEST_NET)
     Blockchain.set_main_chain(blockchain)
-    #  todo: sync chain
+    return blockchain
 
 
-def setup_node():
-    callback = lambda x: print(x)
-    node = Node(callback, callback, callback, callback, callback, is_full_node=True)
+def setup_node() -> Node:
+    node = Node(is_full_node=True)
+
     chain_info_request_handler = ChainInfoRequestHandler(node)
     chain_info_handler = ChainInfoHandler(node)
+    new_block_handler = NewBlockHandler(node)
+    new_transaction_handler = NewTransactionHandler(node)
+    transactions_request_handler = TransactionsRequestHandler(node)
+    transactions_handler = TransactionsHandler(node)
+
     node.add_listener(chain_info_request_handler)
     node.add_listener(chain_info_handler)
-    node.publish_to_topic("chain-request")
+    node.add_listener(new_block_handler)
+    node.add_listener(new_transaction_handler)
+    node.add_listener(transactions_request_handler)
+    node.add_listener(transactions_handler)
+
+    return node
 
 
 def main():
-    setup_wallet()
+    # 1
+    wallet = setup_wallet()
 
+    # 2
     scheduler = Scheduler(min_time_step=1)
     scheduler.daemon = True
+    # TODO: create - block creator
 
-    setup_blockchain()
+    # 3
+    blockchain = setup_blockchain()
 
-    setup_node()
+    # 4
+    node = setup_node()
+
+    # test
+    node.publish_to_topic("chain-request")
+    block = blockchain.chain[0]
+    node.publish_to_topic(
+        "new-block",
+        message=Message(
+            meta={"hash": block.hash(), "index": block.index},
+            cid=node.create_cid(data=block.to_dict())
+        )
+    )
+
+    transaction = Transaction(sender=wallet.public_address, recipient=wallet.public_address, amount=10, nonce=50)
+    transaction.create_signature(wallet.private_address)
+    node.publish_to_topic(
+        "new-transaction",
+        message=Message(
+            meta={"hash": transaction.hash(), "nonce": transaction.nonce},
+            cid=node.create_cid(data=transaction.to_dict())
+        )
+    )
+
+    node.publish_to_topic("transactions-request")
+
+    # 5
+    #  TODO: sync chain
 
 if __name__ == "__main__":
     main()

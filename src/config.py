@@ -1,3 +1,3 @@
-PORT = int(input("Enter port: "))
+PORT = 6001
 
 TEST_NET = True
