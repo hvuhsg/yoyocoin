@@ -1,11 +1,13 @@
 import requests
+import json
 from enum import Enum
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from base64 import b64decode
-import json
+from uuid import uuid4
 
 
-__all__ = ["Message", "MessageType", "IpfsAPI", "message_serializer"]
+__all__ = ["Message", "MessageType", "IpfsAPI", "message_serializer", "MessageInterface"]
 
 
 class MessageType(Enum):
@@ -21,8 +23,18 @@ class MessageType(Enum):
     TEST = "test"
 
 
+class MessageInterface(ABC):
+    @abstractmethod
+    def has_node_id(self) -> bool:
+        return NotImplemented
+
+    @abstractmethod
+    def get_node_id(self) -> str:
+        return NotImplemented
+
+
 @dataclass
-class Message:
+class Message(MessageInterface):
     type: MessageType
     meta: dict = None
     cid: str = None
@@ -33,6 +45,12 @@ class Message:
             "meta": self.meta,
             "cid": self.cid,
         }
+
+    def has_node_id(self) -> bool:
+        return "node_id" in self.meta
+
+    def get_node_id(self) -> str:
+        return self.meta["node_id"]
 
 
 def message_serializer(message: str) -> Message:
@@ -53,6 +71,9 @@ class IpfsAPI:
     def __init__(self, host="127.0.0.1", port=5001):
         self.host = host
         self.port = port
+
+        self.node_id = str(uuid4())
+
         self.base_api_url = f"http://{self.host}:{self.port}/api/v0"
 
         self.node_info = self.get_node_info()
