@@ -1,7 +1,7 @@
 import json
 from typing import Callable
 
-from .api import IpfsAPI, MessageType, Message
+from .api import IpfsAPI, Message
 from .network_listener import NetworkListener
 
 
@@ -46,21 +46,17 @@ class Node:
 
         self.setup_listeners()
 
-    def request_chain_info(self):
-        self.ipfs_api.publish_json_to_topic(
-            "chain-request",
-            Message(
-                type=MessageType.GET_CHAIN, meta={"node_id": self.ipfs_api.node_id}
-            ).to_dict(),
-        )
-
-    def send_chain_summery_and_cid(self, topic: str, cid: str, meta: dict = None):
-        if meta is None:
-            meta = {}
-        self.ipfs_api.publish_json_to_topic(topic=topic, data={"cid": cid, **meta})
+    def publish_to_topic(self, topic: str, message: Message = None):
+        if message is None:
+            message = Message()
+        message.meta.update({"node_id": self.ipfs_api.node_id})
+        self.ipfs_api.publish_json_to_topic(topic, message.to_dict())
 
     def load_cid(self, cid: str):
         return self.ipfs_api.get_data(cid)
+
+    def create_cid(self, data: dict):
+        return self.ipfs_api.add_data(json.dumps(data))
 
     def publish_block(self, block: dict):
         block_json = json.dumps(block)
@@ -70,11 +66,6 @@ class Node:
     def publish_transaction(self, transaction: dict):
         transaction_json = json.dumps(transaction)
         cid = self.ipfs_api.add_data(transaction_json)
-        return cid
-
-    def publish_chain_info(self, chain_info: dict):
-        chain_info_json = json.dumps(chain_info)
-        cid = self.ipfs_api.add_data(chain_info_json)
         return cid
 
     def add_listener(self, handler):
@@ -108,16 +99,3 @@ class Node:
         on_new_block_listener.start()
         on_new_transaction_listener.start()
         on_better_chain_listener.start()
-
-
-def callback(message, topic: str):
-    print(topic, message)
-
-
-def main():
-    node = Node(callback, callback, callback)
-    node.request_sync()
-
-
-if __name__ == "__main__":
-    main()

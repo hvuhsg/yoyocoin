@@ -6,11 +6,10 @@ if chain info response is sent the handler will execute those steps:
 3. get chain info via cid
 4. update chain info
 """
-from typing import Tuple
 from ipfs import Node, MessageInterface
 
 
-class ChainInfoRequestHandler:
+class ChainInfoHandler:
     topic = "chain-response"
 
     def __init__(self, node: Node):
@@ -32,6 +31,8 @@ class ChainInfoRequestHandler:
             return
         if not self.message_is_relevant(message):
             return
-
+        chain_info = self.load_chain_info(message)
+        print(chain_info)
+        # TODO: update chain with new info
 
 

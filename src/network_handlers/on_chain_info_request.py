@@ -7,7 +7,7 @@ if chain info request is initiated the handler will execute those steps:
 4. send the cid and summery
 """
 from typing import Tuple
-from ipfs import Node, MessageInterface
+from ipfs import Node, MessageInterface, Message
 
 
 class ChainInfoRequestHandler:
@@ -22,13 +22,17 @@ class ChainInfoRequestHandler:
         return True
 
     def get_chain_info(self) -> Tuple[dict, dict]:
-        return {"a": 1, "b": 2, "c": ['1', '2', 4]}, {"score": 123}
+        """
+        Return blockchain block hashes
+        :return: tuple of chain info (block hashes) and chain summery (chain length and score)
+        """
+        return {"a": "hello my self"}, {"score": 123}
 
     def publish_chain_info(self, chain_info: dict) -> str:
-        return self.node.publish_chain_info(chain_info)
+        return self.node.create_cid(chain_info)
 
     def send_cid_and_summery(self, cid: str, summery: dict):
-        return self.node.send_chain_summery_and_cid(topic=self.topic_response, cid=cid, meta=summery)
+        return self.node.publish_to_topic(topic=self.topic_response, message=Message(cid=cid, meta=summery))
 
     def __call__(self, message: MessageInterface):
         print(message)

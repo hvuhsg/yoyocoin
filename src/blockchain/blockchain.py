@@ -83,10 +83,7 @@ class Blockchain:
 
     def add_block(self, block):
         for tx in block.transactions:
-            try:
-                self.current_transactions.pop(tx.hash())
-            except ValueError:
-                pass
+            self.current_transactions.pop(tx.hash(), None)
         self.state.add_block(block)
         if self.pruned:
             self.chain = [block]

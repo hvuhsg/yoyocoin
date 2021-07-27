@@ -1,7 +1,6 @@
 import requests
 import json
-from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from base64 import b64decode
 from uuid import uuid4
@@ -9,24 +8,9 @@ from uuid import uuid4
 
 __all__ = [
     "Message",
-    "MessageType",
     "IpfsAPI",
-    "message_serializer",
     "MessageInterface",
 ]
-
-
-class MessageType(Enum):
-    GET_CHAIN = "get-chain"
-    CHAIN_INFO = "chain-info"
-
-    GET_TRANSACTIONS = "get-transactions"
-    TRANSACTIONS_INFO = "transactions-info"
-
-    NEW_TRANSACTION = "new-transaction"
-    NEW_BLOCK = "new-block"
-
-    TEST = "test"
 
 
 class MessageInterface(ABC):
@@ -49,36 +33,38 @@ class MessageInterface(ABC):
 
 @dataclass
 class Message(MessageInterface):
-    type: MessageType
-    meta: dict = None
+    meta: dict = field(default_factory=lambda: dict())
     cid: str = None
 
     def to_dict(self):
         return {
-            "type": self.type.value,
             "meta": self.meta,
             "cid": self.cid,
         }
 
     def has_node_id(self) -> bool:
-        return "node_id" in self.meta
+        return self.meta is not None and "node_id" in self.meta
 
     def get_node_id(self) -> str:
         return self.meta["node_id"]
 
+    def has_cid(self) -> bool:
+        return self.cid is not None
 
-def message_serializer(message: str) -> Message:
-    try:
-        message_dict = json.loads(message)
-    except json.JSONDecodeError:
-        cid = message
-        message_type = MessageType.TEST
-        meta = None
-    else:
-        message_type = MessageType(message_dict.pop("type"))
-        cid = message_dict.pop("cid", None)
-        meta = message_dict["meta"]
-    return Message(type=message_type, cid=cid, meta=meta)
+    def get_cid(self) -> str:
+        return self.cid
+
+    @classmethod
+    def from_json(cls, message_json):
+        try:
+            message_dict = json.loads(message_json)
+        except json.JSONDecodeError:
+            cid = message_json
+            meta = None
+        else:
+            cid = message_dict.pop("cid", None)
+            meta = message_dict.get("meta", None)
+        return Message(cid=cid, meta=meta)
 
 
 class IpfsAPI:
@@ -109,7 +95,7 @@ class IpfsAPI:
     def add_data(self, data: str):
         files = {"content": data}
         response = requests.post(self.base_api_url + "/block/put", files=files)
-        return response.json()
+        return response.json()["Key"]
 
     def get_data(self, cid: str):
         response = requests.post(self.base_api_url + "/block/get", params={"arg": cid})

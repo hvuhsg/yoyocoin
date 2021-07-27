@@ -1,9 +1,10 @@
-from config import PORT, TEST_NET
+from config import TEST_NET
 from wallet import Wallet
 from blockchain import Blockchain
 from scheduler import Scheduler
 from ipfs import Node
 from network_handlers.on_chain_info_request import ChainInfoRequestHandler
+from network_handlers.on_chain_info import ChainInfoHandler
 
 
 def setup_wallet():
@@ -25,8 +26,10 @@ def setup_node():
     callback = lambda x: print(x)
     node = Node(callback, callback, callback, callback, callback, is_full_node=True)
     chain_info_request_handler = ChainInfoRequestHandler(node)
+    chain_info_handler = ChainInfoHandler(node)
     node.add_listener(chain_info_request_handler)
-    node.request_chain_info()
+    node.add_listener(chain_info_handler)
+    node.publish_to_topic("chain-request")
 
 
 def main():
@@ -37,6 +40,7 @@ def main():
 
     setup_blockchain()
 
+    setup_node()
 
 if __name__ == "__main__":
     main()
