@@ -20,7 +20,7 @@ class Block:
         forger=None,
         transactions: List[Transaction] = None,
         signature=None,
-        **kwargs
+        **kwargs,
     ):
         """
         Create block
@@ -130,7 +130,9 @@ class Block:
         if self.index == 0 and blockchain_state.length == 0:
             return  # TODO: check in production if hash if equal to hard coded hash
         if self.index != blockchain_state.length:
-            raise ValidationError(f"block index not sequential index: {self.index} chain: {blockchain_state.length}")
+            raise ValidationError(
+                f"block index not sequential index: {self.index} chain: {blockchain_state.length}"
+            )
         if self.previous_hash != blockchain_state.last_block_hash:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
@@ -153,7 +155,7 @@ class Block:
         forger,
         transactions: dict,
         signature: str,
-        **kwargs
+        **kwargs,
     ):
         transactions = list(map(lambda t: Transaction.from_dict(**t), transactions))
         signature = b64decode(signature.encode())
@@ -163,5 +165,5 @@ class Block:
             forger=forger,
             transactions=transactions,
             signature=signature,
-            **kwargs
+            **kwargs,
         )

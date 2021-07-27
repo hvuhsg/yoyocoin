@@ -7,7 +7,13 @@ from base64 import b64decode
 from uuid import uuid4
 
 
-__all__ = ["Message", "MessageType", "IpfsAPI", "message_serializer", "MessageInterface"]
+__all__ = [
+    "Message",
+    "MessageType",
+    "IpfsAPI",
+    "message_serializer",
+    "MessageInterface",
+]
 
 
 class MessageType(Enum):
@@ -93,7 +99,7 @@ class IpfsAPI:
         return self.get_pubsub_peers("sync")
 
     def add_data(self, data: str):
-        files = {'content': data}
+        files = {"content": data}
         response = requests.post(self.base_api_url + "/block/put", files=files)
         return response.json()
 
@@ -106,7 +112,9 @@ class IpfsAPI:
         return response.json()
 
     def _publish_to_topic(self, topic: str, data: str):
-        response = requests.post(self.base_api_url + "/pubsub/pub", params={"arg": [topic, data]})
+        response = requests.post(
+            self.base_api_url + "/pubsub/pub", params={"arg": [topic, data]}
+        )
         return response.text
 
     def publish_json_to_topic(self, topic: str, data: dict):
@@ -115,7 +123,9 @@ class IpfsAPI:
         return response
 
     def sub_to_topic(self, topic: str):
-        response = requests.post(self.base_api_url + "/pubsub/sub", params={"arg": topic}, stream=True)
+        response = requests.post(
+            self.base_api_url + "/pubsub/sub", params={"arg": topic}, stream=True
+        )
         data = b""
         for stream_data in response:
             data += stream_data
@@ -124,6 +134,7 @@ class IpfsAPI:
                 data["data"] = b64decode(data["data"])
                 yield data
                 data = b""
+
 
 if __name__ == "__main__":
     node = IpfsAPI()

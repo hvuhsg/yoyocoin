@@ -19,7 +19,10 @@ class Job:
         if not self.sync:
             return utcnow - self.last_run >= timedelta(seconds=self.interval)
         current_time_in_seconds = int((utcnow - start_time).total_seconds())
-        return utcnow > self.last_run and (current_time_in_seconds + self.offset) % self.interval == 0
+        return (
+            utcnow > self.last_run
+            and (current_time_in_seconds + self.offset) % self.interval == 0
+        )
 
     def update_last_run(self):
         self.last_run = datetime.utcnow()
@@ -44,15 +47,24 @@ class Scheduler(Thread):
         return cls._instance
 
     @classmethod
-    def schedule(cls, name: str, interval: float, sync: bool = True, run_thread: bool = True, offset: int = 0):
+    def schedule(
+        cls,
+        name: str,
+        interval: float,
+        sync: bool = True,
+        run_thread: bool = True,
+        offset: int = 0,
+    ):
         scheduler = cls.get_instance()
 
         def decorator(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
                 return func(*args, **kwargs)
+
             scheduler.add_job(wrapped, name, interval, sync, run_thread)
             return wrapped
+
         return decorator
 
     def __init__(self, time_start: datetime = None, min_time_step: float = 1.0):
@@ -68,7 +80,14 @@ class Scheduler(Thread):
         self.__class__._instance = self
 
     def add_job(self, func, name, interval, sync, run_thread, offset: int = 0):
-        self.jobs[name] = Job(func=func, name=name, interval=interval, sync=sync, run_thread=run_thread, offset=offset)
+        self.jobs[name] = Job(
+            func=func,
+            name=name,
+            interval=interval,
+            sync=sync,
+            run_thread=run_thread,
+            offset=offset,
+        )
 
     def remove_job(self, name):
         return self.jobs.pop(name, None)

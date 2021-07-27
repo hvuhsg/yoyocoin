@@ -26,4 +26,3 @@ class Storage:
 
     def write(self, key, value):
         self.ram_storage[key] = value
-

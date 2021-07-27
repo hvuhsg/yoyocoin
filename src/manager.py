@@ -7,7 +7,7 @@ from protocols import (
     LotteryProtocol,
     SyncProtocol,
     WalletStateProtocol,
-    AddTransactionProtocol
+    AddTransactionProtocol,
 )
 from node import Node
 
@@ -29,7 +29,8 @@ def setup_blockchain():
 
 def setup_node() -> Node:
     node = Node(
-        host="0.0.0.0", port=PORT,
+        host="0.0.0.0",
+        port=PORT,
         max_outbound_connections=2,
         max_inbound_connections=2,
         max_sub_nodes_connections=2,
@@ -54,6 +55,7 @@ def main():
 
     scheduler.start()
     node.run()  # IDLE
+
 
 if __name__ == "__main__":
     main()

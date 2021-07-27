@@ -18,7 +18,9 @@ class Blockchain:
         return cls.main_chain
 
     def __init__(self, pruned=False, is_test_net=False):
-        self.current_transactions: Dict[str, Transaction] = {}  # {transaction hash: transaction object}
+        self.current_transactions: Dict[
+            str, Transaction
+        ] = {}  # {transaction hash: transaction object}
         self.chain: List[Block] = []
         self.chain_length = 0
         self.nodes = set()

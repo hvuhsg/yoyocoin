@@ -15,13 +15,13 @@ class CallbackIsNotCallable(TypeError):
 
 class Node:
     def __init__(
-            self,
-            on_new_block: Callable,
-            on_new_transaction: Callable,
-            on_better_chain: Callable,
-            on_transactions_request: Callable,
-            on_chain_info_request: Callable,
-            is_full_node: bool = True
+        self,
+        on_new_block: Callable,
+        on_new_transaction: Callable,
+        on_better_chain: Callable,
+        on_transactions_request: Callable,
+        on_chain_info_request: Callable,
+        is_full_node: bool = True,
     ):
         if not callable(on_new_block):
             raise CallbackIsNotCallable(on_new_block)
@@ -49,7 +49,9 @@ class Node:
     def request_sync(self):
         self.ipfs_api.publish_json_to_topic(
             "chain",
-            Message(type=MessageType.GET_CHAIN, meta={"node_id": self.ipfs_api.node_id}).to_dict()
+            Message(
+                type=MessageType.GET_CHAIN, meta={"node_id": self.ipfs_api.node_id}
+            ).to_dict(),
         )
 
     def publish_block(self, block: dict):
@@ -65,29 +67,23 @@ class Node:
     def setup_listeners(self):
         # Public listeners
         on_chain_request = NetworkListener(
-            topic="chain",
-            callback=self.on_chain_info_request,
-            ipfs_api=self.ipfs_api
+            topic="chain", callback=self.on_chain_info_request, ipfs_api=self.ipfs_api
         )
         on_transactions_request = NetworkListener(
             topic="transaction",
             callback=self.on_transactions_request,
-            ipfs_api=self.ipfs_api
+            ipfs_api=self.ipfs_api,
         )
         on_new_block_listener = NetworkListener(
-            topic="new-block",
-            callback=self.on_new_block,
-            ipfs_api=self.ipfs_api
+            topic="new-block", callback=self.on_new_block, ipfs_api=self.ipfs_api
         )
         on_new_transaction_listener = NetworkListener(
             topic="new-transaction",
             callback=self.on_new_transaction,
-            ipfs_api=self.ipfs_api
+            ipfs_api=self.ipfs_api,
         )
         on_better_chain_listener = NetworkListener(
-            topic=f"chain",
-            callback=self.on_better_chain,
-            ipfs_api=self.ipfs_api
+            topic=f"chain", callback=self.on_better_chain, ipfs_api=self.ipfs_api
         )
 
         on_chain_request.start()
