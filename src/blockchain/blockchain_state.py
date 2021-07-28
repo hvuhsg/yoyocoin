@@ -1,3 +1,4 @@
+from typing import Dict, Set
 import math
 from hashlib import sha256
 from random import choices, seed, random
@@ -14,9 +15,24 @@ from .constents import (
 from .exceptions import DuplicateNonceError
 
 
+class RemoteWallet:
+    def __init__(self, public_address: str, balance: float, last_transaction: int, nonce_counter: int):
+        self.address = public_address
+        self.balance = balance
+        self.last_transaction = last_transaction
+        self.nonce_counter = nonce_counter
+
+    def ratio_from_total(self, total: float) -> float:
+        return self.balance / total
+
+    def __hash__(self):
+        res = int.from_bytes(self.address.encode(), "big")
+        return res
+
+
 class BlockchainState:
     def __init__(self, is_test_net=False):
-        self.wallets = {}  # type: dict
+        self.wallets = {}  # type: Dict[str, RemoteWallet]
 
         self.total_coins = 0  # type: int
 
@@ -30,14 +46,9 @@ class BlockchainState:
         self.is_test_net = is_test_net
 
     def _new_wallet_data(self, wallet_address):
-        return {
-            "balance": 0,
-            "nonce_counter": 0,
-            "last_transaction": 0,
-            "address": wallet_address,
-        }
+        return RemoteWallet(public_address=wallet_address, balance=0, last_transaction=0, nonce_counter=0)
 
-    def _get_wallet(self, wallet_address):
+    def _get_wallet(self, wallet_address) -> RemoteWallet:
         wallet = self.wallets.get(wallet_address, None)
         if wallet:
             return wallet
@@ -56,17 +67,17 @@ class BlockchainState:
     def _calculate_forger_score(self, forger_wallet):
         current_block_index = self.length
         blocks_number = min(
-            (current_block_index - forger_wallet["last_transaction"]),
+            (current_block_index - forger_wallet.last_transaction),
             MAX_BLOCKS_FOR_SCORE,
         )
-        lottery_blocks = self._calculate_lottery_block_bonus(forger_wallet["address"])
+        lottery_blocks = self._calculate_lottery_block_bonus(forger_wallet.address)
         blocks_number += lottery_blocks
         multiplier = (blocks_number ** math.e + MIN_SCORE) / (
             BLOCKS_CURVE_NUMBER ** math.e
         )
-        wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
+        wallet_balance = min(forger_wallet.balance, MAX_BALANCE_FOR_SCORE)
         score = wallet_balance * multiplier
-        tie_brake_number = self._tie_break(forger_wallet["address"])
+        tie_brake_number = self._tie_break(forger_wallet.address)
         return score + MIN_SCORE + tie_brake_number
 
     def block_score(self, block: Block):
@@ -80,23 +91,22 @@ class BlockchainState:
         for transaction in block.transactions:
             if block.index == 0:
                 recipient_wallet = self._get_wallet(transaction.recipient)
-                recipient_wallet["balance"] += transaction.amount
+                recipient_wallet.balance += transaction.amount
                 continue
             sender_wallet = self._get_wallet(transaction.sender)
             recipient_wallet = self._get_wallet(transaction.recipient)
-            if transaction.nonce != sender_wallet["nonce_counter"]:
+            if transaction.nonce != sender_wallet.nonce_counter:
                 raise DuplicateNonceError()
-            sender_wallet["nonce_counter"] += 1
-            sender_wallet["balance"] -= transaction.amount
-            sender_wallet["balance"] -= transaction.fee
-            recipient_wallet["balance"] += transaction.amount
-            sender_wallet["last_transaction"] = block.index
-            sender_wallet["last_transaction"] = block.index
+            sender_wallet.nonce_counter += 1
+            sender_wallet.balance -= transaction.amount
+            sender_wallet.balance -= transaction.fee
+            recipient_wallet.balance += transaction.amount
+            sender_wallet.last_transaction = block.index
             fees += transaction.fee
         forger_wallet = self._get_wallet(block.forger)
-        forger_wallet["balance"] += fees
+        forger_wallet.balance += fees
         self.score += self._calculate_forger_score(forger_wallet)
-        forger_wallet["last_transaction"] = block.index
+        forger_wallet.last_transaction = block.index
         self.last_block = block
         self.last_block_hash = block.hash()
         self.block_hashs.append(self.last_block_hash)
