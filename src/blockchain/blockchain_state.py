@@ -11,7 +11,7 @@ from .constents import (
     LOTTERY_PRIZES,
     LOTTERY_WEIGHTS,
 )
-from .exceptions import DuplicateNonce
+from .exceptions import DuplicateNonceError
 
 
 class BlockchainState:
@@ -85,7 +85,7 @@ class BlockchainState:
             sender_wallet = self._get_wallet(transaction.sender)
             recipient_wallet = self._get_wallet(transaction.recipient)
             if transaction.nonce != sender_wallet["nonce_counter"]:
-                raise DuplicateNonce()
+                raise DuplicateNonceError()
             sender_wallet["nonce_counter"] += 1
             sender_wallet["balance"] -= transaction.amount
             sender_wallet["balance"] -= transaction.fee

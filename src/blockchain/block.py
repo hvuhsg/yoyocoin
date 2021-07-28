@@ -8,7 +8,7 @@ import ecdsa
 
 from .constents import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN
 from .transaction import Transaction
-from .exceptions import ValidationError, NonLotteryMember, WalletLotteryFreeze
+from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError
 
 
 class Block:
@@ -119,10 +119,11 @@ class Block:
         Validate block
         1. check block index (is the next block in the blockchain state)
         2. check previous hash (is the hash of the previous block)
-        3. check forger wallet (balance > 100)
+        3. check forger wallet (is lottery member?)
         4. check block signature
         5. validate transactions
 
+        :param is_test_net: if True ignore InsufficientBalanceError and NonLotteryMemberError
         :param blockchain_state: Blockchain state object
         :raises ValidationError
         :return: None
@@ -138,7 +139,7 @@ class Block:
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet["balance"] < 100:
             if not is_test_net:
-                raise NonLotteryMember()
+                raise NonLotteryMemberError()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:

@@ -5,9 +5,9 @@ from .transaction import Transaction
 from .exceptions import (
     ValidationError,
     InsufficientBalanceError,
-    WalletLotteryFreeze,
-    DuplicateNonce,
-    NonLotteryMember,
+    WalletLotteryFreezeError,
+    DuplicateNonceError,
+    NonLotteryMemberError,
 )
 
 __all__ = [
@@ -17,7 +17,7 @@ __all__ = [
     "Transaction",
     "ValidationError",
     "InsufficientBalanceError",
-    "WalletLotteryFreeze",
-    "DuplicateNonce",
-    "NonLotteryMember",
+    "WalletLotteryFreezeError",
+    "DuplicateNonceError",
+    "NonLotteryMemberError",
 ]

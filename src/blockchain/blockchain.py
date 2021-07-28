@@ -60,7 +60,6 @@ class Blockchain:
         """
         Create a new Block in the Blockchain
 
-        TODO: replace with PoS
         block: the new Block object
         :return: New Block
         """
