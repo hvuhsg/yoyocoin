@@ -68,7 +68,7 @@ class Scheduler(Thread):
         return decorator
 
     def __init__(self, time_start: datetime = None, min_time_step: float = 1.0):
-        super().__init__()
+        super().__init__(daemon=True)
         if time_start is None:
             time_start = datetime.fromtimestamp(0)  # TODO: set to utc time zone
         self.time_start = time_start
