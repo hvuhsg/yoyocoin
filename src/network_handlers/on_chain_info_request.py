@@ -7,10 +7,14 @@ if chain info request is initiated the handler will execute those steps:
 4. send the cid and summery
 """
 from typing import Tuple
+
+from blockchain import Blockchain
 from ipfs import Node, MessageInterface, Message
 
+from .handler import Handler
 
-class ChainInfoRequestHandler:
+
+class ChainInfoRequestHandler(Handler):
     topic = "chain-request"
     topic_response = "chain-response"
 
@@ -18,23 +22,38 @@ class ChainInfoRequestHandler:
         self.node = node
         self._cid = None
 
-    def validate(self, message: MessageInterface):
-        return True
+    def validate(self, message: Message):
+        blockchain: Blockchain = Blockchain.get_main_chain()
+        score_exist = message.meta.get("score", None) is not None
+        score_is_lower = score_exist and message.meta.get("score") < blockchain.state.score
+        # TODO: check length
+        return score_is_lower
 
     def get_chain_info(self) -> Tuple[dict, dict]:
         """
         Return blockchain block hashes
         :return: tuple of chain info (block hashes) and chain summery (chain length and score)
         """
-        return {"a": "hello my self"}, {"score": 123}
+        blockchain: Blockchain = Blockchain.get_main_chain()
+        blocks = blockchain.chain
+        score = blockchain.state.score
+        length = blockchain.state.length
+        return {"blocks": blocks}, {"score": score, "length": length}
 
     def publish_chain_info(self, chain_info: dict) -> str:
-        return self.node.create_cid(chain_info)
+        blocks_cids = []
+        blocks_hashes = []
+        for block in chain_info["blocks"]:
+            block_dict = block.to_dict()
+            blocks_cids.append(self.node.create_cid(block_dict))
+            blocks_hashes.append(block.hash())
+        return self.node.create_cid({"blocks_cid": blocks_cids, "blocks_hash": blocks_hashes})
 
     def send_cid_and_summery(self, cid: str, summery: dict):
         return self.node.publish_to_topic(topic=self.topic_response, message=Message(cid=cid, meta=summery))
 
     def __call__(self, message: MessageInterface):
+        super().log(message)
         if not self.validate(message):
             return
         chain_info, chain_summery = self.get_chain_info()

@@ -8,8 +8,10 @@ if transactions request is initiated the handler will execute those steps:
 """
 from ipfs import Node, MessageInterface, Message
 
+from .handler import Handler
 
-class TransactionsRequestHandler:
+
+class TransactionsRequestHandler(Handler):
     topic = "transactions-request"
     topic_response = "transactions-response"
 
@@ -32,6 +34,7 @@ class TransactionsRequestHandler:
         return self.node.publish_to_topic(topic=self.topic_response, message=Message(cid=cid, meta={"count": count}))
 
     def __call__(self, message: MessageInterface):
+        super().log(message)
         if not self.validate(message):
             return
         transactions = self.get_transactions()

@@ -7,8 +7,10 @@ if transaction response is sent, the handler will execute those steps:
 """
 from ipfs import Node, MessageInterface
 
+from .handler import Handler
 
-class TransactionsHandler:
+
+class TransactionsHandler(Handler):
     topic = "transactions-response"
 
     def __init__(self, node: Node):
@@ -25,6 +27,7 @@ class TransactionsHandler:
         return self.node.load_cid(cid)
 
     def __call__(self, message: MessageInterface):
+        super().log(message)
         if not self.validate(message):
             return
         if not self.message_is_relevant(message):

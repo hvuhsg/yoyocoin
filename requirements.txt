@@ -1,5 +1,2 @@
 ecdsa==0.16.1
-requests
-fastapi
-uvicorn
-websocket-client
+loguru
