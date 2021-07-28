@@ -49,3 +49,9 @@ class Node:
             raise CallbackIsNotCallable(handler)
         listener = NetworkListener(topic=handler.topic, callback=handler, ipfs_api=self.ipfs_api)
         listener.start()
+
+    def remove_listener(self, topic: str):
+        self.ipfs_api.close_stream(topic)
+
+    def close(self):
+        self.ipfs_api.close()

@@ -76,6 +76,8 @@ class IpfsAPI:
 
         self.base_api_url = f"http://{self.host}:{self.port}/api/v0"
 
+        self._streams = {}
+
         self.node_info = self.get_node_info()
 
     def get_node_info(self) -> str:
@@ -120,6 +122,7 @@ class IpfsAPI:
         response = requests.post(
             self.base_api_url + "/pubsub/sub", params={"arg": topic}, stream=True
         )
+        self._streams[topic] = response
         data = b""
         for stream_data in response:
             data += stream_data
@@ -128,6 +131,13 @@ class IpfsAPI:
                 data["data"] = b64decode(data["data"])
                 yield data
                 data = b""
+
+    def close_stream(self, topic: str):
+        self._streams[topic].close()
+
+    def close(self):
+        for stream_name, stream in self._streams.items():
+            stream.close()
 
 
 if __name__ == "__main__":
