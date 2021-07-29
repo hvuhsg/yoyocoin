@@ -45,7 +45,7 @@ class ChainInfoHandler(Handler):
             block_dict = self.node.load_cid(b_cid)
             block = Block.from_dict(**block_dict)
             if block.hash() != b_hash or (
-                blocks and block.previous_hash != blocks[-1].hash()
+                    blocks and block.previous_hash != blocks[-1].hash()
             ):
                 break
             blocks.append(block)
@@ -58,7 +58,7 @@ class ChainInfoHandler(Handler):
         new_blockchain.state.add_chain(blocks)
         score_is_bigger = new_blockchain.state.score > current_blockchain.state.score
         length_is_not_lower = (
-            new_blockchain.state.length >= current_blockchain.state.length
+                new_blockchain.state.length >= current_blockchain.state.length
         )
         if score_is_bigger and length_is_not_lower:
             logger.success(

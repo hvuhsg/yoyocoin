@@ -8,7 +8,7 @@ from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonc
 
 class Transaction:
     def __init__(
-        self, sender, recipient, amount, nonce: int, fee=None, signature=None, **kwargs
+            self, sender, recipient, amount, nonce: int, fee=None, signature=None, **kwargs
     ):
         if fee is None:
             fee = 1

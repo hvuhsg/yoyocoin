@@ -25,7 +25,7 @@ class TransactionsRequestHandler(Handler):
     def get_transactions(self) -> dict:
         # TODO: get transactions from pool
         transactions = ["t1", "t2", "t3"]
-        return {"transactions" :transactions}
+        return {"transactions": transactions}
 
     def publish_transactions(self, transactions: dict) -> str:
         return self.node.create_cid(transactions)

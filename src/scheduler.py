@@ -20,8 +20,8 @@ class Job:
             return utcnow - self.last_run >= timedelta(seconds=self.interval)
         current_time_in_seconds = int((utcnow - start_time).total_seconds())
         return (
-            utcnow > self.last_run
-            and (current_time_in_seconds + self.offset) % self.interval == 0
+                utcnow > self.last_run
+                and (current_time_in_seconds + self.offset) % self.interval == 0
         )
 
     def update_last_run(self):
@@ -48,12 +48,12 @@ class Scheduler(Thread):
 
     @classmethod
     def schedule(
-        cls,
-        name: str,
-        interval: float,
-        sync: bool = True,
-        run_thread: bool = True,
-        offset: int = 0,
+            cls,
+            name: str,
+            interval: float,
+            sync: bool = True,
+            run_thread: bool = True,
+            offset: int = 0,
     ):
         scheduler = cls.get_instance()
 

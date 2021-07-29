@@ -21,7 +21,7 @@ class NewBlockHandler(Handler):
 
     def validate(self, message: Message):
         return (
-            message.has_cid() and "p_hash" in message.meta and "index" in message.meta
+                message.has_cid() and "p_hash" in message.meta and "index" in message.meta
         )
 
     def message_is_relevant(self, message: Message) -> bool:

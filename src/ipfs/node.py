@@ -1,5 +1,4 @@
 import json
-from typing import Callable
 
 from .api import IpfsAPI, Message
 from .network_listener import NetworkListener
@@ -15,8 +14,8 @@ class CallbackIsNotCallable(TypeError):
 
 class Node:
     def __init__(
-        self,
-        is_full_node: bool = True,
+            self,
+            is_full_node: bool = True,
     ):
         self.ipfs_api = IpfsAPI()
 

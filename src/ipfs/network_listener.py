@@ -9,10 +9,10 @@ class StreamClosedError(AttributeError):
 
 class NetworkListener(Thread):
     def __init__(
-        self,
-        topic: str,
-        callback: Callable[[MessageInterface], None],
-        ipfs_api: IpfsAPI,
+            self,
+            topic: str,
+            callback: Callable[[MessageInterface], None],
+            ipfs_api: IpfsAPI,
     ):
         super().__init__(name=f"{topic} listener", daemon=False)
         self._topic = topic
@@ -25,8 +25,8 @@ class NetworkListener(Thread):
                 message_data = message["data"]
                 serialized_message: MessageInterface = Message.from_json(message_data)
                 if (
-                    not serialized_message.has_node_id()
-                    or serialized_message.get_node_id() == self._ipfs_api.node_id
+                        not serialized_message.has_node_id()
+                        or serialized_message.get_node_id() == self._ipfs_api.node_id
                 ):
                     # ignore self messages
                     continue

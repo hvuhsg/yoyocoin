@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from base64 import b64decode
 from uuid import uuid4
 
-
 __all__ = [
     "Message",
     "IpfsAPI",
