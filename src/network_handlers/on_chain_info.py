@@ -37,7 +37,7 @@ class ChainInfoHandler(Handler):
         length_is_bigger = message.meta.get("length") >= blockchain.state.length
         return score_is_bigger and length_is_bigger
 
-    def load_chain_blocks(self, message: MessageInterface) -> dict:
+    def load_chain_blocks(self, message: MessageInterface) -> list:
         cid = message.get_cid()
         blocks = []
         blocks_info = self.node.load_cid(cid)
@@ -55,8 +55,7 @@ class ChainInfoHandler(Handler):
     def build_blockchain(self, blocks: List[Block]):
         current_blockchain: Blockchain = Blockchain.get_main_chain()
         new_blockchain = Blockchain(is_test_net=IS_TEST_NET)
-        for block in blocks:
-            new_blockchain.add_block(block)
+        new_blockchain.state.add_chain(blocks)
         score_is_bigger = new_blockchain.state.score > current_blockchain.state.score
         length_is_not_lower = (
             new_blockchain.state.length >= current_blockchain.state.length
@@ -69,7 +68,7 @@ class ChainInfoHandler(Handler):
             )
             Blockchain.set_main_chain(new_blockchain)
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return

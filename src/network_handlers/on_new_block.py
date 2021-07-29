@@ -44,7 +44,7 @@ class NewBlockHandler(Handler):
         blockchain.add_block(block)
         print("Block added to blockchain", "\n    - index:", block.index)
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return

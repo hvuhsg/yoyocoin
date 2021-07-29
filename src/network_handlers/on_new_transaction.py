@@ -42,7 +42,7 @@ class NewTransactionHandler(Handler):
         blockchain: Blockchain = Blockchain.get_main_chain()
         blockchain.add_transaction(transaction)
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return

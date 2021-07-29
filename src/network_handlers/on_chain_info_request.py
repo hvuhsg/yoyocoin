@@ -58,7 +58,7 @@ class ChainInfoRequestHandler(Handler):
             topic=self.topic_response, message=Message(cid=cid, meta=summery)
         )
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return

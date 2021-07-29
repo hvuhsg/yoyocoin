@@ -22,10 +22,10 @@ class TransactionsRequestHandler(Handler):
     def validate(self, message: MessageInterface):
         return True
 
-    def get_transactions(self) -> list:
+    def get_transactions(self) -> dict:
         # TODO: get transactions from pool
         transactions = ["t1", "t2", "t3"]
-        return transactions
+        return {"transactions" :transactions}
 
     def publish_transactions(self, transactions: dict) -> str:
         return self.node.create_cid(transactions)
@@ -35,7 +35,7 @@ class TransactionsRequestHandler(Handler):
             topic=self.topic_response, message=Message(cid=cid, meta={"count": count})
         )
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return
