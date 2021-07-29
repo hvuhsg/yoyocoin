@@ -31,7 +31,9 @@ class TransactionsRequestHandler(Handler):
         return self.node.create_cid(transactions)
 
     def send_cid_and_count(self, cid: str, count: int):
-        return self.node.publish_to_topic(topic=self.topic_response, message=Message(cid=cid, meta={"count": count}))
+        return self.node.publish_to_topic(
+            topic=self.topic_response, message=Message(cid=cid, meta={"count": count})
+        )
 
     def __call__(self, message: MessageInterface):
         super().log(message)
@@ -40,5 +42,3 @@ class TransactionsRequestHandler(Handler):
         transactions = self.get_transactions()
         cid = self.publish_transactions(transactions)
         self.send_cid_and_count(cid, len(transactions))
-
-

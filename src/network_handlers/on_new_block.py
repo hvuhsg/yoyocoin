@@ -20,7 +20,9 @@ class NewBlockHandler(Handler):
         self.node = node
 
     def validate(self, message: Message):
-        return message.has_cid() and "p_hash" in message.meta and "index" in message.meta
+        return (
+            message.has_cid() and "p_hash" in message.meta and "index" in message.meta
+        )
 
     def message_is_relevant(self, message: Message) -> bool:
         blockchain: Blockchain = Blockchain.get_main_chain()
@@ -51,5 +53,3 @@ class NewBlockHandler(Handler):
         block_dict = self.load_block(message)
         block = self.parse_block(block_dict)
         self.add_block_to_blockchain(block)
-
-

@@ -26,10 +26,18 @@ def find_lottery_winner(root: SumTree, lottery_number: float) -> int:
 
 def wallet_distance(winner_index: int, wallet_index: int, wallets_count: int):
     # The 0.1 is added fo tie break
-    return min(abs(winner_index - wallet_index)+0.1, winner_index + (wallets_count - wallet_index))
+    return min(
+        abs(winner_index - wallet_index) + 0.1,
+        winner_index + (wallets_count - wallet_index),
+    )
 
 
-def wallet_score(root: SumTree, wallet_address: str, lottery_number: float, wallets_sorted_by_address: list):
+def wallet_score(
+    root: SumTree,
+    wallet_address: str,
+    lottery_number: float,
+    wallets_sorted_by_address: list,
+):
     wallets_count = len(wallets_sorted_by_address)
     winner_index = find_lottery_winner(root, lottery_number)
     wallet_index = binary_search(wallets_sorted_by_address, wallet_address)

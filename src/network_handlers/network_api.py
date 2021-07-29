@@ -3,7 +3,6 @@ from ipfs import Message, Node
 
 
 class NetworkApi:
-
     @staticmethod
     def create_cid(node: Node, data: dict):
         return node.create_cid(data)
@@ -21,7 +20,9 @@ class NetworkApi:
     @staticmethod
     def send_block(node: Node, block: Block):
         block_cid = NetworkApi.create_cid(node, data=block.to_dict())
-        message = NetworkApi.create_message(cid=block_cid, meta={"index": block.index, "hash": block.hash()})
+        message = NetworkApi.create_message(
+            cid=block_cid, meta={"index": block.index, "hash": block.hash()}
+        )
         NetworkApi.send_message(node, topic="new-block", message=message)
 
     @staticmethod

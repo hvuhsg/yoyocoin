@@ -35,5 +35,3 @@ class TransactionsHandler(Handler):
         transactions = self.load_transactions(message)
         print(transactions)
         # TODO: update transactions pool
-
-

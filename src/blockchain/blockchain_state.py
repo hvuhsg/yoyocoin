@@ -6,7 +6,13 @@ from .exceptions import DuplicateNonceError
 
 
 class RemoteWallet:
-    def __init__(self, public_address: str, balance: float, last_transaction: int, nonce_counter: int):
+    def __init__(
+        self,
+        public_address: str,
+        balance: float,
+        last_transaction: int,
+        nonce_counter: int,
+    ):
         self.address = public_address
         self.balance = balance
         self.last_transaction = last_transaction
@@ -24,7 +30,12 @@ class RemoteWallet:
 
     @classmethod
     def new_empty(cls, wallet_address: str):
-        return cls(public_address=wallet_address, balance=0, last_transaction=0, nonce_counter=0)
+        return cls(
+            public_address=wallet_address,
+            balance=0,
+            last_transaction=0,
+            nonce_counter=0,
+        )
 
 
 class BlockchainState:
@@ -72,7 +83,7 @@ class BlockchainState:
             self.wallets_sum_tree,
             wallet.address,
             lottery_number=lottery_number,
-            wallets_sorted_by_address=self.sorted_wallets
+            wallets_sorted_by_address=self.sorted_wallets,
         )
 
     def block_score(self, block: Block):

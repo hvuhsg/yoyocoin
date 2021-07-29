@@ -25,7 +25,9 @@ class ChainInfoRequestHandler(Handler):
     def validate(self, message: Message):
         blockchain: Blockchain = Blockchain.get_main_chain()
         score_exist = message.meta.get("score", None) is not None
-        score_is_lower = score_exist and message.meta.get("score") < blockchain.state.score
+        score_is_lower = (
+            score_exist and message.meta.get("score") < blockchain.state.score
+        )
         # TODO: check length
         return score_is_lower
 
@@ -47,10 +49,14 @@ class ChainInfoRequestHandler(Handler):
             block_dict = block.to_dict()
             blocks_cids.append(self.node.create_cid(block_dict))
             blocks_hashes.append(block.hash())
-        return self.node.create_cid({"blocks_cid": blocks_cids, "blocks_hash": blocks_hashes})
+        return self.node.create_cid(
+            {"blocks_cid": blocks_cids, "blocks_hash": blocks_hashes}
+        )
 
     def send_cid_and_summery(self, cid: str, summery: dict):
-        return self.node.publish_to_topic(topic=self.topic_response, message=Message(cid=cid, meta=summery))
+        return self.node.publish_to_topic(
+            topic=self.topic_response, message=Message(cid=cid, meta=summery)
+        )
 
     def __call__(self, message: MessageInterface):
         super().log(message)
@@ -59,5 +65,3 @@ class ChainInfoRequestHandler(Handler):
         chain_info, chain_summery = self.get_chain_info()
         cid = self.publish_chain_info(chain_info)
         self.send_cid_and_summery(cid, chain_summery)
-
-

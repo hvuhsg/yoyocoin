@@ -44,7 +44,9 @@ class ChainInfoHandler(Handler):
         for b_cid, b_hash in zip(blocks_info["blocks_cid"], blocks_info["blocks_hash"]):
             block_dict = self.node.load_cid(b_cid)
             block = Block.from_dict(**block_dict)
-            if block.hash() != b_hash or (blocks and block.previous_hash != blocks[-1].hash()):
+            if block.hash() != b_hash or (
+                blocks and block.previous_hash != blocks[-1].hash()
+            ):
                 break
             blocks.append(block)
         else:
@@ -56,12 +58,14 @@ class ChainInfoHandler(Handler):
         for block in blocks:
             new_blockchain.add_block(block)
         score_is_bigger = new_blockchain.state.score > current_blockchain.state.score
-        length_is_not_lower = new_blockchain.state.length >= current_blockchain.state.length
+        length_is_not_lower = (
+            new_blockchain.state.length >= current_blockchain.state.length
+        )
         if score_is_bigger and length_is_not_lower:
             logger.success(
-                "New blockchain synced!" +
-                f"\n-\tScore: {new_blockchain.state.score}" +
-                f"\n-\tLength: {new_blockchain.state.length}"
+                "New blockchain synced!"
+                + f"\n-\tScore: {new_blockchain.state.score}"
+                + f"\n-\tLength: {new_blockchain.state.length}"
             )
             Blockchain.set_main_chain(new_blockchain)
 
@@ -73,4 +77,3 @@ class ChainInfoHandler(Handler):
             return
         chain_blocks = self.load_chain_blocks(message)
         self.build_blockchain(chain_blocks)
-

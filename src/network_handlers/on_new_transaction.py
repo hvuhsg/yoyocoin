@@ -51,5 +51,3 @@ class NewTransactionHandler(Handler):
         transaction_dict = self.load_transaction(message)
         transaction = self.parse_transaction(transaction_dict)
         self.save_transaction_to_pool(transaction)
-
-
