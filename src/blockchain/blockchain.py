@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from .constents import GENESIS_BLOCK
+from .constants import GENESIS_BLOCK
 from .transaction import Transaction
 from .block import Block
 from .blockchain_state import BlockchainState

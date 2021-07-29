@@ -6,7 +6,7 @@ from base64 import b64decode, b64encode
 
 import ecdsa
 
-from .constents import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN
+from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN
 from .transaction import Transaction
 from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError
 
