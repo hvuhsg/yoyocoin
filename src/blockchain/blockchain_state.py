@@ -7,11 +7,11 @@ from .exceptions import DuplicateNonceError
 
 class RemoteWallet:
     def __init__(
-            self,
-            public_address: str,
-            balance: float,
-            last_transaction: int,
-            nonce_counter: int,
+        self,
+        public_address: str,
+        balance: float,
+        last_transaction: int,
+        nonce_counter: int,
     ):
         self.address = public_address
         self.balance = balance

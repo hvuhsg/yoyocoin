@@ -14,8 +14,8 @@ class CallbackIsNotCallable(TypeError):
 
 class Node:
     def __init__(
-            self,
-            is_full_node: bool = True,
+        self,
+        is_full_node: bool = True,
     ):
         self.ipfs_api = IpfsAPI()
 

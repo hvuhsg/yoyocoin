@@ -35,11 +35,11 @@ class Blockchain:
         self.add_block(genesis_block)
 
     def create_genesis(
-            self,
-            developer_pub_address,
-            developer_pri_key,
-            developer_pri_address,
-            initial_coins: int,
+        self,
+        developer_pub_address,
+        developer_pri_key,
+        developer_pri_address,
+        initial_coins: int,
     ):
         create_coins_transaction = Transaction(
             sender="0", recipient=developer_pub_address, amount=initial_coins, nonce=0
@@ -91,14 +91,14 @@ class Blockchain:
         self.chain_length += 1
 
     def new_transaction(
-            self,
-            sender,
-            recipient,
-            amount,
-            nonce: int,
-            fee=1,
-            sender_private_addr=None,
-            signature=None,
+        self,
+        sender,
+        recipient,
+        amount,
+        nonce: int,
+        fee=1,
+        sender_private_addr=None,
+        signature=None,
     ):
         """
         Creates a new transaction to go into the next mined Block

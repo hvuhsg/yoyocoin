@@ -13,14 +13,14 @@ from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFre
 
 class Block:
     def __init__(
-            self,
-            index,
-            previous_hash,
-            timestamp=None,
-            forger=None,
-            transactions: List[Transaction] = None,
-            signature=None,
-            **kwargs,
+        self,
+        index,
+        previous_hash,
+        timestamp=None,
+        forger=None,
+        transactions: List[Transaction] = None,
+        signature=None,
+        **kwargs,
     ):
         """
         Create block
@@ -150,13 +150,13 @@ class Block:
 
     @classmethod
     def from_dict(
-            cls,
-            index: int,
-            previous_hash,
-            forger,
-            transactions: dict,
-            signature: str,
-            **kwargs,
+        cls,
+        index: int,
+        previous_hash,
+        forger,
+        transactions: dict,
+        signature: str,
+        **kwargs,
     ):
         transactions = list(map(lambda t: Transaction.from_dict(**t), transactions))
         signature = b64decode(signature.encode())
