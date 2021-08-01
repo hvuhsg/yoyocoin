@@ -1,4 +1,5 @@
 from typing import Tuple
+from time import sleep
 
 from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
 from wallet import Wallet
@@ -53,6 +54,30 @@ def setup_node() -> Tuple[Node, ChainExtender]:
     return node, chain_extender
 
 
+def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender):
+    scheduler.add_job(
+        func=chain_extender.add_best_block_to_chain,
+        name="new block every 2 minutes",
+        interval=60 * 2,
+        sync=True,
+        run_thread=True
+    )
+    scheduler.add_job(
+        func=chain_extender.create_my_own_block,
+        name="create my block",
+        interval=60 * 1.5,
+        sync=False,
+        run_thread=True
+    )
+    scheduler.add_job(
+        func=chain_extender.publish_chain_info,
+        name="publish my chain info",
+        interval=60 * 2.6,
+        sync=False,
+        run_thread=True
+    )
+
+
 def test(node, blockchain, wallet):
     node.publish_to_topic("chain-request", message=Message(meta={"score": 0}))
     new_block = blockchain.new_block(wallet.public_address, wallet.private_address)
@@ -79,6 +104,14 @@ def test(node, blockchain, wallet):
     node.publish_to_topic("transactions-request")
 
 
+def idle():
+    try:
+        while True:
+            sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        pass
+
+
 def main():
     # 1
     wallet = setup_wallet()
@@ -96,31 +129,14 @@ def main():
     node.publish_to_topic("chain-request", message=Message(meta={"score": 0}))
 
     # 6
-    scheduler.add_job(
-        func=chain_extender.add_best_block_to_chain,
-        name="new block every 2 minutes",
-        interval=60*2,
-        sync=True,
-        run_thread=True
-    )
-
-    scheduler.add_job(
-        func=chain_extender.create_my_own_block,
-        name="create my block",
-        interval=60*1.5,
-        sync=False,
-        run_thread=True
-    )
-
-    scheduler.add_job(
-        func=chain_extender.publish_chain_info,
-        name="publish my chain info",
-        interval=60*2.6,
-        sync=False,
-        run_thread=True
-    )
-
+    register_scheduler_jobs(scheduler, chain_extender)
     scheduler.start()
+
+    idle()
+
+    # Stopping
+    scheduler.stop()
+    # TODO: close storage
 
     # test
     # print("run tests")

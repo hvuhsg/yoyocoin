@@ -1,42 +1,9 @@
 from threading import Thread
 from functools import wraps
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime
 from time import sleep
 
-from loguru import logger
-
-
-class Job:
-    def __init__(self, func, name, interval, sync, run_thread: bool, offset: int):
-        self.func = func
-        self.name = name
-        self.interval = interval
-        self.sync = sync
-        self.run_thread = run_thread
-        self.offset = offset
-        self.last_run = datetime.utcnow()
-
-    def is_revoke_time(self, start_time: datetime) -> bool:
-        utcnow = datetime.utcnow()
-        if not self.sync:
-            return utcnow - self.last_run >= timedelta(seconds=self.interval)
-        current_time_in_seconds = int((utcnow - start_time).total_seconds())
-        return (
-            utcnow > self.last_run
-            and (current_time_in_seconds + self.offset) % self.interval == 0
-        )
-
-    def update_last_run(self):
-        self.last_run = datetime.utcnow()
-
-    def execute(self):
-        logger.info(f"Executing: {self.name}")
-        if self.run_thread:
-            t = Thread(target=self.func)
-            t.daemon = True
-            t.start()
-        else:
-            self.func()
+from .job import Job
 
 
 class Scheduler(Thread):
@@ -64,7 +31,7 @@ class Scheduler(Thread):
             def wrapped(*args, **kwargs):
                 return func(*args, **kwargs)
 
-            scheduler.add_job(wrapped, name, interval, sync, run_thread)
+            scheduler.add_job(wrapped, name, interval, sync, run_thread, offset=offset)
             return wrapped
 
         return decorator

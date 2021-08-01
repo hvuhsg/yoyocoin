@@ -14,7 +14,7 @@ class NetworkListener(Thread):
         callback: Callable[[MessageInterface], None],
         ipfs_api: IpfsAPI,
     ):
-        super().__init__(name=f"{topic} listener", daemon=False)
+        super().__init__(name=f"{topic} listener", daemon=True)
         self._topic = topic
         self._callback = callback
         self._ipfs_api = ipfs_api
