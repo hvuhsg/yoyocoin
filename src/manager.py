@@ -79,13 +79,13 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         sync=False,
         run_thread=True
     )
-    scheduler.add_job(
-        func=chain_extender.publish_new_transaction,
-        name="add new transaction",
-        interval=60,
-        sync=False,
-        run_thread=True
-    )
+    # scheduler.add_job(
+    #     func=chain_extender.publish_new_transaction,
+    #     name="add new transaction",
+    #     interval=60,
+    #     sync=False,
+    #     run_thread=True
+    # )
 
 
 def test(node, blockchain, wallet):
