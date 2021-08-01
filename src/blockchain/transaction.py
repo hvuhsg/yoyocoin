@@ -69,7 +69,7 @@ class Transaction:
         except ecdsa.MalformedPointError:
             raise ValidationError("invalid sender public key")
         sender_wallet = blockchain_state.wallets.get(self.sender, None)
-        if sender_wallet is None or sender_wallet["balance"] < (self.amount + self.fee):
+        if sender_wallet is None or sender_wallet.balance < (self.amount + self.fee):
             if not is_test_net:
                 raise InsufficientBalanceError()
         if type(self.amount) != int or self.amount <= 0:

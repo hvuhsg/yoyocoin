@@ -1,5 +1,8 @@
 from typing import Tuple
 from time import sleep
+import sys
+
+from loguru import logger
 
 from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
 from wallet import Wallet
@@ -76,6 +79,13 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         sync=False,
         run_thread=True
     )
+    scheduler.add_job(
+        func=chain_extender.publish_new_transaction,
+        name="add new transaction",
+        interval=60,
+        sync=False,
+        run_thread=True
+    )
 
 
 def test(node, blockchain, wallet):
@@ -113,6 +123,9 @@ def idle():
 
 
 def main():
+    logger.remove()
+    logger.add(sys.stderr, level="INFO")
+
     # 1
     wallet = setup_wallet()
 

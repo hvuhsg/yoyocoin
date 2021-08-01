@@ -71,7 +71,7 @@ class BlockchainState:
                 continue
             sender_wallet = self._get_wallet(transaction.sender)
             recipient_wallet = self._get_wallet(transaction.recipient)
-            if transaction.nonce != sender_wallet.nonce_counter:
+            if transaction.nonce < sender_wallet.nonce_counter:
                 raise DuplicateNonceError()
             sender_wallet.nonce_counter += 1
             sender_wallet.balance -= transaction.amount

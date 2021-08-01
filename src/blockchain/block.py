@@ -49,9 +49,9 @@ class Block:
         return {
             "index": self.index,
             "timestamp": self.timestamp,
-            "transactions": [
+            "transactions": sorted([
                 transaction.to_dict() for transaction in self.transactions
-            ],
+            ], key=lambda t: t["nonce"]),
             "previous_hash": self.previous_hash,
             "forger": self.forger,
         }

@@ -14,6 +14,9 @@ class ChainExtender:
         self.best_block: Block = None
         self.best_block_score = 0
 
+        self._sender = Wallet()
+        self._recipient = Wallet()
+
     @property
     def _blockchain(self) -> Blockchain:
         return Blockchain.get_main_chain()
@@ -46,6 +49,21 @@ class ChainExtender:
         score = blockchain.state.score
         length = blockchain.state.length
         return {"blocks": blocks}, {"score": score, "length": length}
+
+    def publish_new_transaction(self):
+        # TODO: remove! just for testing
+        new_transaction = self._blockchain.new_transaction(
+            sender=self._sender.public_address,
+            recipient=self._recipient.public_address,
+            amount=10,
+            nonce=self._sender.nonce,
+            sender_private_addr=self._sender.private_address
+        )
+        cid = self.node.create_cid(new_transaction.to_dict())
+        self.node.publish_to_topic(
+            "new-transaction",
+            message=Message(cid=cid, meta={"hash": new_transaction.hash(), "nonce": new_transaction.nonce})
+        )
 
     def publish_chain_info(self):
         # TODO: remove this hack
@@ -81,7 +99,10 @@ class ChainExtender:
             return
         try:
             self._blockchain.add_block(block=self.best_block)
-            logger.success(f"Block index [{self.best_block.index}] added to chain - {self.best_block.hash()}")
+            logger.success(
+                f"Block index [{self.best_block.index}] added to chain - {self.best_block.hash()}"
+                f" tx: {len(self.best_block.transactions)}"
+            )
         finally:
             self._reset()
 
