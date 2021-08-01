@@ -1,41 +1,9 @@
 from typing import Dict
-from .consensus import SumTree, wallet_score
 
+from .consensus import SumTree, wallet_score
 from .block import Block
 from .exceptions import DuplicateNonceError
-
-
-class RemoteWallet:
-    def __init__(
-        self,
-        public_address: str,
-        balance: float,
-        last_transaction: int,
-        nonce_counter: int,
-    ):
-        self.address = public_address
-        self.balance = balance
-        self.last_transaction = last_transaction
-        self.nonce_counter = nonce_counter
-
-    @property
-    def power(self) -> float:
-        return self.balance / self.last_transaction
-
-    def __gt__(self, other) -> bool:
-        return self.balance > other.address
-
-    def __eq__(self, other):
-        return self.address == other.address
-
-    @classmethod
-    def new_empty(cls, wallet_address: str):
-        return cls(
-            public_address=wallet_address,
-            balance=0,
-            last_transaction=0,
-            nonce_counter=0,
-        )
+from .remote_wallet import RemoteWallet
 
 
 class BlockchainState:
@@ -60,7 +28,7 @@ class BlockchainState:
     def _chain_extended(self):
         # Building the tree
         self.wallets_sum_tree: SumTree = SumTree.from_dict(
-            {w.power(): index for index, w in enumerate(self.sorted_wallets)}
+            {w.power: index for index, w in enumerate(self.sorted_wallets)}
         )
 
     def _add_new_wallet(self, wallet: RemoteWallet):
@@ -77,16 +45,18 @@ class BlockchainState:
         return wallet
 
     def _calculate_wallet_score(self, wallet: RemoteWallet):
-        lottery_number = 0.3321
+        lottery_number = 0.3512
         # TODO: change to random value based on last 4 block's hash
-        return wallet_score(
+        score = wallet_score(
             self.wallets_sum_tree,
-            wallet.address,
+            wallet,
             lottery_number=lottery_number,
             wallets_sorted_by_address=self.sorted_wallets,
         )
+        # print(f"Wallet {wallet.address} score: {score}")
+        return score
 
-    def block_score(self, block: Block):
+    def block_score(self, block: Block) -> int:
         forger_wallet_address = block.forger
         forger_wallet = self._get_wallet(forger_wallet_address)
         return self._calculate_wallet_score(forger_wallet)
@@ -111,16 +81,15 @@ class BlockchainState:
             fees += transaction.fee
         forger_wallet = self._get_wallet(block.forger)
         forger_wallet.balance += fees
-        self.score += self._calculate_wallet_score(forger_wallet)
         forger_wallet.last_transaction = block.index
+        if not part_of_chain:
+            self._chain_extended()
+        self.score += self._calculate_wallet_score(forger_wallet)
         self.last_block = block
         self.last_block_hash = block.hash()
         self.block_hashs.append(self.last_block_hash)
         self.length += 1
-        if not part_of_chain:
-            self._chain_extended()
 
     def add_chain(self, chain):
         for block in chain:
-            self.add_block(block, part_of_chain=True)
-        self._chain_extended()
+            self.add_block(block)

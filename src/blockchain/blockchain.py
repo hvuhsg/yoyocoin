@@ -30,6 +30,10 @@ class Blockchain:
         if self.is_test_net:
             self.default_genesis()
 
+    @property
+    def last_block(self):
+        return self.chain[-1]
+
     def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
         self.add_block(genesis_block)
@@ -80,7 +84,7 @@ class Blockchain:
 
         return new_block
 
-    def add_block(self, block):
+    def add_block(self, block: Block):
         for tx in block.transactions:
             self.current_transactions.pop(tx.hash(), None)
         self.state.add_block(block)
@@ -134,26 +138,19 @@ class Blockchain:
         transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
         self.current_transactions[transaction.hash()] = transaction
 
-    def update_chain(self, blockchain):
-        self.chain = blockchain.chain
-        self.state = blockchain.state
-        self.chain_length = self.chain_length
+    def add_chain(self, blocks: list):
+        self.state.add_chain(blocks)
+        self.chain.extend(blocks)
+        self.chain_length += len(blocks)
 
-    @property
-    def last_block(self):
-        return self.chain[-1]
+    def validate_block(self, block: Block):
+        return block.validate(self.state, is_test_net=self.is_test_net)
 
-    def proof_of_stake(self, last_block, forger_key):
-        """
-        Simple Proof of Stake Algorithm:
+    def get_block_score(self, block: Block):
+        return self.state.block_score(block=block)
 
-         - Find the lottery number
-         - If your wallet address is close create block and sign it
+    def validate_transaction(self, transaction: Transaction):
+        return transaction.validate(self.state, is_test_net=self.is_test_net)
 
-        :param last_block: <dict> last Block
-        :param forger_key: <str> forger public key
-        :return: <int>
-        """
+    # TODO: create lottery number generator
 
-        # TODO: create lottery number generator
-        pass

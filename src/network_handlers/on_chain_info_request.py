@@ -8,6 +8,8 @@ if chain info request is initiated the handler will execute those steps:
 """
 from typing import Tuple
 
+from loguru import logger
+
 from blockchain import Blockchain
 from ipfs import Node, MessageInterface, Message
 

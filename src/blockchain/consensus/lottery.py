@@ -1,6 +1,7 @@
 from bisect import bisect_left
 
 from .sum_tree import SumTree
+from ..remote_wallet import RemoteWallet
 
 
 def binary_search(array, element):
@@ -34,11 +35,11 @@ def wallet_distance(winner_index: int, wallet_index: int, wallets_count: int):
 
 def wallet_score(
     root: SumTree,
-    wallet_address: str,
+    wallet: RemoteWallet,
     lottery_number: float,
     wallets_sorted_by_address: list,
 ):
     wallets_count = len(wallets_sorted_by_address)
     winner_index = find_lottery_winner(root, lottery_number)
-    wallet_index = binary_search(wallets_sorted_by_address, wallet_address)
+    wallet_index = binary_search(wallets_sorted_by_address, wallet)
     return wallet_distance(winner_index, wallet_index, wallets_count)

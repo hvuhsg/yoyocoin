@@ -7,6 +7,8 @@ if new block is sent, the handler will execute those steps:
 4. parse new block and verify it
 4. add block to chain
 """
+from typing import Callable
+
 from blockchain import Block, Blockchain
 from ipfs import Node, MessageInterface, Message
 
@@ -16,8 +18,9 @@ from .handler import Handler
 class NewBlockHandler(Handler):
     topic = "new-block"
 
-    def __init__(self, node: Node):
+    def __init__(self, node: Node, on_new_block: Callable):
         self.node = node
+        self.on_new_block = on_new_block
 
     def validate(self, message: Message):
         return (
@@ -39,10 +42,8 @@ class NewBlockHandler(Handler):
     def parse_block(self, block_dict: dict) -> Block:
         return Block.from_dict(**block_dict)
 
-    def add_block_to_blockchain(self, block: Block):
-        blockchain: Blockchain = Blockchain.get_main_chain()
-        blockchain.add_block(block)
-        print("Block added to blockchain", "\n    - index:", block.index)
+    def call_new_block_callback(self, block: Block):
+        self.on_new_block(block)
 
     def __call__(self, message: Message):
         super().log(message)
@@ -52,4 +53,4 @@ class NewBlockHandler(Handler):
             return
         block_dict = self.load_block(message)
         block = self.parse_block(block_dict)
-        self.add_block_to_blockchain(block)
+        self.call_new_block_callback(block)

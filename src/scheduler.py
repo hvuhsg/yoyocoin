@@ -3,6 +3,8 @@ from functools import wraps
 from datetime import datetime, timedelta, tzinfo
 from time import sleep
 
+from loguru import logger
+
 
 class Job:
     def __init__(self, func, name, interval, sync, run_thread: bool, offset: int):
@@ -28,7 +30,7 @@ class Job:
         self.last_run = datetime.utcnow()
 
     def execute(self):
-        print(f"{datetime.now()} Execute {self.name}")
+        logger.info(f"Executing: {self.name}")
         if self.run_thread:
             t = Thread(target=self.func)
             t.daemon = True

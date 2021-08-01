@@ -9,4 +9,4 @@ class Handler(ABC):
         pass
 
     def log(self, message):
-        logger.info(f"{self.topic}\n-\t{message}")
+        logger.debug(f"{self.topic}\n-\t{message}")

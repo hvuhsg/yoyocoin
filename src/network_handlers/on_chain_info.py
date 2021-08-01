@@ -55,7 +55,9 @@ class ChainInfoHandler(Handler):
     def build_blockchain(self, blocks: List[Block]):
         current_blockchain: Blockchain = Blockchain.get_main_chain()
         new_blockchain = Blockchain(is_test_net=IS_TEST_NET)
-        new_blockchain.state.add_chain(blocks)
+        if blocks and blocks[0].index == 0:
+            blocks.pop(0)
+        new_blockchain.add_chain(blocks)
         score_is_bigger = new_blockchain.state.score > current_blockchain.state.score
         length_is_not_lower = (
             new_blockchain.state.length >= current_blockchain.state.length

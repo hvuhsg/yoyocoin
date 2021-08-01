@@ -137,7 +137,7 @@ class Block:
         if self.previous_hash != blockchain_state.last_block_hash:
             raise ValidationError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
-        if forger_wallet is None or forger_wallet["balance"] < 100:
+        if forger_wallet is None or forger_wallet.balance < 100:
             if not is_test_net:
                 raise NonLotteryMemberError()
         if not self.is_signature_verified():
