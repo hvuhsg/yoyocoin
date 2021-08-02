@@ -4,12 +4,14 @@ import sys
 
 from loguru import logger
 
+import api
 from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
 from wallet import Wallet
-from blockchain import Blockchain, Transaction
+from blockchain import Blockchain, Transaction, Block
 from scheduler import Scheduler
 from ipfs import Node, Message
 from chain_extender import ChainExtender
+
 
 from network_handlers.on_chain_info_request import ChainInfoRequestHandler
 from network_handlers.on_chain_info import ChainInfoHandler
@@ -57,6 +59,10 @@ def setup_node() -> Tuple[Node, ChainExtender]:
     return node, chain_extender
 
 
+def setup_api():
+    api.run()
+
+
 def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender):
     scheduler.add_job(
         func=chain_extender.add_best_block_to_chain,
@@ -79,13 +85,13 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         sync=False,
         run_thread=True
     )
-    # scheduler.add_job(
-    #     func=chain_extender.publish_new_transaction,
-    #     name="add new transaction",
-    #     interval=60,
-    #     sync=False,
-    #     run_thread=True
-    # )
+    scheduler.add_job(
+        func=chain_extender.publish_new_transaction,
+        name="add new transaction",
+        interval=60,
+        sync=False,
+        run_thread=True
+    )
 
 
 def test(node, blockchain, wallet):
@@ -145,6 +151,9 @@ def main():
     register_scheduler_jobs(scheduler, chain_extender)
     scheduler.start()
 
+    # 7
+    setup_api()
+
     idle()
 
     # Stopping
@@ -155,5 +164,19 @@ def main():
     # print("run tests")
     # test(node, blockchain, wallet)
 
+
+def create_genesis(developer_secret: str):
+    wallet = Wallet(secret_passcode=developer_secret)
+    print("GENESIS_WALLET_ADDRESS:", wallet.public)
+
+    g_transaction = Transaction(sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0)
+    g_transaction.create_signature(wallet.private)
+
+    g_block = Block(forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction])
+    g_block.create_signature(wallet.private)
+    return g_block
+
 if __name__ == "__main__":
     main()
+    # developer_secret_key = "YOYO_DEVELOP_KEY"
+    # create_genesis(developer_secret_key)

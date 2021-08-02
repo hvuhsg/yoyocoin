@@ -10,24 +10,24 @@ NETWORK_START_TIME = (
 # So blocks cant be created before time
 
 
-DEVELOPER_KEY = "cra+B7ntFLH7Xxyt5ow96BB53znXPId0SNLMw4GNKl/Gs0qvmo4BLYfmS8ukQl1m"
+DEVELOPER_KEY = "046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14"
 
 GENESIS_BLOCK = {
-    "index": 0,
-    "timestamp": 1622137530.5758097,
-    "transactions": [
+    'index': 0,
+    'timestamp': 1627912767.7128441,
+    'transactions': [
         {
-            "sender": "cra+B7ntFLH7Xxyt5ow96BB53znXPId0SNLMw4GNKl/Gs0qvmo4BLYfmS8ukQl1m",
-            "recipient": "cra+B7ntFLH7Xxyt5ow96BB53znXPId0SNLMw4GNKl/Gs0qvmo4BLYfmS8ukQl1m",
-            "amount": 1000,
-            "fee": 1,
-            "nonce": 0,
-            "hash": "1973f4016652e14c7d4ceb80992553d0d7861c882ba24ca414e0c4e18b756a94",
-            "signature": "6U8JdOSEKdamWQn/NFvE9T3VcJtL2GqeD/ZhyuXItfZaAjcu37ae0FtTwBjHf2XF",
+            'sender': '046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14',
+            'recipient': '046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14',
+            'amount': 1000000000000,
+            'fee': 0,
+            'nonce': 0,
+            'hash': '2707796f45871e96ea034c6a0eb5df3ab60f4a1063625ad5f5ba354b64abced5',
+            'signature': '9QMx6Ea8cohx0Asz35qB6g4VUFqAdw7pzuw2ttGEUhbcBARSMcgYa7aGlC5e4siXNjW5dgdinzzTCYBg+4ANFg=='
         }
     ],
-    "previous_hash": "0",
-    "forger": "cra+B7ntFLH7Xxyt5ow96BB53znXPId0SNLMw4GNKl/Gs0qvmo4BLYfmS8ukQl1m",
-    "hash": "c82993ce06e6fc7430f3e2a72acbbed42afb5141c4dac2ca9e1e8e1ef95493d2",
-    "signature": "icZgIY8RP1HzSF39UQFn3be+o0KsJ3u0MPIwO+Q8E43grJVQhMMKTwlb0PTtwzCI",
+    'previous_hash': '0',
+    'forger': '046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14',
+    'hash': 'd809ea411cd2c9de31b61fe62b49605d35bd773a8fbd60a796d3940e999bdad9',
+    'signature': 'Qg4fY5XWYSJWPNjNIVLKJwAjIT5sT0YY+/JjjRVoJq88S25vjL5NatwJFSVGebbrl0cjUxOs02CYH2SVNyIvtg=='
 }

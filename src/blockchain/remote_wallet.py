@@ -18,11 +18,13 @@ class RemoteWallet:
     def power(self) -> float:
         return self.balance / (self.last_transaction + 1)
 
-    def __gt__(self, other) -> bool:
-        return self.address > other.address
-
-    def __eq__(self, other):
-        return self.address == other.address
+    def to_dict(self):
+        return {
+            "address": self.address,
+            "balance": self.balance,
+            "last_transaction": self.last_transaction,
+            "nonce": self.nonce_counter,
+        }
 
     @classmethod
     def new_empty(cls, wallet_address: str):
@@ -32,6 +34,12 @@ class RemoteWallet:
             last_transaction=0,
             nonce_counter=0,
         )
+
+    def __gt__(self, other) -> bool:
+        return self.address > other.address
+
+    def __eq__(self, other):
+        return self.address == other.address
 
     def __repr__(self):
         return f"RW(address={self.address}, balance={self.balance})"

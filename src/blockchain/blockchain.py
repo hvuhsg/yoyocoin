@@ -38,28 +38,6 @@ class Blockchain:
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
         self.add_block(genesis_block)
 
-    def create_genesis(
-        self,
-        developer_pub_address,
-        developer_pri_key,
-        developer_pri_address,
-        initial_coins: int,
-    ):
-        create_coins_transaction = Transaction(
-            sender="0", recipient=developer_pub_address, amount=initial_coins, nonce=0
-        )
-        signature = create_coins_transaction.sign(developer_pri_key)
-        create_coins_transaction.signature = signature
-        transactions = [create_coins_transaction]
-        genesis_block = Block(
-            index=0,
-            previous_hash="0",
-            transactions=transactions,
-            forger=developer_pub_address,
-        )
-        genesis_block.create_signature(developer_pri_address)
-        self.add_block(genesis_block)
-
     def new_block(self, forger, forger_private_addr, previous_hash=None, index=None):
         """
         Create a new Block in the Blockchain
