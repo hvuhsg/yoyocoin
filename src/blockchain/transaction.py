@@ -3,6 +3,7 @@ import hashlib
 from base64 import b64encode, b64decode
 import ecdsa
 
+from config import ECDSA_CURVE
 from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonceError
 
 
@@ -42,8 +43,8 @@ class Transaction:
         :param private_key: base64(wallet private key)
         :return: None
         """
-        private_key_string = b64decode(private_key.encode())
-        private_key = ecdsa.SigningKey.from_string(private_key_string)
+        private_key_string = bytes.fromhex(private_key)
+        private_key = ecdsa.SigningKey.from_string(private_key_string, curve=ECDSA_CURVE)
         if self.sender_pub_key != private_key.get_verifying_key():
             raise ValueError("SigningKey is not the sender")
         self.signature = self.sign(private_key)
@@ -97,8 +98,8 @@ class Transaction:
 
     @property
     def sender_pub_key(self) -> ecdsa.VerifyingKey:
-        sender_public_key_string = b64decode(self.sender.encode())
-        sender_verifying_key = ecdsa.VerifyingKey.from_string(sender_public_key_string)
+        sender_public_key_string = bytes.fromhex(self.sender)
+        sender_verifying_key = ecdsa.VerifyingKey.from_string(sender_public_key_string, curve=ECDSA_CURVE)
         return sender_verifying_key
 
     @property

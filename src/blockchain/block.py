@@ -6,9 +6,10 @@ from base64 import b64decode, b64encode
 
 import ecdsa
 
-from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN
+from config import ECDSA_CURVE
+from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN, DEVELOPER_KEY
 from .transaction import Transaction
-from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError
+from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError, GenesisIsNotValid
 
 
 class Block:
@@ -58,8 +59,8 @@ class Block:
 
     @property
     def forger_public_key(self) -> ecdsa.VerifyingKey:
-        forger_public_key_string = b64decode(self.forger.encode())
-        return ecdsa.VerifyingKey.from_string(forger_public_key_string)
+        forger_public_key_string = bytes.fromhex(self.forger)
+        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=ECDSA_CURVE)
 
     def hash(self):
         """
@@ -78,9 +79,8 @@ class Block:
         :param forger_private_address: base64(wallet private address)
         :return: None
         """
-
-        forger_private_key_string = b64decode(forger_private_address.encode())
-        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string)
+        forger_private_key_string = bytes.fromhex(forger_private_address)
+        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=ECDSA_CURVE)
         if forger_private_key.get_verifying_key() != self.forger_public_key:
             raise ValueError("The forger is not the one signing")
         self.signature = self.sign(forger_private_key)
@@ -129,7 +129,11 @@ class Block:
         :return: None
         """
         if self.index == 0 and blockchain_state.length == 0:
-            return  # TODO: check in production if hash if equal to hard coded hash
+            genesis_is_valid = self.forger == DEVELOPER_KEY and self.is_signature_verified()
+            if not genesis_is_valid:
+                raise GenesisIsNotValid()
+            return
+            # TODO: check in production if hash if equal to hard coded hash
         if self.index != blockchain_state.length:
             raise ValidationError(
                 f"block index not sequential index: {self.index} chain: {blockchain_state.length}"
