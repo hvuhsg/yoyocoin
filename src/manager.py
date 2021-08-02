@@ -180,5 +180,3 @@ def create_genesis(developer_secret: str):
 
 if __name__ == "__main__":
     main()
-    # developer_secret_key = "YOYO_DEVELOP_KEY"
-    # create_genesis(developer_secret_key)
