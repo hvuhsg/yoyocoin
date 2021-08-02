@@ -130,7 +130,7 @@ def idle():
 
 def main():
     logger.remove()
-    logger.add(sys.stderr, level="INFO")
+    logger.add(sys.stdout, level="INFO")
 
     # 1
     wallet = setup_wallet()

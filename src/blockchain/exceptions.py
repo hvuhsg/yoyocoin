@@ -7,7 +7,8 @@ __all__ = [
     "DuplicateNonceError",
     "NonLotteryMemberError",
     "WalletLotteryFreezeError",
-    "GenesisIsNotValidError"
+    "GenesisIsNotValidError",
+    "NonSequentialBlockIndexError",
 ]
 
 
@@ -36,4 +37,8 @@ class WalletLotteryFreezeError(ValidationError):
 
 
 class GenesisIsNotValidError(ValidationError):
+    pass
+
+
+class NonSequentialBlockIndexError(ValidationError):
     pass

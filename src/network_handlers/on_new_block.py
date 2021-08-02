@@ -28,12 +28,7 @@ class NewBlockHandler(Handler):
         )
 
     def message_is_relevant(self, message: Message) -> bool:
-        blockchain: Blockchain = Blockchain.get_main_chain()
-        p_hash = message.meta.get("p_hash")
-        block_index = message.meta.get("index")
-        p_hash_is_valid = blockchain.last_block.hash() == p_hash
-        index_is_valid = blockchain.last_block.index + 1 == block_index
-        return p_hash_is_valid and index_is_valid
+        return True
 
     def load_block(self, message: MessageInterface) -> dict:
         cid = message.get_cid()

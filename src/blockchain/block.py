@@ -9,7 +9,13 @@ import ecdsa
 from config import ECDSA_CURVE
 from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN, DEVELOPER_KEY
 from .transaction import Transaction
-from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError, GenesisIsNotValidError
+from .exceptions import (
+    ValidationError,
+    NonLotteryMemberError,
+    WalletLotteryFreezeError,
+    GenesisIsNotValidError,
+    NonSequentialBlockIndexError,
+)
 
 
 class Block:
@@ -132,7 +138,7 @@ class Block:
             return
             # TODO: check in production if hash if equal to hard coded hash
         if self.index != blockchain_state.length:
-            raise ValidationError(
+            raise NonSequentialBlockIndexError(
                 f"block index not sequential index: {self.index} chain: {blockchain_state.length}"
             )
         if self.previous_hash != blockchain_state.last_block_hash:

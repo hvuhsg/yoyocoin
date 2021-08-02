@@ -45,6 +45,8 @@ class BlockchainState:
         return wallet
 
     def _calculate_wallet_score(self, wallet: RemoteWallet):
+        if not self.wallets_sum_tree:
+            self._chain_extended()
         lottery_number = 0.3512
         # TODO: change to random value based on last 4 block's hash
         score = wallet_score(
@@ -61,34 +63,43 @@ class BlockchainState:
         forger_wallet = self._get_wallet(forger_wallet_address)
         return self._calculate_wallet_score(forger_wallet)
 
-    def add_block(self, block: Block, part_of_chain=False):
+    def add_block(self, block: Block):
         block.validate(blockchain_state=self, is_test_net=self.is_test_net)
         fees = 0
+        forger_wallet = self._get_wallet(block.forger)
+        forger_score = self._calculate_wallet_score(forger_wallet)
+
         for transaction in block.transactions:
-            if block.index == 0:
+            if block.index == 0:  # Genesis block
                 recipient_wallet = self._get_wallet(transaction.recipient)
                 recipient_wallet.balance += transaction.amount
                 continue
             sender_wallet = self._get_wallet(transaction.sender)
             recipient_wallet = self._get_wallet(transaction.recipient)
+
             if transaction.nonce < sender_wallet.nonce_counter:
                 raise DuplicateNonceError()
+
             sender_wallet.nonce_counter += 1
             sender_wallet.balance -= transaction.amount
             sender_wallet.balance -= transaction.fee
+
             recipient_wallet.balance += transaction.amount
+
             sender_wallet.last_transaction = block.index
+            recipient_wallet.last_transaction = block.index
+
             fees += transaction.fee
-        forger_wallet = self._get_wallet(block.forger)
         forger_wallet.balance += fees
         forger_wallet.last_transaction = block.index
-        if not part_of_chain:
-            self._chain_extended()
-        self.score += self._calculate_wallet_score(forger_wallet)
+
+        self.score += forger_score
         self.last_block = block
         self.last_block_hash = block.hash()
         self.block_hashs.append(self.last_block_hash)
         self.length += 1
+
+        self._chain_extended()  # consensus algorithm update
 
     def add_chain(self, chain):
         for block in chain:
