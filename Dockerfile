@@ -12,4 +12,4 @@ ADD src /app
 
 EXPOSE 5000
 
-CMD ["python", "src/server.py", "--port", "5000"]
+CMD ["python", "src/manager.py"]
