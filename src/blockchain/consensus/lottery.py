@@ -27,6 +27,7 @@ def find_lottery_winner(root: SumTree, lottery_number: float) -> int:
 
 def wallet_distance(winner_index: int, wallet_index: int, wallets_count: int):
     # The 0.1 is added for tie break
+    # TODO: replace 100 - X with more robust option
     return 100 - min(
         abs(winner_index - wallet_index) + 0.1,
         winner_index + (wallets_count - wallet_index),
