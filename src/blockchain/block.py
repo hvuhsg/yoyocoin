@@ -9,7 +9,7 @@ import ecdsa
 from config import ECDSA_CURVE
 from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN, DEVELOPER_KEY
 from .transaction import Transaction
-from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError, GenesisIsNotValid
+from .exceptions import ValidationError, NonLotteryMemberError, WalletLotteryFreezeError, GenesisIsNotValidError
 
 
 class Block:
@@ -43,8 +43,10 @@ class Block:
         self.transactions = transactions
         self.signature = signature
 
-    def __getitem__(self, item):
-        return getattr(self, item)
+    @property
+    def forger_public_key(self) -> ecdsa.VerifyingKey:
+        forger_public_key_string = bytes.fromhex(self.forger)
+        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=ECDSA_CURVE)
 
     def _raw_data(self):
         return {
@@ -57,11 +59,6 @@ class Block:
             "forger": self.forger,
         }
 
-    @property
-    def forger_public_key(self) -> ecdsa.VerifyingKey:
-        forger_public_key_string = bytes.fromhex(self.forger)
-        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=ECDSA_CURVE)
-
     def hash(self):
         """
         Calculate the block hash (block number, previous hash, transactions)
@@ -73,20 +70,12 @@ class Block:
         block_string = json.dumps(block_dict, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def create_signature(self, forger_private_address: str):
-        """
-        Create block signature for this block
-        :param forger_private_address: base64(wallet private address)
-        :return: None
-        """
-        forger_private_key_string = bytes.fromhex(forger_private_address)
-        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=ECDSA_CURVE)
-        if forger_private_key.get_verifying_key() != self.forger_public_key:
-            raise ValueError("The forger is not the one signing")
-        self.signature = self.sign(forger_private_key)
-
-    def sign(self, forger_private_key: ecdsa.SigningKey):
-        return forger_private_key.sign(self.hash().encode())
+    def to_dict(self):
+        return {
+            **self._raw_data(),
+            "hash": self.hash(),
+            "signature": b64encode(self.signature).decode(),
+        }
 
     def add_transaction(self, transaction: Transaction):
         """
@@ -107,12 +96,20 @@ class Block:
         except ecdsa.BadSignatureError:
             return False
 
-    def to_dict(self):
-        return {
-            **self._raw_data(),
-            "hash": self.hash(),
-            "signature": b64encode(self.signature).decode(),
-        }
+    def create_signature(self, forger_private_address: str):
+        """
+        Create block signature for this block
+        :param forger_private_address: base64(wallet private address)
+        :return: None
+        """
+        forger_private_key_string = bytes.fromhex(forger_private_address)
+        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=ECDSA_CURVE)
+        if forger_private_key.get_verifying_key() != self.forger_public_key:
+            raise ValueError("The forger is not the one signing")
+        self.signature = self.sign(forger_private_key)
+
+    def sign(self, forger_private_key: ecdsa.SigningKey):
+        return forger_private_key.sign(self.hash().encode())
 
     def validate(self, blockchain_state, is_test_net=False):
         """
@@ -131,7 +128,7 @@ class Block:
         if self.index == 0 and blockchain_state.length == 0:
             genesis_is_valid = self.forger == DEVELOPER_KEY and self.is_signature_verified()
             if not genesis_is_valid:
-                raise GenesisIsNotValid()
+                raise GenesisIsNotValidError()
             return
             # TODO: check in production if hash if equal to hard coded hash
         if self.index != blockchain_state.length:
@@ -172,3 +169,6 @@ class Block:
             signature=signature,
             **kwargs,
         )
+
+    def __getitem__(self, item):
+        return getattr(self, item)

@@ -152,7 +152,9 @@ def main():
     scheduler.start()
 
     # 7
-    setup_api()
+    res = input("Run API? [Y/n]: ")
+    if res.lower() == "y":
+        setup_api()
 
     idle()
 
