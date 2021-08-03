@@ -1,4 +1,4 @@
 from .node import Node
-from .api import MessageInterface, Message
+from .api import Message
 
-__all__ = ["Node", "MessageInterface", "Message"]
+__all__ = ["Node", "Message"]

@@ -8,7 +8,7 @@ When new transaction is sent, the handler will execute those steps:
 4. add transaction to transaction pool
 """
 from blockchain import Transaction, Blockchain
-from network.ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, Message
 
 from .handler import Handler
 
@@ -31,7 +31,7 @@ class NewTransactionHandler(Handler):
         transaction_not_saved = transaction_hash not in blockchain.current_transactions
         return transaction_not_saved
 
-    def load_transaction(self, message: MessageInterface) -> dict:
+    def load_transaction(self, message: Message) -> dict:
         cid = message.get_cid()
         return self.node.load_cid(cid)
 
