@@ -4,7 +4,7 @@ from loguru import logger
 
 from blockchain import Blockchain, Block
 from blockchain.exceptions import NonSequentialBlockIndexError
-from ipfs import Node, Message
+from network.ipfs import Node, Message
 from wallet import Wallet
 
 

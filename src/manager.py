@@ -9,16 +9,16 @@ from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
 from wallet import Wallet
 from blockchain import Blockchain, Transaction, Block
 from scheduler import Scheduler
-from ipfs import Node, Message
+from network.ipfs import Node, Message
 from chain_extender import ChainExtender
 
 
-from network_handlers.on_chain_info_request import ChainInfoRequestHandler
-from network_handlers.on_chain_info import ChainInfoHandler
-from network_handlers.on_new_block import NewBlockHandler
-from network_handlers.on_new_transaction import NewTransactionHandler
-from network_handlers.on_transactions_request import TransactionsRequestHandler
-from network_handlers.on_transactions_response import TransactionsHandler
+from network.network_handlers.on_chain_info_request import ChainInfoRequestHandler
+from network.network_handlers.on_chain_info import ChainInfoHandler
+from network.network_handlers.on_new_block import NewBlockHandler
+from network.network_handlers.on_new_transaction import NewTransactionHandler
+from network.network_handlers.on_transactions_request import TransactionsRequestHandler
+from network.network_handlers.on_transactions_response import TransactionsHandler
 
 
 def setup_wallet() -> Wallet:
@@ -129,6 +129,9 @@ def idle():
 
 
 def main():
+    res = input("Run API? [Y/n]: ")
+    deploy_api = res.lower() == "y"
+
     logger.remove()
     logger.add(sys.stdout, level="INFO")
 
@@ -152,8 +155,7 @@ def main():
     scheduler.start()
 
     # 7
-    res = input("Run API? [Y/n]: ")
-    if res.lower() == "y":
+    if deploy_api:
         setup_api()
 
     idle()

@@ -5,7 +5,7 @@ if transaction response is sent, the handler will execute those steps:
 3. get transactions via cid
 4. add transactions to pool (validated on insertion)
 """
-from ipfs import Node, MessageInterface
+from network.ipfs import Node, MessageInterface
 
 from .handler import Handler
 

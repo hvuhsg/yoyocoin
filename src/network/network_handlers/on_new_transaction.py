@@ -8,7 +8,7 @@ When new transaction is sent, the handler will execute those steps:
 4. add transaction to transaction pool
 """
 from blockchain import Transaction, Blockchain
-from ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, MessageInterface, Message
 
 from .handler import Handler
 

@@ -9,8 +9,8 @@ if new block is sent, the handler will execute those steps:
 """
 from typing import Callable
 
-from blockchain import Block, Blockchain
-from ipfs import Node, MessageInterface, Message
+from blockchain import Block
+from network.ipfs import Node, MessageInterface, Message
 
 from .handler import Handler
 

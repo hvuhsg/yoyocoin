@@ -1,5 +1,5 @@
 from blockchain import Block, Transaction
-from ipfs import Message, Node
+from network.ipfs import Message, Node
 
 
 class NetworkApi:

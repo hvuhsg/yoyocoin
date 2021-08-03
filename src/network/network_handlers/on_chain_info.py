@@ -12,7 +12,7 @@ from loguru import logger
 
 from config import IS_TEST_NET
 from blockchain import Blockchain, Block
-from ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, MessageInterface, Message
 
 from .handler import Handler
 
