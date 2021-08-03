@@ -14,13 +14,19 @@ class CallbackIsNotCallable(TypeError):
 
 
 class Node:
-    def __init__(
-        self,
-        is_full_node: bool = True,
-    ):
-        self.ipfs_api = IpfsAPI()
+    _instance = None
 
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            raise RuntimeError(f"{cls.__name__} is not initialized yet!")
+        return cls._instance
+
+    def __init__(self, is_full_node: bool = True):
+        self.ipfs_api = IpfsAPI()
         self.is_full_node = is_full_node
+
+        self._instance = self
 
     def publish_to_topic(self, topic: str, message: Message = None):
         if message is None:
