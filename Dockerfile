@@ -4,11 +4,6 @@ WORKDIR /app
 
 # Install dependencies.
 
-## Install IPFS node
-RUN apk add apt-get
-RUN apt-get install -y ipfs
-RUN ipfs init
-
 ## Install python lib's
 ADD requirements.txt /app
 RUN cd /app && \
@@ -18,8 +13,5 @@ RUN cd /app && \
 ADD src /app
 
 EXPOSE 6001
-EXPOSE 5001
-EXPOSE 4001
-EXPOSE 8080
 
-CMD [ "ipfs", "daemon", "--enable-pubsub-experiment", "&", "python", "app/manager.py"]
+CMD ["python", "app/manager.py"]
