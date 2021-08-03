@@ -106,6 +106,18 @@ def test(node, blockchain, wallet):
     node.publish_to_topic("transactions-request")
 
 
+def create_genesis(developer_secret: str):
+    wallet = Wallet(secret_passcode=developer_secret)
+    print("GENESIS_WALLET_ADDRESS:", wallet.public)
+
+    g_transaction = Transaction(sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0)
+    g_transaction.create_signature(wallet.private)
+
+    g_block = Block(forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction])
+    g_block.create_signature(wallet.private)
+    return g_block
+
+
 def idle():
     try:
         while True:
@@ -154,17 +166,6 @@ def main():
     # print("run tests")
     # test(node, blockchain, wallet)
 
-
-def create_genesis(developer_secret: str):
-    wallet = Wallet(secret_passcode=developer_secret)
-    print("GENESIS_WALLET_ADDRESS:", wallet.public)
-
-    g_transaction = Transaction(sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0)
-    g_transaction.create_signature(wallet.private)
-
-    g_block = Block(forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction])
-    g_block.create_signature(wallet.private)
-    return g_block
 
 if __name__ == "__main__":
     main()
