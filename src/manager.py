@@ -9,7 +9,7 @@ from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
 from wallet import Wallet
 from blockchain import Blockchain, Transaction, Block
 from scheduler import Scheduler
-from network.ipfs import Node, Message
+from network import Node, messages
 from chain_extender import ChainExtender
 
 
@@ -95,28 +95,21 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
 
 
 def test(node, blockchain, wallet):
-    node.publish_to_topic("chain-request", message=Message(meta={"score": 0}))
+    messages.SyncRequest(score=0, length=0).send(node)
     new_block = blockchain.new_block(wallet.public_address, wallet.private_address)
     blockchain.add_block(new_block)
     block = blockchain.chain[0]
-    node.publish_to_topic(
-        "new-block",
-        message=Message(
-            meta={"hash": block.hash(), "index": block.index},
-            cid=node.create_cid(data=block.to_dict())
-        )
-    )
+    messages.NewBlock(block=block.to_dict(), privies_hash=block.previous_hash, index=block.index).send(node)
 
     transaction = Transaction(sender=wallet.public_address, recipient=wallet.public_address, amount=10, nonce=50)
     transaction.create_signature(wallet.private_address)
-    node.publish_to_topic(
-        "new-transaction",
-        message=Message(
-            meta={"hash": transaction.hash(), "nonce": transaction.nonce},
-            cid=node.create_cid(data=transaction.to_dict())
-        )
-    )
+    messages.NewTransaction(
+        transaction=transaction.to_dict(),
+        hash=transaction.hash(),
+        nonce=transaction.nonce
+    ).send(node)
 
+    # TODO: Add TransactionsRequest message messages.TransactionsRequest
     node.publish_to_topic("transactions-request")
 
 
@@ -148,7 +141,7 @@ def main():
     node, chain_extender = setup_node()
 
     # 5
-    node.publish_to_topic("chain-request", message=Message(meta={"score": 0}))
+    messages.SyncRequest(score=blockchain.state.score, length=blockchain.state.length)
 
     # 6
     register_scheduler_jobs(scheduler, chain_extender)
