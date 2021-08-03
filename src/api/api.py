@@ -12,7 +12,7 @@ def get_blockchain() -> Blockchain:
 
 
 @app.get("/wallets")
-def wallets(limit: int = 10, offset: int = 0, blockchain=Depends(get_blockchain)):
+def wallets(limit: int = 10, offset: int = 0, blockchain: Blockchain = Depends(get_blockchain)):
     wallets_count = len(blockchain.state.sorted_wallets)
     return [
         w.to_dict()
@@ -21,5 +21,25 @@ def wallets(limit: int = 10, offset: int = 0, blockchain=Depends(get_blockchain)
 
 
 @app.get("/wallet")
-def wallet_balance(address: str, blockchain: Blockchain=Depends(get_blockchain)):
+def wallet(address: str, blockchain: Blockchain = Depends(get_blockchain)):
     return blockchain.state.wallets.get(address, "wallet dose not exists")
+
+
+@app.get("/block")
+def block(index: int, blockchain: Blockchain = Depends(get_blockchain)):
+    if index >= len(blockchain.chain):
+        return "Block is not found (not full node or block is not forged yet)"
+    return blockchain.chain[index].to_dict()
+
+
+@app.get("/blocks")
+def block(limit: int = 10, offset: int = 0, blockchain: Blockchain = Depends(get_blockchain)):
+    chain_length = len(blockchain.chain)
+    offset = min(chain_length, offset)
+    limit = min(chain_length, limit)
+    return [b.to_dict() for b in blockchain.chain[offset:min(limit+offset, chain_length)]]
+
+
+@app.post("/transaction")
+def broadcast_transaction(sender: str, recipient: str, amount: float, fee: float, signature: str, nonce: int):
+    print(sender, recipient, amount, fee, signature, nonce)
