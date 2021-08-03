@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  yoyocoin-node:
+    image: yoyocoin:0.1
+    ports:
+      - "6001:6001"
+    depends_on:
+      - ipfs-node
+    links:
+      - ipfs-node
+    networks:
+      - backend
+
+  ipfs-node:
+    image: ipfs/go-ipfs:latest
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "5001:5001"
+      - "8080:8080"
+    networks: 
+      - backend
+
+networks:
+  backend:
+    driver: bridge
