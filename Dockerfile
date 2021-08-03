@@ -1,8 +1,14 @@
-FROM python:3.6-alpine
+FROM python:3.8-alpine
 
 WORKDIR /app
 
 # Install dependencies.
+
+## Install IPFS node
+RUN apt install ipfs
+RUN ipfs init
+
+## Install python lib's
 ADD requirements.txt /app
 RUN cd /app && \
     pip install -r requirements.txt
@@ -10,6 +16,9 @@ RUN cd /app && \
 # Add actual source code.
 ADD src /app
 
-EXPOSE 5000
+EXPOSE 6001
+EXPOSE 5001
+EXPOSE 4001
+EXPOSE 8080
 
-CMD ["python", "src/manager.py"]
+CMD [ "ipfs", "daemon", "--enable-pubsub-experiment", "&", "python", "app/manager.py"]
