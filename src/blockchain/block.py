@@ -15,6 +15,7 @@ from .exceptions import (
     WalletLotteryFreezeError,
     GenesisIsNotValidError,
     NonSequentialBlockIndexError,
+    NonMatchingHashError
 )
 
 
@@ -142,7 +143,7 @@ class Block:
                 f"block index not sequential index: {self.index} chain: {blockchain_state.length}"
             )
         if self.previous_hash != blockchain_state.last_block_hash:
-            raise ValidationError("previous hash not match previous block hash")
+            raise NonMatchingHashError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if forger_wallet is None or forger_wallet.balance < 100:
             if not is_test_net:

@@ -3,7 +3,7 @@ from typing import Tuple
 from loguru import logger
 
 from blockchain import Blockchain, Block
-from blockchain.exceptions import NonSequentialBlockIndexError
+from blockchain.exceptions import NonSequentialBlockIndexError, NonMatchingHashError
 from network import Node, messages
 from wallet import Wallet
 
@@ -64,7 +64,7 @@ class ChainExtender:
         ).send(self.node)
 
     def _publish_chain_info_request(self):
-        messages.SyncRequest(score=self._blockchain.state.score, length=self._blockchain.state.length)
+        messages.SyncRequest(score=self._blockchain.state.score, length=self._blockchain.state.length).send(self.node)
 
     def create_my_own_block(self):
         my_block = self._blockchain.new_block(
@@ -96,6 +96,8 @@ class ChainExtender:
         except NonSequentialBlockIndexError:
             if block.index > self._blockchain.state.length:
                 self._publish_chain_info_request()
+        except NonMatchingHashError:
+            self._publish_chain_info_request()
         new_block_score = self._blockchain.get_block_score(block)
         if new_block_score > self.best_block_score:
             self.best_block = block
