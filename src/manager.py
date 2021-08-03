@@ -22,7 +22,7 @@ from network.network_handlers.on_transactions_response import TransactionsHandle
 
 
 def setup_wallet() -> Wallet:
-    secret = input("Enter wallet secret: ")
+    secret = 'test-key'  # input("Enter wallet secret: ")
     if not secret:
         secret = None
     wallet = Wallet(secret_passcode=secret)
@@ -115,7 +115,7 @@ def idle():
 
 
 def main():
-    res = input("Run API? [Y/n]: ")
+    res = 'y'  # input("Run API? [Y/n]: ")
     deploy_api = res.lower() == "y"
 
     logger.remove()
