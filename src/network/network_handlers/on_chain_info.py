@@ -12,7 +12,7 @@ from loguru import logger
 
 from config import IS_TEST_NET
 from blockchain import Blockchain, Block
-from network.ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, Message
 
 from .handler import Handler
 
@@ -37,7 +37,7 @@ class ChainInfoHandler(Handler):
         length_is_bigger = message.meta.get("length") >= blockchain.state.length
         return score_is_bigger and length_is_bigger
 
-    def load_chain_blocks(self, message: MessageInterface) -> list:
+    def load_chain_blocks(self, message: Message) -> list:
         cid = message.get_cid()
         blocks = []
         blocks_info = self.node.load_cid(cid)

@@ -1,37 +1,17 @@
 import requests
 import json
 from dataclasses import dataclass, field
-from abc import ABC, abstractmethod
 from base64 import b64decode
 from uuid import uuid4
 
 __all__ = [
     "Message",
     "IpfsAPI",
-    "MessageInterface",
 ]
 
 
-class MessageInterface(ABC):
-    @abstractmethod
-    def has_node_id(self) -> bool:
-        return NotImplemented
-
-    @abstractmethod
-    def get_node_id(self) -> str:
-        return NotImplemented
-
-    @abstractmethod
-    def has_cid(self) -> bool:
-        return NotImplemented
-
-    @abstractmethod
-    def get_cid(self) -> str:
-        return NotImplemented
-
-
 @dataclass
-class Message(MessageInterface):
+class Message:
     meta: dict = field(default_factory=lambda: dict())
     cid: str = None
 
@@ -90,7 +70,7 @@ class IpfsAPI:
         response = requests.post(self.base_api_url + "/pubsub/peers", params=params)
         return response.json()["Strings"]
 
-    def get_sync_peers(self) -> str:
+    def get_sync_peers(self) -> list:
         return self.get_pubsub_peers("sync")
 
     def add_data(self, data: str):

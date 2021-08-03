@@ -1,3 +1,4 @@
+from typing import Callable
 import json
 
 from .api import IpfsAPI, Message
@@ -43,7 +44,8 @@ class Node:
         cid = self.ipfs_api.add_data(transaction_json)
         return cid
 
-    def add_listener(self, handler):
+    # noinspection PyUnresolvedReferences
+    def add_listener(self, handler: Callable):
         if not callable(handler):
             raise CallbackIsNotCallable(handler)
         listener = NetworkListener(

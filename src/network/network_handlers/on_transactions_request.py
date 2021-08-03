@@ -6,7 +6,7 @@ if transactions request is initiated the handler will execute those steps:
 3. publish transactions and get cid
 4. send the transactions cid
 """
-from network.ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, Message
 
 from .handler import Handler
 
@@ -19,7 +19,7 @@ class TransactionsRequestHandler(Handler):
         self.node = node
         self._cid = None
 
-    def validate(self, message: MessageInterface):
+    def validate(self, message: Message):
         return True
 
     def get_transactions(self) -> dict:

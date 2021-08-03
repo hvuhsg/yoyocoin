@@ -5,7 +5,7 @@ if transaction response is sent, the handler will execute those steps:
 3. get transactions via cid
 4. add transactions to pool (validated on insertion)
 """
-from network.ipfs import Node, MessageInterface
+from network.ipfs import Node, Message
 
 from .handler import Handler
 
@@ -16,17 +16,17 @@ class TransactionsHandler(Handler):
     def __init__(self, node: Node):
         self.node = node
 
-    def validate(self, message: MessageInterface):
+    def validate(self, message: Message):
         return True
 
-    def message_is_relevant(self, message: MessageInterface) -> bool:
+    def message_is_relevant(self, message: Message) -> bool:
         return message.has_cid()
 
-    def load_transactions(self, message: MessageInterface) -> dict:
+    def load_transactions(self, message: Message) -> dict:
         cid = message.get_cid()
         return self.node.load_cid(cid)
 
-    def __call__(self, message: MessageInterface):
+    def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
             return

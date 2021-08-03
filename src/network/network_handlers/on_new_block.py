@@ -10,7 +10,7 @@ if new block is sent, the handler will execute those steps:
 from typing import Callable
 
 from blockchain import Block
-from network.ipfs import Node, MessageInterface, Message
+from network.ipfs import Node, Message
 
 from .handler import Handler
 
@@ -30,7 +30,7 @@ class NewBlockHandler(Handler):
     def message_is_relevant(self, message: Message) -> bool:
         return True
 
-    def load_block(self, message: MessageInterface) -> dict:
+    def load_block(self, message: Message) -> dict:
         cid = message.get_cid()
         return self.node.load_cid(cid)
 
