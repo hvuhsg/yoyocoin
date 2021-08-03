@@ -79,13 +79,6 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         run_thread=True
     )
     scheduler.add_job(
-        func=chain_extender.publish_chain_info,
-        name="publish my chain info",
-        interval=60 * 2.6,
-        sync=False,
-        run_thread=True
-    )
-    scheduler.add_job(
         func=chain_extender.publish_new_transaction,
         name="add new transaction",
         interval=60,
@@ -141,7 +134,7 @@ def main():
     node, chain_extender = setup_node()
 
     # 5
-    messages.SyncRequest(score=blockchain.state.score, length=blockchain.state.length)
+    messages.SyncRequest(score=blockchain.state.score, length=blockchain.state.length).send(node)
 
     # 6
     register_scheduler_jobs(scheduler, chain_extender)
