@@ -14,4 +14,4 @@ ADD src /app
 
 EXPOSE 6001
 
-CMD ["python", "./app/src/manager.py"]
+CMD ["python", "./src/manager.py"]
