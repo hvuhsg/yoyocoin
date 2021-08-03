@@ -4,7 +4,7 @@ from loguru import logger
 
 from blockchain import Blockchain, Block
 from blockchain.exceptions import NonSequentialBlockIndexError
-from network.ipfs import Node, Message
+from network import Node, messages
 from wallet import Wallet
 
 
@@ -31,14 +31,11 @@ class ChainExtender:
         self.best_block_score = 0
 
     def _publish_my_block(self, my_block: Block):
-        block_cid = self.node.create_cid(data=my_block.to_dict())
-        self.node.publish_to_topic(
-            "new-block",
-            message=Message(
-                cid=block_cid,
-                meta={"p_hash": my_block.previous_hash, "index": my_block.index}
-            )
-        )
+        messages.NewBlock(
+            block=my_block.to_dict(),
+            privies_hash=my_block.previous_hash,
+            index=my_block.index
+        ).send(self.node)
 
     def _get_chain_info(self) -> Tuple[dict, dict]:
         """
@@ -60,33 +57,14 @@ class ChainExtender:
             nonce=self._sender.nonce,
             sender_private_addr=self._sender.private_address
         )
-        cid = self.node.create_cid(new_transaction.to_dict())
-        self.node.publish_to_topic(
-            "new-transaction",
-            message=Message(cid=cid, meta={"hash": new_transaction.hash(), "nonce": new_transaction.nonce})
-        )
-
-    def publish_chain_info(self):
-        # TODO: remove this hack
-        chain_info, summery = self._get_chain_info()
-        blocks_cids = []
-        blocks_hashes = []
-        for block in chain_info["blocks"]:
-            block_dict = block.to_dict()
-            blocks_cids.append(self.node.create_cid(block_dict))
-            blocks_hashes.append(block.hash())
-        cid = self.node.create_cid(
-            {"blocks_cid": blocks_cids, "blocks_hash": blocks_hashes}
-        )
-        self.node.publish_to_topic(
-            topic='chain-response', message=Message(cid=cid, meta=summery)
-        )
+        messages.NewTransaction(
+            transaction=new_transaction.to_dict(),
+            hash=new_transaction.hash(),
+            nonce=new_transaction.nonce
+        ).send(self.node)
 
     def _publish_chain_info_request(self):
-        self.node.publish_to_topic(
-            "chain-request",
-            message=Message(meta={"score": self._blockchain.state.score})
-        )
+        messages.SyncRequest(score=self._blockchain.state.score, length=self._blockchain.state.length)
 
     def create_my_own_block(self):
         my_block = self._blockchain.new_block(
