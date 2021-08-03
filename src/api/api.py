@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends
 
-from blockchain import Blockchain
+from blockchain import Blockchain, Transaction
 
+from network import messages, Node
 
 app = FastAPI(title="Node API")
 
@@ -42,4 +43,14 @@ def block(limit: int = 10, offset: int = 0, blockchain: Blockchain = Depends(get
 
 @app.post("/transaction")
 def broadcast_transaction(sender: str, recipient: str, amount: float, fee: float, signature: str, nonce: int):
+    transaction = Transaction(
+        sender=sender, recipient=recipient, amount=amount, fee=fee, signature=signature, nonce=nonce
+    )
+    # TODO: validate transaction
+    messages.NewTransaction(
+        transaction=transaction.to_dict(),
+        hash=transaction.hash(),
+        nonce=transaction.nonce
+    ).send(node=Node.get_instance())
     print(sender, recipient, amount, fee, signature, nonce)
+    return {"transaction": transaction.to_dict(), "broadcast": True}
