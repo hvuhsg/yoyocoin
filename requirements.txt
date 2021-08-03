@@ -2,3 +2,4 @@ ecdsa==0.16.1
 loguru
 uvicorn
 fastapi
+requests
