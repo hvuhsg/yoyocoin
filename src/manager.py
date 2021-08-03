@@ -115,10 +115,6 @@ def idle():
 
 
 def main():
-    print("Sleeping for 10 seconds...")
-    sleep(10)
-    print("Done sleeping")
-
     res = 'y'  # input("Run API? [Y/n]: ")
     deploy_api = res.lower() == "y"
 
