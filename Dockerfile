@@ -5,8 +5,7 @@ WORKDIR /app
 # Install dependencies.
 
 ## Install IPFS node
-RUN apt-get update
-RUN apt-get install -y ipfs
+RUN apk add ipfs
 RUN ipfs init
 
 ## Install python lib's
