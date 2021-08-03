@@ -14,4 +14,4 @@ ADD src /app
 
 EXPOSE 6001
 
-CMD ["echo", "$pwd"]
+CMD ["ls"]
