@@ -5,7 +5,7 @@ from ecdsa.curves import SECP256k1
 API_PORT = 6001
 
 IPFS_PORT = 5001
-IPFS_HOST = "ipfs-node"  # "127.0.0.1"
+IPFS_HOST = "127.0.0.1"
 
 ### Blockchain
 
