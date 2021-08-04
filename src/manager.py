@@ -5,7 +5,7 @@ import sys
 from loguru import logger
 
 import api
-from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH
+from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH, ENV_TYPE
 from wallet import Wallet
 from blockchain import Blockchain, Transaction, Block
 from scheduler import Scheduler
@@ -168,6 +168,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # logger.info("Waiting for the IPFS node to initialize.")
-    # sleep(10)
+    if ENV_TYPE == "PRODUCTION":
+        logger.info("Waiting for the IPFS node to initialize.")
+        sleep(10)
     main()
