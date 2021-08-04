@@ -47,7 +47,7 @@ class Message:
 
 
 class IpfsAPI:
-    def __init__(self, host="127.0.0.1", port=5001):
+    def __init__(self, host="ipfs-node", port=5001):
         self.host = host
         self.port = port
 
