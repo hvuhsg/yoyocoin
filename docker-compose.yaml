@@ -2,12 +2,10 @@ version: '3'
 
 services:
   yoyocoin-node:
-    image: yoyocoin:0.1
+    image: hvuhsg5/yoyocoin:0.1
     ports:
       - "6001:6001"
     depends_on:
-      - ipfs-node
-    links:
       - ipfs-node
     networks:
       - backend
@@ -15,12 +13,13 @@ services:
   ipfs-node:
     image: ipfs/go-ipfs:latest
     ports:
-      - "4001:4001"
+      - "4001:4001/tcp"
       - "4001:4001/udp"
-      - "5001:5001"
-      - "8080:8080"
+      - "127.0.0.1:5001:5001"
+      - "127.0.0.1:8080:8080"
     networks: 
       - backend
+    command: ["daemon", "--enable-pubsub-experiment"]
 
 networks:
   backend:
