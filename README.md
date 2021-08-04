@@ -24,7 +24,7 @@ docker-compose up -d
 The node will need to download all the history and create summery. It will take some time (base of the history length and network speed)
 
 ###### Access node API
-The node is exposing port 6001 on default -> http://localhost:6001/docs
+The node is exposing port 6001 by default -> http://localhost:6001/docs
 
 #### PoS mechanism
 **The wallet with the most score win and can forge the next block**,
