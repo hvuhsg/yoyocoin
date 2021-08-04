@@ -26,7 +26,7 @@ The node will need to download all the history and create summery. It will take 
 ###### Access node API
 The node is exposing port 6001 on default -> http://localhost:6001/docs
 
-##### PoS mechanism
+#### PoS mechanism
 **The wallet with the most score win and can forge the next block**,
 in the time period of the block creation every wallet can forge a block, every node select's the one block with the highest score.
 every block have specific time frame for creation.
