@@ -1,6 +1,7 @@
 from typing import Callable
 import json
 
+from config import IPFS_HOST, IPFS_PORT
 from .api import IpfsAPI, Message
 from .network_listener import NetworkListener
 
@@ -23,7 +24,7 @@ class Node:
         return cls._instance
 
     def __init__(self, is_full_node: bool = True):
-        self.ipfs_api = IpfsAPI()
+        self.ipfs_api = IpfsAPI(host=IPFS_HOST, port=IPFS_PORT)
         self.is_full_node = is_full_node
 
         self._instance = self
