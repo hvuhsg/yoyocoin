@@ -168,4 +168,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logger.info("Waiting for the IPFS node to initialize.")
+    sleep(10)
     main()
