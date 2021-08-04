@@ -9,11 +9,13 @@ This coin will use PoS to determine witch wallet has won and can forge the next 
 
 #### Running a Node
 
-###### requirements
-- docker installed
-- docker-composed installed
-- GIT installed
-- 1 Gig RAM minimum
+<details>
+  <summary>###### requirements</summary>
+    - docker installed
+    - docker-composed installed
+    - GIT installed
+    - 1 Gig RAM minimum
+</details>
 
 ###### Deploying
 ```shell script
