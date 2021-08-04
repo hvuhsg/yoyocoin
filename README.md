@@ -6,40 +6,42 @@ PoS blockchain python (but a bit different)
 #### Explanation
 This coin will use PoS to determine witch wallet has won and can forge the next block (incentive: get the fee's, block creation is free...)
 
+
+#### Running a Node
+
+###### requirements
+- docker installed
+- docker-composed installed
+- GIT installed
+- 1 Gig RAM minimum
+
+###### Deploying
+```shell script
+git clone https://github.com/hvuhsg/yoyocoin.git
+cd yoyocoin
+docker-compose up -d
+```
+The node will need to download all the history and create summery. It will take some time (base of the history length and network speed)
+
+###### Access node API
+The node is exposing port 6001 on default -> http://localhost:6001/docs
+
 ##### PoS mechanism
 **The wallet with the most score win and can forge the next block**,
-in the time period of the block creation every wallet who have more then X score can forge the next block, every node select the one with the highest score.
+in the time period of the block creation every wallet can forge a block, every node select's the one block with the highest score.
 every block have specific time frame for creation.
 
-```python
-    def _calculate_lottery_block_bonus(self, wallet_address: str):
-        seed(f"{wallet_address}{self.last_block_hash}")
-        lottery_multiplier = choices(LOTTERY_PRIZES, LOTTERY_WEIGHTS)[0]
-        return lottery_multiplier
-
-    def _tie_break(self, wallet_address: str) -> float:
-        seed(f"{wallet_address}{self.last_block_hash}")
-        return random()
-
-    def _calculate_forger_score(self, forger_wallet):
-        current_block_index = self.length
-        blocks_number = min(
-            (current_block_index - forger_wallet["last_transaction"]),
-            MAX_BLOCKS_FOR_SCORE,
-        )
-        lottery_blocks = self._calculate_lottery_block_bonus(forger_wallet["address"])
-        blocks_number += lottery_blocks
-        multiplier = (blocks_number ** math.e + MIN_SCORE) / (BLOCKS_CURVE_NUMBER ** math.e)
-        wallet_balance = min(forger_wallet["balance"], MAX_BALANCE_FOR_SCORE)
-        score = wallet_balance * multiplier
-        tie_brake_number = self._tie_break(forger_wallet["address"])
-        return score+MIN_SCORE + tie_brake_number
-
-```
+##### Lottery system
+1. Sorted list of all the wallets is created and every wallet have a power (based on it balance and last transaction block index)
+2. the node is creating sum tree from all the sorted wallets
+3. random number in range of 0 - 1 is created (Working on this part)
+4. the random number is multiplied with the sum tree root (sum of all)
+5. the sum tree is finding the winner wallet with O(log n) time
+6. the wallet score is 100 - the distance from the winner wallet (Will be changed later)
 
 #### code parts
 | Name          | Description                                          |
 | ------------- | ---------------------------------------------------- |
 | node          | coin p2p network client and server                   |
 | blockchain    | manage chain + block foreign + maintaining consensus |
-
+| ipfs          | IPFS go node with pubsub enabled                     |
