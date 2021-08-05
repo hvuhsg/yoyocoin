@@ -73,6 +73,8 @@ class Transaction:
         if sender_wallet is None or sender_wallet.balance < (self.amount + self.fee):
             if not is_test_net:
                 raise InsufficientBalanceError()
+        if sender_wallet is not None and sender_wallet.nonce_counter >= self.nonce:
+            raise DuplicateNonceError("Wallet nonce is grater then transaction nonce")
         if type(self.amount) != int or self.amount <= 0:
             raise ValidationError("amount must be integer grater then 0")
         if type(self.fee) != int or self.fee <= 0:

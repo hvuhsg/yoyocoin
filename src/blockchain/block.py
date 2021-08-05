@@ -137,7 +137,7 @@ class Block:
             if not genesis_is_valid:
                 raise GenesisIsNotValidError()
             return
-            # TODO: check in production if hash if equal to hard coded hash
+            # TODO: check in production if hash is equal to hard coded hash
         if self.index != blockchain_state.length:
             raise NonSequentialBlockIndexError(
                 f"block index not sequential index: {self.index} chain: {blockchain_state.length}"

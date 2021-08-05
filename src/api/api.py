@@ -42,11 +42,20 @@ def block(limit: int = 10, offset: int = 0, blockchain: Blockchain = Depends(get
 
 
 @app.post("/transaction")
-def broadcast_transaction(sender: str, recipient: str, amount: float, fee: float, signature: str, nonce: int):
+def broadcast_transaction(
+        sender: str,
+        recipient: str,
+        amount: float,
+        fee: float,
+        signature: str,
+        nonce: int,
+        blockchain: Blockchain = Depends(get_blockchain),
+):
     transaction = Transaction(
         sender=sender, recipient=recipient, amount=amount, fee=fee, signature=signature, nonce=nonce
     )
-    # TODO: validate transaction
+    blockchain.validate_transaction(transaction)
+
     messages.NewTransaction(
         transaction=transaction.to_dict(),
         hash=transaction.hash(),

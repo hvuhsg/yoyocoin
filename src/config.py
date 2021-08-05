@@ -8,10 +8,10 @@ ENV_TYPE = "DEVELOPMENT "  # "PRODUCTION"
 API_PORT = 6001
 
 IPFS_PORT = 5001
+IPFS_HOST = "127.0.0.1"
+
 if ENV_TYPE == "PRODUCTION":
     IPFS_HOST = "ipfs-node"
-elif ENV_TYPE == "DEVELOPMENT":
-    IPFS_HOST = "127.0.0.1"
 
 ### Blockchain
 IS_TEST_NET = True
