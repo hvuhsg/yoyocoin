@@ -4,7 +4,7 @@ PoS blockchain python (but a bit different)
 [![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin)  
 
 #### Explanation
-This coin will use PoS to determine witch wallet has won and can forge the next block (incentive: get the fee's, block creation is free...)
+This coin will use PoS to determine which wallet has won and can forge the next block (incentive: get the fee's, block creation is free...)
 
 
 #### Running a Node
@@ -21,10 +21,10 @@ git clone https://github.com/hvuhsg/yoyocoin.git
 cd yoyocoin
 docker-compose up -d
 ```
-The node will need to download all the history and create summery. It will take some time (base of the history length and network speed)
+The node will need to download all the history and create summary. It will take some time (depends on length and network speed)
 
 ###### Access node API
-The node is exposing port 6001 by default -> http://localhost:6001/docs
+The node exposing port 6001 by default -> http://localhost:6001/docs
 
 #### PoS mechanism
 **The wallet with the most score win and can forge the next block**,
