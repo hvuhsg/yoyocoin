@@ -112,7 +112,7 @@ class Block:
         forger_private_key_string = bytes.fromhex(forger_private_address)
         forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=ECDSA_CURVE)
         if forger_private_key.get_verifying_key() != self.forger_public_key:
-            raise ValueError("The forger is not the one signing")
+            raise ValidationError("The forger is not the one signing")
         self.signature = self.sign(forger_private_key)
 
     def sign(self, forger_private_key: ecdsa.SigningKey):
@@ -145,9 +145,6 @@ class Block:
         if self.previous_hash != blockchain_state.last_block_hash:
             raise NonMatchingHashError("previous hash not match previous block hash")
         forger_wallet = blockchain_state.wallets.get(self.forger, None)
-        if forger_wallet is None or forger_wallet.balance < 100:
-            if not is_test_net:
-                raise NonLotteryMemberError()
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:

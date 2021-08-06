@@ -27,8 +27,9 @@ class Blockchain:
         self.state = BlockchainState(is_test_net=is_test_net)
         self.pruned = pruned
         self.is_test_net = is_test_net
-        if self.is_test_net:
-            self.default_genesis()
+        self.default_genesis()
+
+        self.set_main_chain(self)
 
     @property
     def last_block(self):
@@ -59,6 +60,7 @@ class Blockchain:
 
         # Reset the current list of transactions
         self.current_transactions = {}
+        # TODO: remove transaction on block link to chain
 
         return new_block
 
@@ -107,8 +109,6 @@ class Blockchain:
         )
         if sender_private_addr is not None:
             new_transaction.create_signature(sender_private_addr)
-
-        self.add_transaction(new_transaction)
 
         return new_transaction
 

@@ -1,3 +1,4 @@
+import numbers
 import json
 import hashlib
 from base64 import b64encode, b64decode
@@ -46,7 +47,7 @@ class Transaction:
         private_key_string = bytes.fromhex(private_key)
         private_key = ecdsa.SigningKey.from_string(private_key_string, curve=ECDSA_CURVE)
         if self.sender_pub_key != private_key.get_verifying_key():
-            raise ValueError("SigningKey is not the sender")
+            raise ValidationError("SigningKey is not the sender")
         self.signature = self.sign(private_key)
 
     def sign(self, private_key: ecdsa.SigningKey):
@@ -75,10 +76,10 @@ class Transaction:
                 raise InsufficientBalanceError()
         if sender_wallet is not None and sender_wallet.nonce_counter >= self.nonce:
             raise DuplicateNonceError("Wallet nonce is grater then transaction nonce")
-        if type(self.amount) != int or self.amount <= 0:
-            raise ValidationError("amount must be integer grater then 0")
-        if type(self.fee) != int or self.fee <= 0:
-            raise ValidationError("fee must be integer grater then 0")
+        if not isinstance(self.amount, numbers.Number) or self.amount <= 0:
+            raise ValidationError("amount must be number grater then 0")
+        if not isinstance(self.fee, numbers.Number) or self.fee <= 0:
+            raise ValidationError("fee must be number grater then 0")
         if not self.is_signature_verified():
             raise ValidationError("transaction signature is not valid")
 
