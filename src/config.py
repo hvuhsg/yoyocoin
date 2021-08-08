@@ -5,6 +5,8 @@ ENV_TYPE = "DEVELOPMENT "  # "PRODUCTION"
 
 
 ### Network
+EXPOSE_API = False
+
 API_PORT = 6001
 
 IPFS_PORT = 5001
