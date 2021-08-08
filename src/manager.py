@@ -1,11 +1,12 @@
 from typing import Tuple
 from time import sleep
+import argparse
 import sys
 
 from loguru import logger
 
 import api
-from config import IS_TEST_NET, IS_FULL_NODE, SCHEDULER_STEP_LENGTH, ENV_TYPE
+import config
 from wallet import Wallet
 from blockchain import Blockchain, Transaction, Block
 from scheduler import Scheduler
@@ -32,13 +33,13 @@ def setup_wallet() -> Wallet:
 
 def setup_blockchain() -> Blockchain:
     #  TODO: load from disk
-    blockchain = Blockchain(pruned=not IS_FULL_NODE, is_test_net=IS_TEST_NET)
+    blockchain = Blockchain(pruned=not config.IS_FULL_NODE, is_test_net=config.IS_TEST_NET)
     Blockchain.set_main_chain(blockchain)
     return blockchain
 
 
 def setup_node() -> Tuple[Node, ChainExtender]:
-    node = Node(is_full_node=IS_FULL_NODE)
+    node = Node(is_full_node=config.IS_TEST_NET)
 
     chain_extender = ChainExtender(node)
 
@@ -118,6 +119,24 @@ def create_genesis(developer_secret: str):
     return g_block
 
 
+def override_config():
+    parser = argparse.ArgumentParser(description='Yoyocoin node daemon')
+    parser.add_argument('--expose-api', action="store_true", help='Expose http api for this node')
+    parser.add_argument('--api-port', type=int, help='Port for the node external api (http)')
+    parser.add_argument('--ipfs-port', type=int, help='IPFS daemon port')
+    parser.add_argument("--test-net", "-t", action="store_true", help="Run node with test net configuration")
+    parser.add_argument("--prune-node", "-p", action="store_true", help="Only save blockchain summery")
+    args = vars(parser.parse_args())
+
+    if args["api_port"] is not None:
+        config.API_PORT = args["api_port"]
+    if args["ipfs_port"] is not None:
+        config.IPFS_PORT = args["ipfs_port"]
+    config.IS_TEST_NET = args["test_net"]
+    config.IS_FULL_NODE = not args["prune_node"]
+    config.EXPOSE_API = args["expose_api"]
+
+
 def idle():
     try:
         while True:
@@ -127,8 +146,7 @@ def idle():
 
 
 def main():
-    res = 'y'  # input("Run API? [Y/n]: ")
-    deploy_api = res.lower() == "y"
+    override_config()
 
     logger.remove()
     logger.add(sys.stdout, level="INFO")
@@ -137,7 +155,7 @@ def main():
     wallet = setup_wallet()
 
     # 2
-    scheduler = Scheduler(min_time_step=SCHEDULER_STEP_LENGTH)
+    scheduler = Scheduler(min_time_step=config.SCHEDULER_STEP_LENGTH)
 
     # 3
     blockchain = setup_blockchain()
@@ -153,7 +171,7 @@ def main():
     scheduler.start()
 
     # 7
-    if deploy_api:
+    if config.EXPOSE_API:
         setup_api()
 
     idle()
@@ -168,7 +186,7 @@ def main():
 
 
 if __name__ == "__main__":
-    if ENV_TYPE == "PRODUCTION":
+    if config.ENV_TYPE == "PRODUCTION":
         logger.info("Waiting for the IPFS node to initialize.")
         sleep(10)
     main()

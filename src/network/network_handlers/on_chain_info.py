@@ -10,7 +10,6 @@ from typing import List
 
 from loguru import logger
 
-from config import IS_TEST_NET
 from blockchain import Blockchain, Block
 from network.ipfs import Node, Message
 
@@ -54,7 +53,7 @@ class ChainInfoHandler(Handler):
 
     def build_blockchain(self, blocks: List[Block]):
         current_blockchain: Blockchain = Blockchain.get_main_chain()
-        new_blockchain = Blockchain(is_test_net=IS_TEST_NET)
+        new_blockchain = Blockchain(is_test_net=current_blockchain.is_test_net)
         if blocks and blocks[0].index == 0:
             blocks.pop(0)
         new_blockchain.add_chain(blocks)
