@@ -16,6 +16,12 @@ This coin will use PoS to determine which wallet has won and can forge the next 
 - 1 Gig RAM minimum
 
 ###### Deploying
+Make sure that your docker instance is running
+```shell script
+sudo systemctl enable docker # Auto-start on boot
+sudo systemctl start docker # Start right now
+```
+
 ```shell script
 git clone https://github.com/hvuhsg/yoyocoin.git
 cd yoyocoin
