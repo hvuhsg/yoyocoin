@@ -57,6 +57,7 @@ class ChainExtender:
             nonce=self._sender.nonce,
             sender_private_addr=self._sender.private_address
         )
+        self._blockchain.add_transaction(new_transaction)
         messages.NewTransaction(
             transaction=new_transaction.to_dict(),
             hash=new_transaction.hash(),
