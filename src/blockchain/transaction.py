@@ -22,9 +22,12 @@ class Transaction:
         self.signature = signature
 
     def to_dict(self):
-        raw_transaction = self._raw_transaction()
         return {
-            **raw_transaction,
+            "sender": self.sender,
+            "recipient": self.recipient,
+            "amount": self.amount,
+            "fee": self.fee,
+            "nonce": self.nonce,
             "hash": self.hash(),
             "signature": self.base64_signature,
         }
@@ -41,7 +44,7 @@ class Transaction:
     def create_signature(self, private_key: str):
         """
         Create signature for this transaction
-        :param private_key: base64(wallet private key)
+        :param private_key: wallet private key (HEX string)
         :return: None
         """
         private_key_string = bytes.fromhex(private_key)
@@ -84,19 +87,11 @@ class Transaction:
             raise ValidationError("transaction signature is not valid")
 
     def _raw_transaction(self):
-        return {
-            "sender": self.sender,
-            "recipient": self.recipient,
-            "amount": self.amount,
-            "fee": self.fee,
-            "nonce": self.nonce,
-        }
+        return f"{self.sender}:{self.recipient}:{self.amount}:{self.fee}:{self.nonce}"
 
     def hash(self):
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
-        transaction_string = json.dumps(
-            self._raw_transaction(), sort_keys=True
-        ).encode()
+        transaction_string = self._raw_transaction().encode()
         return hashlib.sha256(transaction_string).hexdigest()
 
     @property
