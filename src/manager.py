@@ -112,10 +112,12 @@ def create_genesis(developer_secret: str):
     print("GENESIS_WALLET_ADDRESS:", wallet.public)
 
     g_transaction = Transaction(sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0)
-    g_transaction.create_signature(wallet.private)
+    signature = g_transaction.sign(wallet.private_key)
+    g_transaction.signature = signature
 
     g_block = Block(forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction])
     g_block.create_signature(wallet.private)
+    print(g_block.to_dict())
     return g_block
 
 
@@ -123,6 +125,7 @@ def override_config():
     parser = argparse.ArgumentParser(description='Yoyocoin node daemon')
     parser.add_argument('--expose-api', action="store_true", help='Expose http api for this node')
     parser.add_argument('--api-port', type=int, help='Port for the node external api (http)')
+    parser.add_argument('--api-host', type=str, help='Host for the node external api (http)')
     parser.add_argument('--ipfs-port', type=int, help='IPFS daemon port')
     parser.add_argument("--test-net", "-t", action="store_true", help="Run node with test net configuration")
     parser.add_argument("--prune-node", "-p", action="store_true", help="Only save blockchain summery")
@@ -130,6 +133,8 @@ def override_config():
 
     if args["api_port"] is not None:
         config.API_PORT = args["api_port"]
+    if args["api_host"] is not None:
+        config.API_HOST = args["api_host"]
     if args["ipfs_port"] is not None:
         config.IPFS_PORT = args["ipfs_port"]
     config.IS_TEST_NET = args["test_net"]

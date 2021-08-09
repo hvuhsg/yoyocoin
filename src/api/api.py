@@ -1,7 +1,8 @@
+from base64 import b64decode
+
 from fastapi import FastAPI, Depends
 
 from blockchain import Blockchain, Transaction
-
 from network import messages, Node
 
 app = FastAPI(title="Node API")
@@ -52,7 +53,12 @@ def broadcast_transaction(
         blockchain: Blockchain = Depends(get_blockchain),
 ):
     transaction = Transaction(
-        sender=sender, recipient=recipient, amount=amount, fee=fee, signature=signature, nonce=nonce
+        sender=sender,
+        recipient=recipient,
+        amount=amount,
+        fee=fee,
+        signature=b64decode(signature),
+        nonce=nonce
     )
     blockchain.validate_transaction(transaction)
 

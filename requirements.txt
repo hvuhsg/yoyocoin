@@ -1,4 +1,4 @@
-ecdsa==0.16.1
+ecdsa
 loguru
 uvicorn
 fastapi
