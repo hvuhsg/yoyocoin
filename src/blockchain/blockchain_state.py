@@ -12,10 +12,6 @@ class BlockchainState:
         self.sorted_wallets = []  # Sorted by wallet address aka public key
         self.wallets_sum_tree: SumTree = None
 
-        self.total_score = 0
-
-        self.total_coins = 0  # type: int
-
         self.score = 0  # type: float
         self.length = 0  # type: int
         self.block_hashs = []  # type: list

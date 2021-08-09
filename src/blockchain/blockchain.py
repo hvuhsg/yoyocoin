@@ -24,7 +24,7 @@ class Blockchain:
         self.chain: List[Block] = []
         self.chain_length = 0
         self.nodes = set()
-        self.state = BlockchainState(is_test_net=is_test_net)
+        self.state: BlockchainState = BlockchainState(is_test_net=is_test_net)
         self.pruned = pruned
         self.is_test_net = is_test_net
         self.default_genesis()
@@ -34,6 +34,18 @@ class Blockchain:
     @property
     def last_block(self):
         return self.chain[-1]
+
+    @property
+    def score(self):
+        return self.state.score
+
+    @property
+    def length(self):
+        return self.state.length
+
+    @property
+    def block_hashs(self):
+        return self.state.block_hashs
 
     def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
@@ -53,7 +65,8 @@ class Blockchain:
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
         new_block.transactions = sorted(
-            self.current_transactions.values(), key=lambda t: t.nonce
+            self.current_transactions.values(),
+            key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), 'little'))
         )
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
@@ -124,11 +137,10 @@ class Blockchain:
     def validate_block(self, block: Block):
         return block.validate(self.state, is_test_net=self.is_test_net)
 
-    def get_block_score(self, block: Block):
-        return self.state.block_score(block=block)
-
     def validate_transaction(self, transaction: Transaction):
         return transaction.validate(self.state, is_test_net=self.is_test_net)
 
+    def get_block_score(self, block: Block):
+        return self.state.block_score(block=block)
     # TODO: create lottery number generator
 
