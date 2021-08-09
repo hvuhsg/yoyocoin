@@ -169,7 +169,7 @@ def main():
     node, chain_extender = setup_node()
 
     # 5
-    messages.SyncRequest(score=blockchain.state.score, length=blockchain.state.length).send(node)
+    messages.SyncRequest(score=blockchain.score, length=blockchain.length).send(node)
 
     # 6
     register_scheduler_jobs(scheduler, chain_extender)

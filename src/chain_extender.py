@@ -44,8 +44,8 @@ class ChainExtender:
         """
         blockchain: Blockchain = Blockchain.get_main_chain()
         blocks = blockchain.chain
-        score = blockchain.state.score
-        length = blockchain.state.length
+        score = blockchain.score
+        length = blockchain.length
         return {"blocks": blocks}, {"score": score, "length": length}
 
     def publish_new_transaction(self):
@@ -65,7 +65,7 @@ class ChainExtender:
         ).send(self.node)
 
     def _publish_chain_info_request(self):
-        messages.SyncRequest(score=self._blockchain.state.score, length=self._blockchain.state.length).send(self.node)
+        messages.SyncRequest(score=self._blockchain.score, length=self._blockchain.length).send(self.node)
 
     def create_my_own_block(self):
         my_block = self._blockchain.new_block(
@@ -95,7 +95,7 @@ class ChainExtender:
         try:
             self._blockchain.validate_block(block)
         except NonSequentialBlockIndexError:
-            if block.index > self._blockchain.state.length:
+            if block.index > self._blockchain.length:
                 self._publish_chain_info_request()
         except NonMatchingHashError:
             self._publish_chain_info_request()

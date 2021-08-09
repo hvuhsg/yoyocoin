@@ -26,7 +26,7 @@ class ChainInfoRequestHandler(Handler):
         blockchain: Blockchain = Blockchain.get_main_chain()
         score_exist = message.meta.get("score", None) is not None
         score_is_lower = (
-            score_exist and message.meta.get("score") < blockchain.state.score
+            score_exist and message.meta.get("score") < blockchain.score
         )
         # TODO: check length
         return score_is_lower
@@ -38,8 +38,8 @@ class ChainInfoRequestHandler(Handler):
         """
         blockchain: Blockchain = Blockchain.get_main_chain()
         blocks = blockchain.chain
-        score = blockchain.state.score
-        length = blockchain.state.length
+        score = blockchain.score
+        length = blockchain.length
         return {"blocks": blocks}, {"score": score, "length": length}
 
     def publish_chain_info(self, chain_info: dict) -> str:

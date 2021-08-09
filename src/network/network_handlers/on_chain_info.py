@@ -32,8 +32,8 @@ class ChainInfoHandler(Handler):
 
     def message_is_relevant(self, message: Message) -> bool:
         blockchain: Blockchain = Blockchain.get_main_chain()
-        score_is_bigger = message.meta.get("score") > blockchain.state.score
-        length_is_bigger = message.meta.get("length") >= blockchain.state.length
+        score_is_bigger = message.meta.get("score") > blockchain.score
+        length_is_bigger = message.meta.get("length") >= blockchain.length
         return score_is_bigger and length_is_bigger
 
     def load_chain_blocks(self, message: Message) -> list:
@@ -57,15 +57,15 @@ class ChainInfoHandler(Handler):
         if blocks and blocks[0].index == 0:
             blocks.pop(0)
         new_blockchain.add_chain(blocks)
-        score_is_bigger = new_blockchain.state.score > current_blockchain.state.score
+        score_is_bigger = new_blockchain.score > current_blockchain.score
         length_is_not_lower = (
-            new_blockchain.state.length >= current_blockchain.state.length
+                new_blockchain.length >= current_blockchain.length
         )
         if score_is_bigger and length_is_not_lower:
             logger.success(
                 "New blockchain synced!"
-                + f"\n-\tScore: {new_blockchain.state.score}"
-                + f"\n-\tLength: {new_blockchain.state.length}"
+                + f"\n-\tScore: {new_blockchain.score}"
+                + f"\n-\tLength: {new_blockchain.length}"
             )
             Blockchain.set_main_chain(new_blockchain)
 

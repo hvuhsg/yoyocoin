@@ -23,8 +23,7 @@ class Blockchain:
         ] = {}  # {transaction hash: transaction object}
         self.chain: List[Block] = []
         self.chain_length = 0
-        self.nodes = set()
-        self.state: BlockchainState = BlockchainState(is_test_net=is_test_net)
+        self.__state: BlockchainState = BlockchainState(is_test_net=is_test_net)
         self.pruned = pruned
         self.is_test_net = is_test_net
         self.default_genesis()
@@ -37,15 +36,23 @@ class Blockchain:
 
     @property
     def score(self):
-        return self.state.score
+        return self.__state.score
 
     @property
     def length(self):
-        return self.state.length
+        return self.__state.length
 
     @property
     def block_hashs(self):
-        return self.state.block_hashs
+        return self.__state.block_hashs
+
+    @property
+    def wallets(self):
+        return self.__state.wallets
+
+    @property
+    def sorted_wallets(self):
+        return self.__state.sorted_wallets
 
     def default_genesis(self):
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
@@ -61,7 +68,7 @@ class Blockchain:
         if previous_hash is None:
             previous_hash = self.last_block.hash()
         if index is None:
-            index = self.state.length
+            index = self.__state.length
         new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
 
         new_block.transactions = sorted(
@@ -80,7 +87,7 @@ class Blockchain:
     def add_block(self, block: Block):
         for tx in block.transactions:
             self.current_transactions.pop(tx.hash(), None)
-        self.state.add_block(block)
+        self.__state.add_block(block)
         if self.pruned:
             self.chain = [block]
         else:
@@ -126,21 +133,21 @@ class Blockchain:
         return new_transaction
 
     def add_transaction(self, transaction: Transaction):
-        transaction.validate(blockchain_state=self.state, is_test_net=self.is_test_net)
+        transaction.validate(blockchain_state=self.__state, is_test_net=self.is_test_net)
         self.current_transactions[transaction.hash()] = transaction
 
     def add_chain(self, blocks: list):
-        self.state.add_chain(blocks)
+        self.__state.add_chain(blocks)
         self.chain.extend(blocks)
         self.chain_length += len(blocks)
 
     def validate_block(self, block: Block):
-        return block.validate(self.state, is_test_net=self.is_test_net)
+        return block.validate(self.__state, is_test_net=self.is_test_net)
 
     def validate_transaction(self, transaction: Transaction):
-        return transaction.validate(self.state, is_test_net=self.is_test_net)
+        return transaction.validate(self.__state, is_test_net=self.is_test_net)
 
     def get_block_score(self, block: Block):
-        return self.state.block_score(block=block)
+        return self.__state.block_score(block=block)
     # TODO: create lottery number generator
 

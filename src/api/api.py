@@ -15,16 +15,16 @@ def get_blockchain() -> Blockchain:
 
 @app.get("/wallets")
 def wallets(limit: int = 10, offset: int = 0, blockchain: Blockchain = Depends(get_blockchain)):
-    wallets_count = len(blockchain.state.sorted_wallets)
+    wallets_count = len(blockchain.sorted_wallets)
     return [
         w.to_dict()
-        for w in blockchain.state.sorted_wallets[min(offset, wallets_count): min(offset+limit, wallets_count)]
+        for w in blockchain.sorted_wallets[min(offset, wallets_count): min(offset + limit, wallets_count)]
     ]
 
 
 @app.get("/wallet")
 def wallet(address: str, blockchain: Blockchain = Depends(get_blockchain)):
-    return blockchain.state.wallets.get(address, "wallet dose not exists")
+    return blockchain.wallets.get(address, "wallet dose not exists")
 
 
 @app.get("/block")
