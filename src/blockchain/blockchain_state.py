@@ -60,7 +60,7 @@ class BlockchainState:
         return self._calculate_wallet_score(forger_wallet)
 
     def add_block(self, block: Block):
-        block.validate(blockchain_state=self, is_test_net=self.is_test_net)
+        block.validate(blockchain_state=self)
         fees = 0
         forger_wallet = self._get_wallet(block.forger)
         forger_score = self._calculate_wallet_score(forger_wallet)

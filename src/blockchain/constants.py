@@ -19,7 +19,7 @@ GENESIS_BLOCK = {
         {
              'sender': '0',
              'recipient': '046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14',
-             'amount': 1000000000000,
+             'amount': 1_000_000_000_000,
              'fee': 0,
              'nonce': 0,
              'hash': 'c59d08b266b9d534364d760d3699a0a3aa10c6fd7c5119cf3dec7609d8d8e3ed',

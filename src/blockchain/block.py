@@ -6,7 +6,7 @@ from base64 import b64decode, b64encode
 
 import ecdsa
 
-from config import ECDSA_CURVE
+from config import Config
 from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN, DEVELOPER_KEY
 from .transaction import Transaction
 from .exceptions import (
@@ -53,7 +53,7 @@ class Block:
     @property
     def forger_public_key(self) -> ecdsa.VerifyingKey:
         forger_public_key_string = bytes.fromhex(self.forger)
-        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=ECDSA_CURVE)
+        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=Config.ECDSA_CURVE)
 
     def _raw_data(self):
         return {
@@ -110,7 +110,7 @@ class Block:
         :return: None
         """
         forger_private_key_string = bytes.fromhex(forger_private_address)
-        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=ECDSA_CURVE)
+        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=Config.ECDSA_CURVE)
         if forger_private_key.get_verifying_key() != self.forger_public_key:
             raise ValidationError("The forger is not the one signing")
         self.signature = self.sign(forger_private_key)
@@ -118,7 +118,7 @@ class Block:
     def sign(self, forger_private_key: ecdsa.SigningKey):
         return forger_private_key.sign(self.hash().encode())
 
-    def validate(self, blockchain_state, is_test_net=False):
+    def validate(self, blockchain_state):
         """
         Validate block
         1. check block index (is the next block in the blockchain state)
@@ -127,7 +127,6 @@ class Block:
         4. check block signature
         5. validate transactions
 
-        :param is_test_net: if True ignore InsufficientBalanceError and NonLotteryMemberError
         :param blockchain_state: Blockchain state object
         :raises ValidationError
         :return: None
@@ -144,13 +143,10 @@ class Block:
             )
         if self.previous_hash != blockchain_state.last_block_hash:
             raise NonMatchingHashError("previous hash not match previous block hash")
-        forger_wallet = blockchain_state.wallets.get(self.forger, None)
         if not self.is_signature_verified():
             raise ValidationError("invalid signature")
         for transaction in self.transactions:
-            transaction.validate(
-                blockchain_state=blockchain_state, is_test_net=is_test_net
-            )  # raises ValidationError
+            transaction.validate(blockchain_state=blockchain_state)
         # TODO: Add timestamp validation
 
     @classmethod

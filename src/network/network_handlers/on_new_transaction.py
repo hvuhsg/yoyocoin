@@ -22,15 +22,6 @@ class NewTransactionHandler(Handler):
     def validate(self, message: Message):
         return message.has_cid() and "hash" in message.meta and "nonce" in message.meta
 
-    def message_is_relevant(self, message: Message) -> bool:
-        blockchain: Blockchain = Blockchain.get_main_chain()
-        transaction_hash = message.meta.get("hash")
-        transaction_nonce = message.meta.get("nonce")
-        # TODO: check the transaction nonce is relevant (still valid)
-
-        transaction_not_saved = transaction_hash not in blockchain.current_transactions
-        return transaction_not_saved
-
     def load_transaction(self, message: Message) -> dict:
         cid = message.get_cid()
         return self.node.load_cid(cid)
@@ -45,8 +36,6 @@ class NewTransactionHandler(Handler):
     def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
-            return
-        if not self.message_is_relevant(message):
             return
         transaction_dict = self.load_transaction(message)
         transaction = self.parse_transaction(transaction_dict)

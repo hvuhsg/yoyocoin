@@ -20,7 +20,6 @@ class ChainInfoRequestHandler(Handler):
 
     def __init__(self, node: Node):
         self.node = node
-        self._cid = None
 
     def validate(self, message: Message):
         blockchain: Blockchain = Blockchain.get_main_chain()

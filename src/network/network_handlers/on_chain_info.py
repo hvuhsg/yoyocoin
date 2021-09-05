@@ -26,15 +26,7 @@ class ChainInfoHandler(Handler):
         cid_exist = message.has_cid()
         score_exist = message.meta.get("score", None) is not None
         length_exist = message.meta.get("length", None) is not None
-        length_is_valid = True
-        # TODO: validate chain length with network start time
-        return cid_exist and score_exist and length_exist and length_is_valid
-
-    def message_is_relevant(self, message: Message) -> bool:
-        blockchain: Blockchain = Blockchain.get_main_chain()
-        score_is_bigger = message.meta.get("score") > blockchain.score
-        length_is_bigger = message.meta.get("length") >= blockchain.length
-        return score_is_bigger and length_is_bigger
+        return cid_exist and score_exist and length_exist
 
     def load_chain_blocks(self, message: Message) -> list:
         cid = message.get_cid()
@@ -73,7 +65,6 @@ class ChainInfoHandler(Handler):
         super().log(message)
         if not self.validate(message):
             return
-        if not self.message_is_relevant(message):
-            return
         chain_blocks = self.load_chain_blocks(message)
         self.build_blockchain(chain_blocks)
+        # TODO: remove from network handlers with callback

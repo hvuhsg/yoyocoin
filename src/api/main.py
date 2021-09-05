@@ -1,9 +1,9 @@
 import uvicorn
 
-from config import API_PORT, API_HOST
+from config import Config
 
 from .api import app
 
 
 def run():
-    uvicorn.run(app, host=API_HOST, port=API_PORT)
+    uvicorn.run(app, host=Config.API_HOST, port=Config.API_PORT)

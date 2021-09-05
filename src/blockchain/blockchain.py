@@ -133,7 +133,7 @@ class Blockchain:
         return new_transaction
 
     def add_transaction(self, transaction: Transaction):
-        transaction.validate(blockchain_state=self.__state, is_test_net=self.is_test_net)
+        transaction.validate(blockchain_state=self.__state)
         self.current_transactions[transaction.hash()] = transaction
 
     def add_chain(self, blocks: list):
@@ -142,10 +142,10 @@ class Blockchain:
         self.chain_length += len(blocks)
 
     def validate_block(self, block: Block):
-        return block.validate(self.__state, is_test_net=self.is_test_net)
+        return block.validate(self.__state)
 
     def validate_transaction(self, transaction: Transaction):
-        return transaction.validate(self.__state, is_test_net=self.is_test_net)
+        return transaction.validate(self.__state)
 
     def get_block_score(self, block: Block):
         return self.__state.block_score(block=block)
