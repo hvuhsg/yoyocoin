@@ -68,7 +68,9 @@ class IpfsAPI:
         params = {}
         if topic:
             params = {"arg": topic}
-        response = ResilientSession().post(self.base_api_url + "/pubsub/peers", params=params)
+        response = ResilientSession().post(
+            self.base_api_url + "/pubsub/peers", params=params
+        )
         return response.json()["Strings"]
 
     def get_sync_peers(self) -> list:
@@ -76,15 +78,21 @@ class IpfsAPI:
 
     def add_data(self, data: str):
         files = {"content": data}
-        response = ResilientSession().post(self.base_api_url + "/block/put", files=files)
+        response = ResilientSession().post(
+            self.base_api_url + "/block/put", files=files
+        )
         return response.json()["Key"]
 
     def get_data(self, cid: str):
-        response = ResilientSession().post(self.base_api_url + "/block/get", params={"arg": cid})
+        response = ResilientSession().post(
+            self.base_api_url + "/block/get", params={"arg": cid}
+        )
         return response.json()
 
     def block_stat(self, cid: str):
-        response = ResilientSession().post(self.base_api_url + "/block/stat", params={"arg": cid})
+        response = ResilientSession().post(
+            self.base_api_url + "/block/stat", params={"arg": cid}
+        )
         return response.json()
 
     def _publish_to_topic(self, topic: str, data: str):

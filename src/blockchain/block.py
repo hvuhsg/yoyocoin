@@ -15,7 +15,7 @@ from .exceptions import (
     WalletLotteryFreezeError,
     GenesisIsNotValidError,
     NonSequentialBlockIndexError,
-    NonMatchingHashError
+    NonMatchingHashError,
 )
 
 
@@ -53,15 +53,18 @@ class Block:
     @property
     def forger_public_key(self) -> ecdsa.VerifyingKey:
         forger_public_key_string = bytes.fromhex(self.forger)
-        return ecdsa.VerifyingKey.from_string(forger_public_key_string, curve=Config.ECDSA_CURVE)
+        return ecdsa.VerifyingKey.from_string(
+            forger_public_key_string, curve=Config.ECDSA_CURVE
+        )
 
     def _raw_data(self):
         return {
             "index": self.index,
             "timestamp": self.timestamp,
-            "transactions": sorted([
-                transaction.to_dict() for transaction in self.transactions
-            ], key=lambda t: t["nonce"]),
+            "transactions": sorted(
+                [transaction.to_dict() for transaction in self.transactions],
+                key=lambda t: t["nonce"],
+            ),
             "previous_hash": self.previous_hash,
             "forger": self.forger,
         }
@@ -110,7 +113,9 @@ class Block:
         :return: None
         """
         forger_private_key_string = bytes.fromhex(forger_private_address)
-        forger_private_key = ecdsa.SigningKey.from_string(forger_private_key_string, curve=Config.ECDSA_CURVE)
+        forger_private_key = ecdsa.SigningKey.from_string(
+            forger_private_key_string, curve=Config.ECDSA_CURVE
+        )
         if forger_private_key.get_verifying_key() != self.forger_public_key:
             raise ValidationError("The forger is not the one signing")
         self.signature = self.sign(forger_private_key)
@@ -132,7 +137,9 @@ class Block:
         :return: None
         """
         if self.index == 0 and blockchain_state.length == 0:
-            genesis_is_valid = self.forger == DEVELOPER_KEY and self.is_signature_verified()
+            genesis_is_valid = (
+                self.forger == DEVELOPER_KEY and self.is_signature_verified()
+            )
             if not genesis_is_valid:
                 raise GenesisIsNotValidError()
             return

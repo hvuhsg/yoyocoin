@@ -13,13 +13,16 @@ class ResilientSession(Session):
     """
 
     def __recoverable(self, error, url, request, counter=1):
-        if hasattr(error, 'status_code'):
+        if hasattr(error, "status_code"):
             if error.status_code in [502, 503, 504]:
                 error = f"HTTP {error.status_code}"
             else:
                 return False
         DELAY = 2 * counter
-        loguru.logger.warning("Got recoverable error [%s] from %s %s, retry #%s in %ss" % (error, request, url, counter, DELAY))
+        loguru.logger.warning(
+            "Got recoverable error [%s] from %s %s, retry #%s in %ss"
+            % (error, request, url, counter, DELAY)
+        )
         time.sleep(DELAY)
         return True
 
@@ -31,7 +34,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).get(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'GET', counter):
+            if self.__recoverable(r, url, "GET", counter):
                 continue
             return r
 
@@ -43,7 +46,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).post(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'POST', counter):
+            if self.__recoverable(r, url, "POST", counter):
                 continue
             return r
 
@@ -55,7 +58,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).delete(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'DELETE', counter):
+            if self.__recoverable(r, url, "DELETE", counter):
                 continue
             return r
 
@@ -67,7 +70,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).put(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'PUT', counter):
+            if self.__recoverable(r, url, "PUT", counter):
                 continue
             return r
 
@@ -79,7 +82,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).head(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'HEAD', counter):
+            if self.__recoverable(r, url, "HEAD", counter):
                 continue
             return r
 
@@ -91,7 +94,7 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).patch(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'PATCH', counter):
+            if self.__recoverable(r, url, "PATCH", counter):
                 continue
             return r
 
@@ -103,6 +106,6 @@ class ResilientSession(Session):
                 r = super(ResilientSession, self).options(url, **kwargs)
             except ConnectionError as e:
                 r = e.response
-            if self.__recoverable(r, url, 'OPTIONS', counter):
+            if self.__recoverable(r, url, "OPTIONS", counter):
                 continue
             return r

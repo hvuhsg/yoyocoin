@@ -22,7 +22,7 @@ class Wallet:
         else:
             self.private_key = ecdsa.SigningKey.from_secret_exponent(
                 secexp=int.from_bytes(secret_passcode.encode(), "little"),
-                curve=Config.ECDSA_CURVE
+                curve=Config.ECDSA_CURVE,
             )
         self.public_key = self.private_key.get_verifying_key()
 

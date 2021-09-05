@@ -73,7 +73,7 @@ class Blockchain:
 
         new_block.transactions = sorted(
             self.current_transactions.values(),
-            key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), 'little'))
+            key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), "little")),
         )
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
@@ -149,5 +149,5 @@ class Blockchain:
 
     def get_block_score(self, block: Block):
         return self.__state.block_score(block=block)
-    # TODO: create lottery number generator
 
+    # TODO: create lottery number generator

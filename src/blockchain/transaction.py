@@ -46,7 +46,9 @@ class Transaction:
         :return: None
         """
         private_key_string = bytes.fromhex(private_key)
-        private_key = ecdsa.SigningKey.from_string(private_key_string, curve=Config.ECDSA_CURVE)
+        private_key = ecdsa.SigningKey.from_string(
+            private_key_string, curve=Config.ECDSA_CURVE
+        )
         if self.sender_pub_key != private_key.get_verifying_key():
             raise ValidationError("SigningKey is not the sender")
         self.signature = self.sign(private_key)
@@ -94,7 +96,9 @@ class Transaction:
     @property
     def sender_pub_key(self) -> ecdsa.VerifyingKey:
         sender_public_key_string = bytes.fromhex(self.sender)
-        sender_verifying_key = ecdsa.VerifyingKey.from_string(sender_public_key_string, curve=Config.ECDSA_CURVE)
+        sender_verifying_key = ecdsa.VerifyingKey.from_string(
+            sender_public_key_string, curve=Config.ECDSA_CURVE
+        )
         return sender_verifying_key
 
     @property

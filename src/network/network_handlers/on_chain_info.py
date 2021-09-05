@@ -50,9 +50,7 @@ class ChainInfoHandler(Handler):
             blocks.pop(0)
         new_blockchain.add_chain(blocks)
         score_is_bigger = new_blockchain.score > current_blockchain.score
-        length_is_not_lower = (
-                new_blockchain.length >= current_blockchain.length
-        )
+        length_is_not_lower = new_blockchain.length >= current_blockchain.length
         if score_is_bigger and length_is_not_lower:
             logger.success(
                 "New blockchain synced!"

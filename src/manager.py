@@ -23,7 +23,7 @@ from network.network_handlers.on_transactions_response import TransactionsHandle
 
 
 def setup_wallet() -> Wallet:
-    secret = 'test-key'
+    secret = "test-key"
     if not secret:
         secret = None
     wallet = Wallet(secret_passcode=secret)
@@ -33,7 +33,9 @@ def setup_wallet() -> Wallet:
 
 def setup_blockchain() -> Blockchain:
     #  TODO: load from disk
-    blockchain = Blockchain(pruned=not Config.IS_FULL_NODE, is_test_net=Config.IS_TEST_NET)
+    blockchain = Blockchain(
+        pruned=not Config.IS_FULL_NODE, is_test_net=Config.IS_TEST_NET
+    )
     Blockchain.set_main_chain(blockchain)
     return blockchain
 
@@ -70,21 +72,21 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         name="new block every 2 minutes",
         interval=60 * 2,
         sync=True,
-        run_thread=True
+        run_thread=True,
     )
     scheduler.add_job(
         func=chain_extender.create_my_own_block,
         name="create my block",
         interval=60 * 1.5,
         sync=False,
-        run_thread=True
+        run_thread=True,
     )
     scheduler.add_job(
         func=chain_extender.publish_new_transaction,
         name="add new transaction",
         interval=60,
         sync=False,
-        run_thread=True
+        run_thread=True,
     )
 
 
@@ -92,24 +94,41 @@ def create_genesis(developer_secret: str):
     wallet = Wallet(secret_passcode=developer_secret)
     print("GENESIS_WALLET_ADDRESS:", wallet.public)
 
-    g_transaction = Transaction(sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0)
+    g_transaction = Transaction(
+        sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0
+    )
     signature = g_transaction.sign(wallet.private_key)
     g_transaction.signature = signature
 
-    g_block = Block(forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction])
+    g_block = Block(
+        forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction]
+    )
     g_block.create_signature(wallet.private)
     print(g_block.to_dict())
     return g_block
 
 
 def override_config():
-    parser = argparse.ArgumentParser(description='Yoyocoin node daemon')
-    parser.add_argument('--expose-api', action="store_true", help='Expose http api for this node')
-    parser.add_argument('--api-port', type=int, help='Port for the node external api (http)')
-    parser.add_argument('--api-host', type=str, help='Host for the node external api (http)')
-    parser.add_argument('--ipfs-port', type=int, help='IPFS daemon port')
-    parser.add_argument("--test-net", "-t", action="store_true", help="Run node with test net configuration")
-    parser.add_argument("--prune-node", "-p", action="store_true", help="Only save blockchain summery")
+    parser = argparse.ArgumentParser(description="Yoyocoin node daemon")
+    parser.add_argument(
+        "--expose-api", action="store_true", help="Expose http api for this node"
+    )
+    parser.add_argument(
+        "--api-port", type=int, help="Port for the node external api (http)"
+    )
+    parser.add_argument(
+        "--api-host", type=str, help="Host for the node external api (http)"
+    )
+    parser.add_argument("--ipfs-port", type=int, help="IPFS daemon port")
+    parser.add_argument(
+        "--test-net",
+        "-t",
+        action="store_true",
+        help="Run node with test net configuration",
+    )
+    parser.add_argument(
+        "--prune-node", "-p", action="store_true", help="Only save blockchain summery"
+    )
     args = vars(parser.parse_args())
 
     if args["api_port"] is not None:
