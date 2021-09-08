@@ -1,7 +1,7 @@
 from typing import Callable
 import json
 
-from config import IPFS_HOST, IPFS_PORT
+from config import Config
 from .api import IpfsAPI, Message
 from .network_listener import NetworkListener
 
@@ -23,11 +23,10 @@ class Node:
             raise RuntimeError(f"{cls.__name__} is not initialized yet!")
         return cls._instance
 
-    def __init__(self, is_full_node: bool = True):
-        self.ipfs_api = IpfsAPI(host=IPFS_HOST, port=IPFS_PORT)
-        self.is_full_node = is_full_node
+    def __init__(self):
+        self.ipfs_api = IpfsAPI(host=Config.IPFS_HOST, port=Config.IPFS_PORT)
 
-        self._instance = self
+        self.__class__._instance = self
 
     def publish_to_topic(self, topic: str, message: Message = None):
         if message is None:

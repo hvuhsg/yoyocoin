@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+from config import Config
+
 from .constants import GENESIS_BLOCK
 from .transaction import Transaction
 from .block import Block
@@ -17,15 +19,14 @@ class Blockchain:
     def get_main_chain(cls):
         return cls.main_chain
 
-    def __init__(self, pruned=False, is_test_net=False):
+    def __init__(self):
         self.current_transactions: Dict[
             str, Transaction
         ] = {}  # {transaction hash: transaction object}
         self.chain: List[Block] = []
         self.chain_length = 0
-        self.__state: BlockchainState = BlockchainState(is_test_net=is_test_net)
-        self.pruned = pruned
-        self.is_test_net = is_test_net
+        self.__state: BlockchainState = BlockchainState()
+        self.pruned = not Config.IS_FULL_NODE
         self.default_genesis()
 
         self.set_main_chain(self)
@@ -73,7 +74,7 @@ class Blockchain:
 
         new_block.transactions = sorted(
             self.current_transactions.values(),
-            key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), 'little'))
+            key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), "little")),
         )
         if new_block.index > 0:
             new_block.create_signature(forger_private_addr)
@@ -133,7 +134,7 @@ class Blockchain:
         return new_transaction
 
     def add_transaction(self, transaction: Transaction):
-        transaction.validate(blockchain_state=self.__state, is_test_net=self.is_test_net)
+        transaction.validate(blockchain_state=self.__state)
         self.current_transactions[transaction.hash()] = transaction
 
     def add_chain(self, blocks: list):
@@ -142,12 +143,12 @@ class Blockchain:
         self.chain_length += len(blocks)
 
     def validate_block(self, block: Block):
-        return block.validate(self.__state, is_test_net=self.is_test_net)
+        return block.validate(self.__state)
 
     def validate_transaction(self, transaction: Transaction):
-        return transaction.validate(self.__state, is_test_net=self.is_test_net)
+        return transaction.validate(self.__state)
 
     def get_block_score(self, block: Block):
         return self.__state.block_score(block=block)
-    # TODO: create lottery number generator
 
+    # TODO: create lottery number generator

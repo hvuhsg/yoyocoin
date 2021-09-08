@@ -45,4 +45,3 @@ class NewTransaction:
     def send(self, node: Node):
         cid = node.create_cid(self.transaction)
         node.publish_to_topic(topic=self.topic, message=self.to_message(cid))
-

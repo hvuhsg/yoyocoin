@@ -1,4 +1,4 @@
-from config import IS_TEST_NET
+from config import Config
 
 
 class RemoteWallet:
@@ -30,7 +30,7 @@ class RemoteWallet:
     def new_empty(cls, wallet_address: str):
         return cls(
             public_address=wallet_address,
-            balance=1 if IS_TEST_NET else 0,
+            balance=1 if Config.IS_TEST_NET else 0,
             last_transaction=0,
             nonce_counter=0,
         )

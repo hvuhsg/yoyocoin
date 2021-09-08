@@ -34,7 +34,7 @@ class ChainExtender:
         messages.NewBlock(
             block=my_block.to_dict(),
             privies_hash=my_block.previous_hash,
-            index=my_block.index
+            index=my_block.index,
         ).send(self.node)
 
     def _get_chain_info(self) -> Tuple[dict, dict]:
@@ -55,21 +55,24 @@ class ChainExtender:
             recipient=self._recipient.public_address,
             amount=10,
             nonce=self._sender.nonce,
-            sender_private_addr=self._sender.private_address
+            sender_private_addr=self._sender.private_address,
         )
         self._blockchain.add_transaction(new_transaction)
         messages.NewTransaction(
             transaction=new_transaction.to_dict(),
             hash=new_transaction.hash(),
-            nonce=new_transaction.nonce
+            nonce=new_transaction.nonce,
         ).send(self.node)
 
     def _publish_chain_info_request(self):
-        messages.SyncRequest(score=self._blockchain.score, length=self._blockchain.length).send(self.node)
+        messages.SyncRequest(
+            score=self._blockchain.score, length=self._blockchain.length
+        ).send(self.node)
 
     def create_my_own_block(self):
         my_block = self._blockchain.new_block(
-            forger=self._wallet.public_address, forger_private_addr=self._wallet.private_address
+            forger=self._wallet.public_address,
+            forger_private_addr=self._wallet.private_address,
         )
         my_block_score = self._blockchain.get_block_score(my_block)
         if my_block_score > self.best_block_score:

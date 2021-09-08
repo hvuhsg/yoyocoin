@@ -20,14 +20,11 @@ class ChainInfoRequestHandler(Handler):
 
     def __init__(self, node: Node):
         self.node = node
-        self._cid = None
 
     def validate(self, message: Message):
         blockchain: Blockchain = Blockchain.get_main_chain()
         score_exist = message.meta.get("score", None) is not None
-        score_is_lower = (
-            score_exist and message.meta.get("score") < blockchain.score
-        )
+        score_is_lower = score_exist and message.meta.get("score") < blockchain.score
         # TODO: check length
         return score_is_lower
 

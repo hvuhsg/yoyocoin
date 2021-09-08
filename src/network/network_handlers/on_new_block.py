@@ -27,9 +27,6 @@ class NewBlockHandler(Handler):
             message.has_cid() and "p_hash" in message.meta and "index" in message.meta
         )
 
-    def message_is_relevant(self, message: Message) -> bool:
-        return True
-
     def load_block(self, message: Message) -> dict:
         cid = message.get_cid()
         return self.node.load_cid(cid)
@@ -43,8 +40,6 @@ class NewBlockHandler(Handler):
     def __call__(self, message: Message):
         super().log(message)
         if not self.validate(message):
-            return
-        if not self.message_is_relevant(message):
             return
         block_dict = self.load_block(message)
         block = self.parse_block(block_dict)

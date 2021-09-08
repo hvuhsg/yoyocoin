@@ -1,8 +1,10 @@
-import requests
+import time
 import json
 from dataclasses import dataclass, field
 from base64 import b64decode
 from uuid import uuid4
+
+from .resilient_session import ResilientSession
 
 __all__ = [
     "Message",
@@ -60,14 +62,16 @@ class IpfsAPI:
         self.node_info = self.get_node_info()
 
     def get_node_info(self) -> str:
-        response = requests.post(self.base_api_url + "/version")
+        response = ResilientSession().post(self.base_api_url + "/version")
         return response.json()
 
     def get_pubsub_peers(self, topic: str = None) -> list:
         params = {}
         if topic:
             params = {"arg": topic}
-        response = requests.post(self.base_api_url + "/pubsub/peers", params=params)
+        response = ResilientSession().post(
+            self.base_api_url + "/pubsub/peers", params=params
+        )
         return response.json()["Strings"]
 
     def get_sync_peers(self) -> list:
@@ -75,19 +79,25 @@ class IpfsAPI:
 
     def add_data(self, data: str):
         files = {"content": data}
-        response = requests.post(self.base_api_url + "/block/put", files=files)
+        response = ResilientSession().post(
+            self.base_api_url + "/block/put", files=files
+        )
         return response.json()["Key"]
 
     def get_data(self, cid: str):
-        response = requests.post(self.base_api_url + "/block/get", params={"arg": cid})
+        response = ResilientSession().post(
+            self.base_api_url + "/block/get", params={"arg": cid}
+        )
         return response.json()
 
     def block_stat(self, cid: str):
-        response = requests.post(self.base_api_url + "/block/stat", params={"arg": cid})
+        response = ResilientSession().post(
+            self.base_api_url + "/block/stat", params={"arg": cid}
+        )
         return response.json()
 
     def _publish_to_topic(self, topic: str, data: str):
-        response = requests.post(
+        response = ResilientSession().post(
             self.base_api_url + "/pubsub/pub", params={"arg": [topic, data]}
         )
         return response.text
@@ -98,7 +108,7 @@ class IpfsAPI:
         return response
 
     def sub_to_topic(self, topic: str):
-        response = requests.post(
+        response = ResilientSession().post(
             self.base_api_url + "/pubsub/sub", params={"arg": topic}, stream=True
         )
         self._streams[topic] = response
@@ -117,15 +127,3 @@ class IpfsAPI:
     def close(self):
         for stream_name, stream in self._streams.items():
             stream.close()
-
-
-if __name__ == "__main__":
-    node = IpfsAPI()
-    print(node.node_info)
-    cid = node.add_data("hello mt")["Key"]
-    print(cid)
-    print(node.get_data(cid))
-    print(node.block_stat(cid))
-    print(node.publish_json_to_topic("test", {"hi": True}))
-    for m in node.sub_to_topic("test"):
-        print(m)
