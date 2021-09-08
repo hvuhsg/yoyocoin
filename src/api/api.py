@@ -69,12 +69,10 @@ def broadcast_transaction(
         signature=b64decode(signature),
         nonce=nonce,
     )
-    blockchain.validate_transaction(transaction)
-
+    blockchain.add_transaction(transaction)
     messages.NewTransaction(
         transaction=transaction.to_dict(),
         hash=transaction.hash(),
         nonce=transaction.nonce,
     ).send(node=Node.get_instance())
-    print(sender, recipient, amount, fee, signature, nonce)
     return {"transaction": transaction.to_dict(), "broadcast": True}

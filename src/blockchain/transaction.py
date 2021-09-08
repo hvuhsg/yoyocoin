@@ -1,9 +1,12 @@
 import hashlib
 from base64 import b64encode, b64decode
+from hashlib import sha256
+from binascii import unhexlify
 import ecdsa
 
 from config import Config
 from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonceError
+from .utils import encode_signature, decode_signature
 
 
 class Transaction:
@@ -34,7 +37,10 @@ class Transaction:
         verification_key = self.sender_pub_key
         try:
             return verification_key.verify(
-                signature=self.signature, data=self.hash().encode()
+                signature=self.signature,
+                data=self._raw_transaction().encode(),
+                sigdecode=decode_signature,
+                hashfunc=sha256
             )
         except ecdsa.BadSignatureError:
             return False
@@ -54,7 +60,7 @@ class Transaction:
         self.signature = self.sign(private_key)
 
     def sign(self, private_key: ecdsa.SigningKey):
-        return private_key.sign(self.hash().encode())
+        return private_key.sign(self._raw_transaction().encode(), sigencode=encode_signature, hashfunc=sha256)
 
     def validate(self, blockchain_state):
         """
@@ -68,7 +74,6 @@ class Transaction:
         :raises ValidationError
         :return: None
         """
-
         try:
             _ = self.sender_pub_key
         except ecdsa.MalformedPointError:
@@ -95,9 +100,9 @@ class Transaction:
 
     @property
     def sender_pub_key(self) -> ecdsa.VerifyingKey:
-        sender_public_key_string = bytes.fromhex(self.sender)
+        sender_public_key_string = unhexlify(self.sender)
         sender_verifying_key = ecdsa.VerifyingKey.from_string(
-            sender_public_key_string, curve=Config.ECDSA_CURVE
+            sender_public_key_string, curve=Config.ECDSA_CURVE, valid_encodings=["compressed"]
         )
         return sender_verifying_key
 

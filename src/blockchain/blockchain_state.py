@@ -7,7 +7,7 @@ from .remote_wallet import RemoteWallet
 
 
 class BlockchainState:
-    def __init__(self, is_test_net=False):
+    def __init__(self):
         self.wallets = {}  # type: Dict[str, RemoteWallet]
         self.sorted_wallets = []  # Sorted by wallet address aka public key
         self.wallets_sum_tree: SumTree = None
@@ -18,8 +18,6 @@ class BlockchainState:
 
         self.last_block_hash = None  # type: str
         self.last_block = None  # type: Block
-
-        self.is_test_net = is_test_net
 
     def _chain_extended(self):
         # Building the tree
@@ -63,7 +61,8 @@ class BlockchainState:
         block.validate(blockchain_state=self)
         fees = 0
         forger_wallet = self._get_wallet(block.forger)
-        forger_score = self._calculate_wallet_score(forger_wallet)
+        forger_score = 100 if self.length == 0 else self._calculate_wallet_score(forger_wallet)
+        # TODO change from 100 to 0 after lottery system refactor
 
         for transaction in block.transactions:
             if block.index == 0:  # Genesis block

@@ -17,6 +17,7 @@ from .exceptions import (
     NonSequentialBlockIndexError,
     NonMatchingHashError,
 )
+from .utils import encode_signature, decode_signature
 
 
 class Block:
@@ -102,7 +103,12 @@ class Block:
         :return: bool
         """
         try:
-            return self.forger_public_key.verify(self.signature, self.hash().encode())
+            return self.forger_public_key.verify(
+                self.signature,
+                self.hash().encode(),
+                sigdecode=decode_signature,
+                hashfunc=hashlib.sha256,
+            )
         except ecdsa.BadSignatureError:
             return False
 
@@ -121,7 +127,7 @@ class Block:
         self.signature = self.sign(forger_private_key)
 
     def sign(self, forger_private_key: ecdsa.SigningKey):
-        return forger_private_key.sign(self.hash().encode())
+        return forger_private_key.sign(self.hash().encode(), sigencode=encode_signature, hashfunc=hashlib.sha256)
 
     def validate(self, blockchain_state):
         """

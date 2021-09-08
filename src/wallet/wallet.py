@@ -27,7 +27,7 @@ class Wallet:
         self.public_key = self.private_key.get_verifying_key()
 
         self.private_address = self.private_key.to_string().hex()
-        self.public_address = self.public_key.to_string().hex()
+        self.public_address = self.public_key.to_string("compressed").hex()
 
         self._nonce: int = 1
 

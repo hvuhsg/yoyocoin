@@ -10,24 +10,24 @@ NETWORK_START_TIME = (
 # So blocks cant be created before time
 
 
-DEVELOPER_KEY = "046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14"
+DEVELOPER_KEY = "029afdebc63d5f25a275ae21d301fbc7449e0769320a3cfd4160700c35c5768c72"
 
 GENESIS_BLOCK = {
-    "index": 0,
-    "timestamp": 1628516978.7534876,
-    "transactions": [
+    'index': 0,
+    'timestamp': 1631130650.4518838,
+    'transactions': [
         {
-            "sender": "0",
-            "recipient": "046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14",
-            "amount": 1_000_000_000_000,
-            "fee": 0,
-            "nonce": 0,
-            "hash": "c59d08b266b9d534364d760d3699a0a3aa10c6fd7c5119cf3dec7609d8d8e3ed",
-            "signature": "bAjmceXFYqLOx6Orztg/y35C+8Zx9daw5P+DDNqiRIvFin9NFnrMYMAarBIy0VsIif8onhMJPgvkrE+iQ7NN3g==",
+            'sender': '0',
+            'recipient': '029afdebc63d5f25a275ae21d301fbc7449e0769320a3cfd4160700c35c5768c72',
+            'amount': 1000000000000,
+            'fee': 0,
+            'nonce': 0,
+            'hash': '52a0d0174dd50b0153f8552467d2b0963b187d5ee3c72ceede8adbdfcee1d641',
+            'signature': 'NzA1NzUwMDUyNzU4MzkyNjczNDkzNDMzOTk5OTUyOTAyNTkxMTY3Njc3NjAzNzk1NDAxNDA5MzM0NjM0MTcwNDg2NzAyMDg3NTcxNzoxMDI2MDM4MDIxNjczODcxMzEwNjY3NjQ3Mzg2MTMyODI3MjE0OTg3NzQ3Mjk3MjQ2OTAwODM3OTM1MTE2NjE3NTg1MTg3MjY3OTc5NzM=',
         }
     ],
-    "previous_hash": "0",
-    "forger": "046fd97bd6ee9f45f8298fb9bb2706258a9f42ff0ca54d2e351888808ac239044dae0c28a7d3c664175bc41b594f9fb1f1bf7887f2488a882268ba36d4813c14",
-    "hash": "a32a287f685e80843a278c0f5c36c3beb7a80380a495b8cb3c1ae0d03fab4ec3",
-    "signature": "poQ7WbOzCC7IKQI+IcYUGb6RZfV/faIGPCK+pVgy4frmlkdhggfBEAZ4w6OWGwJXLx6lXuz8puAZwkECoPdMIg==",
+    'previous_hash': '0',
+    'forger': '029afdebc63d5f25a275ae21d301fbc7449e0769320a3cfd4160700c35c5768c72',
+    'hash': 'ddcc9589a0929ebf83d84a1a977206f48f2bffc56fe6914266a58ed9ace274e6',
+    'signature': 'NDQ5NTM4MzA3OTE3OTkzMzU5MTA1MTg2NzMzNDEyODYyMjc0MzI0NTQxNjE3NjI2MDY0NDk5MDc5NTM4MTE2NjA3MTcxODY2NDg2MTg6MjIzMzcyNTM5OTYzOTAyNDIyNDU1MjgzNzc5NDMyNjM5ODE4ODQ2ODkxMDA5MjQzNzczNDk4NDgzNzY3MDM1NDMxNTkxNzM5ODQ2MTI=',
 }

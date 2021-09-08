@@ -33,15 +33,13 @@ def setup_wallet() -> Wallet:
 
 def setup_blockchain() -> Blockchain:
     #  TODO: load from disk
-    blockchain = Blockchain(
-        pruned=not Config.IS_FULL_NODE, is_test_net=Config.IS_TEST_NET
-    )
+    blockchain = Blockchain()
     Blockchain.set_main_chain(blockchain)
     return blockchain
 
 
 def setup_node() -> Tuple[Node, ChainExtender]:
-    node = Node(is_full_node=Config.IS_TEST_NET)
+    node = Node()
 
     chain_extender = ChainExtender(node)
 
@@ -81,13 +79,13 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         sync=False,
         run_thread=True,
     )
-    scheduler.add_job(
-        func=chain_extender.publish_new_transaction,
-        name="add new transaction",
-        interval=60,
-        sync=False,
-        run_thread=True,
-    )
+    # scheduler.add_job(
+    #     func=chain_extender.publish_new_transaction,
+    #     name="add new transaction",
+    #     interval=60,
+    #     sync=False,
+    #     run_thread=True,
+    # )
 
 
 def create_genesis(developer_secret: str):
@@ -123,11 +121,12 @@ def override_config():
     parser.add_argument(
         "--test-net",
         "-t",
+        default=Config.IS_TEST_NET,
         action="store_true",
         help="Run node with test net configuration",
     )
     parser.add_argument(
-        "--prune-node", "-p", action="store_true", help="Only save blockchain summery"
+        "--prune-node", "-p", default=~Config.IS_FULL_NODE, action="store_true", help="Only save blockchain summery"
     )
     args = vars(parser.parse_args())
 
@@ -137,8 +136,8 @@ def override_config():
         Config.API_HOST = args["api_host"]
     if args["ipfs_port"] is not None:
         Config.IPFS_PORT = args["ipfs_port"]
-    Config.IS_TEST_NET = args["test_net"]
-    Config.IS_FULL_NODE = not args["prune_node"]
+    Config.IS_TEST_NET = args.get("test_net", Config.IS_TEST_NET)
+    Config.IS_FULL_NODE = not args.get("prune_node", Config.IS_FULL_NODE)
     Config.EXPOSE_API = args["expose_api"]
 
 
@@ -181,3 +180,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # create_genesis("YOYO_DEVELOP_PASS")

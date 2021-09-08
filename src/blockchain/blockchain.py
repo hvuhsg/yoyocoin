@@ -1,5 +1,7 @@
 from typing import Dict, List
 
+from config import Config
+
 from .constants import GENESIS_BLOCK
 from .transaction import Transaction
 from .block import Block
@@ -17,15 +19,14 @@ class Blockchain:
     def get_main_chain(cls):
         return cls.main_chain
 
-    def __init__(self, pruned=False, is_test_net=False):
+    def __init__(self):
         self.current_transactions: Dict[
             str, Transaction
         ] = {}  # {transaction hash: transaction object}
         self.chain: List[Block] = []
         self.chain_length = 0
-        self.__state: BlockchainState = BlockchainState(is_test_net=is_test_net)
-        self.pruned = pruned
-        self.is_test_net = is_test_net
+        self.__state: BlockchainState = BlockchainState()
+        self.pruned = not Config.IS_FULL_NODE
         self.default_genesis()
 
         self.set_main_chain(self)
