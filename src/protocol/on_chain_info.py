@@ -19,8 +19,8 @@ from .handler import Handler
 class ChainInfoHandler(Handler):
     topic = "chain-response"
 
-    def __init__(self, node: Node):
-        self.node = node
+    def __init__(self):
+        self.node = Node.get_instance()
 
     def validate(self, message: Message):
         cid_exist = message.has_cid()
@@ -44,6 +44,7 @@ class ChainInfoHandler(Handler):
             return blocks
 
     def build_blockchain(self, blocks: List[Block]):
+        # TODO: move to blockchain package and activate via event
         current_blockchain: Blockchain = Blockchain.get_main_chain()
         new_blockchain = Blockchain()
         if blocks and blocks[0].index == 0:

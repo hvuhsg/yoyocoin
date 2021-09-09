@@ -6,17 +6,21 @@ from blockchain import Blockchain, Block
 from blockchain.exceptions import NonSequentialBlockIndexError, NonMatchingHashError
 from network import Node, messages
 from wallet import Wallet
+from scheduler import Scheduler
+from event_stream import EventStream, Event, OneTimeListener, Listener
 
 
-class ChainExtender:
-    def __init__(self, node: Node):
-        self.node = node
-
+class GlobalLoopHandler:
+    def __init__(self):
         self.best_block: Block = None
         self.best_block_score = 0
 
         self._sender = Wallet()
         self._recipient = Wallet()
+
+    @property
+    def node(self) -> Node:
+        return Node.get_instance()
 
     @property
     def _blockchain(self) -> Blockchain:
@@ -58,7 +62,14 @@ class ChainExtender:
         )
         signature = self._sender.sign(new_transaction.hash())
         new_transaction.signature = signature
-        self._blockchain.add_transaction(new_transaction)
+
+        event_stream: EventStream = EventStream()
+        event_stream.publish(
+            topic="new-transaction",
+            event=Event(name="test-new-transaction", transaction=new_transaction)
+        )
+
+        # TODO: send on new-transaction event
         messages.NewTransaction(
             transaction=new_transaction.to_dict(),
             hash=new_transaction.hash(),
@@ -82,7 +93,8 @@ class ChainExtender:
         if self.best_block is None:
             return
         try:
-            self._blockchain.add_block(block=self.best_block)
+            event_stream: EventStream = EventStream.get_instance()
+            event_stream.publish("new-block", Event(name="time-to-add-lottery-winning-block", block=self.best_block))
             logger.success(
                 f"Block index [{self.best_block.index}] added to chain - {self.best_block.hash()}"
                 f" tx: {len(self.best_block.transactions)}"
@@ -106,3 +118,48 @@ class ChainExtender:
             self.best_block_score = new_block_score
             return True
         return False
+
+    def on_network_block(self, event: Event):
+        self.check_block(event.args["block"])
+
+
+def send_sync_request(event):
+    if event.name != "end-setup":
+        return False
+    blockchain = Blockchain.get_main_chain()
+    node = Node.get_instance()
+    messages.SyncRequest(score=blockchain.score, length=blockchain.length).send(node)
+    return True  # Stop the listener
+
+
+def setup_global_loop_handler():
+    scheduler = Scheduler.get_instance()
+    chain_extender = GlobalLoopHandler()
+
+    send_sync_request_when_setup_end = OneTimeListener(topic="lifecycle", callback=send_sync_request)
+    send_sync_request_when_setup_end.start()
+
+    check_blocks_sent_by_network = Listener(topic="new-block-from-network", callback=chain_extender.on_network_block)
+    check_blocks_sent_by_network.start()
+
+    scheduler.add_job(
+        func=chain_extender.add_best_block_to_chain,
+        name="new block every 2 minutes",
+        interval=60 * 2,
+        sync=True,
+        run_thread=True,
+    )
+    scheduler.add_job(
+        func=chain_extender.create_my_own_block,
+        name="create my block",
+        interval=60 * 1.5,
+        sync=False,
+        run_thread=True,
+    )
+    scheduler.add_job(
+        func=chain_extender.publish_new_transaction,
+        name="add new transaction",
+        interval=60,
+        sync=False,
+        run_thread=True,
+    )

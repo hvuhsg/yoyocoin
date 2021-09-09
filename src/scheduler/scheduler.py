@@ -3,6 +3,7 @@ from functools import wraps
 from datetime import datetime
 from time import sleep
 
+from config import Config
 from .job import Job
 
 
@@ -33,7 +34,6 @@ class Scheduler(Thread):
 
             scheduler.add_job(wrapped, name, interval, sync, run_thread, offset=offset)
             return wrapped
-
         return decorator
 
     def __init__(self, time_start: datetime = None, min_time_step: float = 1.0):
@@ -77,3 +77,8 @@ class Scheduler(Thread):
 
     def stop(self):
         self._stop = True
+
+
+def setup_scheduler():
+    scheduler = Scheduler(min_time_step=Config.SCHEDULER_STEP_LENGTH)
+    return scheduler

@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 
 from loguru import logger
 
+from event_stream import EventStream, Event
+
 
 class Job:
     def __init__(self, func, name, interval, sync, run_thread: bool, offset: int):
@@ -29,6 +31,8 @@ class Job:
 
     def execute(self):
         logger.info(f"Executing: {self.name}")
+        event_stream: EventStream = EventStream.get_instance()
+        event_stream.publish("execute_job", Event(name=self.name))
         if self.run_thread:
             t = Thread(target=self.func)
             t.daemon = True

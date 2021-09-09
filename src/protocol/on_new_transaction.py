@@ -7,8 +7,9 @@ When new transaction is sent, the handler will execute those steps:
 4. parse new transaction and verify it
 4. add transaction to transaction pool
 """
-from blockchain import Transaction, Blockchain
+from blockchain import Transaction
 from network.ipfs import Node, Message
+from event_stream import Event, EventStream
 
 from .handler import Handler
 
@@ -16,8 +17,8 @@ from .handler import Handler
 class NewTransactionHandler(Handler):
     topic = "new-transaction"
 
-    def __init__(self, node: Node):
-        self.node = node
+    def __init__(self):
+        self.node = Node.get_instance()
 
     def validate(self, message: Message):
         return message.has_cid() and "hash" in message.meta and "nonce" in message.meta
@@ -29,9 +30,9 @@ class NewTransactionHandler(Handler):
     def parse_transaction(self, transaction_dict: dict) -> Transaction:
         return Transaction.from_dict(**transaction_dict)
 
-    def save_transaction_to_pool(self, transaction: Transaction):
-        blockchain: Blockchain = Blockchain.get_main_chain()
-        blockchain.add_transaction(transaction)
+    def publish_event(self, transaction: Transaction):
+        event_stream: EventStream = EventStream.get_instance()
+        event_stream.publish("new-transaction", Event("network-new-transaction", transaction=transaction))
 
     def __call__(self, message: Message):
         super().log(message)
@@ -39,4 +40,4 @@ class NewTransactionHandler(Handler):
             return
         transaction_dict = self.load_transaction(message)
         transaction = self.parse_transaction(transaction_dict)
-        self.save_transaction_to_pool(transaction)
+        self.publish_event(transaction)

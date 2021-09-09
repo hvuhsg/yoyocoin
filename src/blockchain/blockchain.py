@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from config import Config
+from event_stream import Event, Listener
 
 from .constants import GENESIS_BLOCK
 from .transaction import Transaction
@@ -143,3 +144,45 @@ class Blockchain:
         return self.__state.block_score(block=block)
 
     # TODO: create lottery number generator
+
+
+def add_transaction(event: Event):
+    transaction = event.args["transaction"]
+    if not isinstance(transaction, Transaction):
+        # TODO: log error
+        return
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    blockchain.add_transaction(transaction)
+
+
+def add_block(event: Event):
+    block = event.args["block"]
+    if not isinstance(block, Block):
+        # TODO: log error
+        return
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    blockchain.add_block(block)
+
+
+def add_chain(event: Event):
+    chain = event.args["chain"]
+    if not isinstance(chain, list):
+        # TODO: log error
+        return
+    blockchain: Blockchain = Blockchain.get_main_chain()
+    blockchain.add_chain(chain)
+
+
+def setup_blockchain():
+    #  TODO: load from disk
+    blockchain = Blockchain()
+    Blockchain.set_main_chain(blockchain)
+
+    new_block_listener = Listener(topic="new-block", callback=add_block)
+    new_block_listener.start()
+
+    new_transaction_listener = Listener(topic="new-transaction", callback=add_transaction)
+    new_transaction_listener.start()
+
+    new_chain_listener = Listener(topic="new-chain", callback=add_chain)
+    new_chain_listener.start()

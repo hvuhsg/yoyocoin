@@ -1,3 +1,3 @@
-from .ipfs import Node
+from .ipfs import Node, setup_node
 
-__all__ = ["Node"]
+__all__ = ["Node", "setup_node"]

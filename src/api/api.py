@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends
 
 from blockchain import Blockchain, Transaction
 from network import messages, Node
+from event_stream import Event, EventStream
 
 app = FastAPI(title="Node API")
 
@@ -59,7 +60,6 @@ def broadcast_transaction(
     fee: float,
     signature: str,
     nonce: int,
-    blockchain: Blockchain = Depends(get_blockchain),
 ):
     transaction = Transaction(
         sender=sender,
@@ -69,7 +69,8 @@ def broadcast_transaction(
         signature=b64decode(signature),
         nonce=nonce,
     )
-    blockchain.add_transaction(transaction)
+    event_stream: EventStream = EventStream.get_instance()
+    event_stream.publish(topic='new-transaction', event=Event("api-new-transaction", transaction=transaction))
     messages.NewTransaction(
         transaction=transaction.to_dict(),
         hash=transaction.hash(),

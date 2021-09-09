@@ -1,9 +1,19 @@
-from typing import Callable
 import json
 
 from config import Config
 from .api import IpfsAPI, Message
 from .network_listener import NetworkListener
+
+
+NETWORK_TOPICS = [
+    "chain-response",
+    "chain-request",
+    "new-block",
+    "new-transaction",
+    "transactions-request",
+    "transactions-response",
+
+]
 
 
 class CallbackIsNotCallable(TypeError):
@@ -50,13 +60,8 @@ class Node:
         cid = self.ipfs_api.add_data(transaction_json)
         return cid
 
-    # noinspection PyUnresolvedReferences
-    def add_listener(self, handler: Callable):
-        if not callable(handler):
-            raise CallbackIsNotCallable(handler)
-        listener = NetworkListener(
-            topic=handler.topic, callback=handler, ipfs_api=self.ipfs_api
-        )
+    def add_listener(self, topic: str):
+        listener = NetworkListener(topic=topic, ipfs_api=self.ipfs_api)
         listener.start()
 
     def remove_listener(self, topic: str):
@@ -64,3 +69,9 @@ class Node:
 
     def close(self):
         self.ipfs_api.close()
+
+
+def setup_node():
+    node = Node()
+    for network_topic in NETWORK_TOPICS:
+        node.add_listener(network_topic)

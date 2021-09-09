@@ -18,8 +18,8 @@ class ChainInfoRequestHandler(Handler):
     topic = "chain-request"
     topic_response = "chain-response"
 
-    def __init__(self, node: Node):
-        self.node = node
+    def __init__(self):
+        self.node = Node.get_instance()
 
     def validate(self, message: Message):
         blockchain: Blockchain = Blockchain.get_main_chain()

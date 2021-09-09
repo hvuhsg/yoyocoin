@@ -1,4 +1,4 @@
-from .blockchain import Blockchain
+from .blockchain import Blockchain, setup_blockchain
 from .blockchain_state import BlockchainState
 from .block import Block
 from .transaction import Transaction
@@ -11,6 +11,7 @@ from .exceptions import (
 )
 
 __all__ = [
+    "setup_blockchain",
     "Blockchain",
     "BlockchainState",
     "Block",
