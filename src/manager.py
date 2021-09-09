@@ -79,13 +79,13 @@ def register_scheduler_jobs(scheduler: Scheduler, chain_extender: ChainExtender)
         sync=False,
         run_thread=True,
     )
-    # scheduler.add_job(
-    #     func=chain_extender.publish_new_transaction,
-    #     name="add new transaction",
-    #     interval=60,
-    #     sync=False,
-    #     run_thread=True,
-    # )
+    scheduler.add_job(
+        func=chain_extender.publish_new_transaction,
+        name="add new transaction",
+        interval=60,
+        sync=False,
+        run_thread=True,
+    )
 
 
 def create_genesis(developer_secret: str):
@@ -95,13 +95,14 @@ def create_genesis(developer_secret: str):
     g_transaction = Transaction(
         sender="0", recipient=wallet.public, amount=1000000000000, nonce=0, fee=0
     )
-    signature = g_transaction.sign(wallet.private_key)
+    signature = wallet.sign(g_transaction.hash())
     g_transaction.signature = signature
 
     g_block = Block(
         forger=wallet.public, index=0, previous_hash="0", transactions=[g_transaction]
     )
-    g_block.create_signature(wallet.private)
+    signature = wallet.sign(g_block.hash())
+    g_block.signature = signature
     print(g_block.to_dict())
     return g_block
 
@@ -126,7 +127,7 @@ def override_config():
         help="Run node with test net configuration",
     )
     parser.add_argument(
-        "--prune-node", "-p", default=~Config.IS_FULL_NODE, action="store_true", help="Only save blockchain summery"
+        "--prune-node", "-p", action="store_true", help="Only save blockchain summery"
     )
     args = vars(parser.parse_args())
 
@@ -137,7 +138,7 @@ def override_config():
     if args["ipfs_port"] is not None:
         Config.IPFS_PORT = args["ipfs_port"]
     Config.IS_TEST_NET = args.get("test_net", Config.IS_TEST_NET)
-    Config.IS_FULL_NODE = not args.get("prune_node", Config.IS_FULL_NODE)
+    Config.IS_FULL_NODE = not args.get("prune_node")
     Config.EXPOSE_API = args["expose_api"]
 
 

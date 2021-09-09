@@ -59,7 +59,7 @@ class Blockchain:
         genesis_block = Block.from_dict(**GENESIS_BLOCK)
         self.add_block(genesis_block)
 
-    def new_block(self, forger, forger_private_addr, previous_hash=None, index=None):
+    def new_block(self, forger, previous_hash=None, index=None, signature=None):
         """
         Create a new Block in the Blockchain
 
@@ -70,25 +70,23 @@ class Blockchain:
             previous_hash = self.last_block.hash()
         if index is None:
             index = self.__state.length
-        new_block = Block(index=index, previous_hash=previous_hash, forger=forger)
+        new_block = Block(
+            index=index, previous_hash=previous_hash, forger=forger, signature=signature
+        )
 
         new_block.transactions = sorted(
             self.current_transactions.values(),
             key=lambda t: t.nonce + (1 / int.from_bytes(t.hash().encode(), "little")),
         )
-        if new_block.index > 0:
-            new_block.create_signature(forger_private_addr)
-
-        # Reset the current list of transactions
-        self.current_transactions = {}
-        # TODO: remove transaction on block link to chain
 
         return new_block
 
     def add_block(self, block: Block):
+        if block.signature is None:
+            raise ValueError("Block is unsigned!")
+        self.__state.add_block(block)
         for tx in block.transactions:
             self.current_transactions.pop(tx.hash(), None)
-        self.__state.add_block(block)
         if self.pruned:
             self.chain = [block]
         else:
@@ -102,8 +100,7 @@ class Blockchain:
         amount,
         nonce: int,
         fee=1,
-        sender_private_addr=None,
-        signature=None,
+        signature: str = None,
     ):
         """
         Creates a new transaction to go into the next mined Block
@@ -111,15 +108,12 @@ class Blockchain:
         :param nonce: wallet transaction counter (for preventing duplicate transactions)
         :param signature: transaction signature (signed by the sender)
         :param fee: integer >= 1
-        :param sender_private_addr: sender private key : string
         :param amount: integer > 0
         :param recipient: recipient public key
         :param sender: sender public key
         :raise ValueError: when the signature doesn't match the transaction.
         :return: The transaction object
         """
-        if not (sender_private_addr or signature):
-            raise ValueError("required signature or private address")
         new_transaction = Transaction(
             sender=sender,
             recipient=recipient,
@@ -128,9 +122,6 @@ class Blockchain:
             nonce=nonce,
             signature=signature,
         )
-        if sender_private_addr is not None:
-            new_transaction.create_signature(sender_private_addr)
-
         return new_transaction
 
     def add_transaction(self, transaction: Transaction):

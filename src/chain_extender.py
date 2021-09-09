@@ -55,8 +55,9 @@ class ChainExtender:
             recipient=self._recipient.public_address,
             amount=10,
             nonce=self._sender.nonce,
-            sender_private_addr=self._sender.private_address,
         )
+        signature = self._sender.sign(new_transaction.hash())
+        new_transaction.signature = signature
         self._blockchain.add_transaction(new_transaction)
         messages.NewTransaction(
             transaction=new_transaction.to_dict(),
@@ -70,13 +71,10 @@ class ChainExtender:
         ).send(self.node)
 
     def create_my_own_block(self):
-        my_block = self._blockchain.new_block(
-            forger=self._wallet.public_address,
-            forger_private_addr=self._wallet.private_address,
-        )
-        my_block_score = self._blockchain.get_block_score(my_block)
-        if my_block_score > self.best_block_score:
-            self.check_block(my_block)
+        my_block = self._blockchain.new_block(forger=self._wallet.public_address)
+        signature = self._wallet.sign(my_block.hash())
+        my_block.signature = signature
+        if self.check_block(my_block):
             self._publish_my_block(my_block=my_block)
             logger.debug("Block is created and published")
 
@@ -106,3 +104,5 @@ class ChainExtender:
         if new_block_score > self.best_block_score:
             self.best_block = block
             self.best_block_score = new_block_score
+            return True
+        return False

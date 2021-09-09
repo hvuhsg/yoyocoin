@@ -4,9 +4,7 @@ import hashlib
 from time import time
 from base64 import b64decode, b64encode
 
-import ecdsa
-
-from config import Config
+from wallet import Wallet
 from .constants import BLOCK_COUNT_FREEZE_WALLET_LOTTERY_AFTER_WIN, DEVELOPER_KEY
 from .transaction import Transaction
 from .exceptions import (
@@ -17,7 +15,6 @@ from .exceptions import (
     NonSequentialBlockIndexError,
     NonMatchingHashError,
 )
-from .utils import encode_signature, decode_signature
 
 
 class Block:
@@ -51,13 +48,6 @@ class Block:
         self.transactions = transactions
         self.signature = signature
 
-    @property
-    def forger_public_key(self) -> ecdsa.VerifyingKey:
-        forger_public_key_string = bytes.fromhex(self.forger)
-        return ecdsa.VerifyingKey.from_string(
-            forger_public_key_string, curve=Config.ECDSA_CURVE
-        )
-
     def _raw_data(self):
         return {
             "index": self.index,
@@ -77,7 +67,6 @@ class Block:
         """
 
         block_dict = self._raw_data()
-        # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
         block_string = json.dumps(block_dict, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
@@ -102,32 +91,7 @@ class Block:
         Check if block signature is valid
         :return: bool
         """
-        try:
-            return self.forger_public_key.verify(
-                self.signature,
-                self.hash().encode(),
-                sigdecode=decode_signature,
-                hashfunc=hashlib.sha256,
-            )
-        except ecdsa.BadSignatureError:
-            return False
-
-    def create_signature(self, forger_private_address: str):
-        """
-        Create block signature for this block
-        :param forger_private_address: base64(wallet private address)
-        :return: None
-        """
-        forger_private_key_string = bytes.fromhex(forger_private_address)
-        forger_private_key = ecdsa.SigningKey.from_string(
-            forger_private_key_string, curve=Config.ECDSA_CURVE
-        )
-        if forger_private_key.get_verifying_key() != self.forger_public_key:
-            raise ValidationError("The forger is not the one signing")
-        self.signature = self.sign(forger_private_key)
-
-    def sign(self, forger_private_key: ecdsa.SigningKey):
-        return forger_private_key.sign(self.hash().encode(), sigencode=encode_signature, hashfunc=hashlib.sha256)
+        return Wallet.verify_signature(self.forger, self.signature, self.hash())
 
     def validate(self, blockchain_state):
         """

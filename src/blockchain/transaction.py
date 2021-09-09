@@ -1,12 +1,9 @@
 import hashlib
 from base64 import b64encode, b64decode
-from hashlib import sha256
-from binascii import unhexlify
-import ecdsa
 
 from config import Config
+from wallet import Wallet
 from .exceptions import ValidationError, InsufficientBalanceError, DuplicateNonceError
-from .utils import encode_signature, decode_signature
 
 
 class Transaction:
@@ -29,38 +26,11 @@ class Transaction:
             "amount": self.amount,
             "fee": self.fee,
             "nonce": self.nonce,
-            "hash": self.hash(),
             "signature": self.base64_signature,
         }
 
     def is_signature_verified(self):
-        verification_key = self.sender_pub_key
-        try:
-            return verification_key.verify(
-                signature=self.signature,
-                data=self._raw_transaction().encode(),
-                sigdecode=decode_signature,
-                hashfunc=sha256
-            )
-        except ecdsa.BadSignatureError:
-            return False
-
-    def create_signature(self, private_key: str):
-        """
-        Create signature for this transaction
-        :param private_key: wallet private key (HEX string)
-        :return: None
-        """
-        private_key_string = bytes.fromhex(private_key)
-        private_key = ecdsa.SigningKey.from_string(
-            private_key_string, curve=Config.ECDSA_CURVE
-        )
-        if self.sender_pub_key != private_key.get_verifying_key():
-            raise ValidationError("SigningKey is not the sender")
-        self.signature = self.sign(private_key)
-
-    def sign(self, private_key: ecdsa.SigningKey):
-        return private_key.sign(self._raw_transaction().encode(), sigencode=encode_signature, hashfunc=sha256)
+        return Wallet.verify_signature(self.sender, self.signature, self.hash())
 
     def validate(self, blockchain_state):
         """
@@ -74,10 +44,8 @@ class Transaction:
         :raises ValidationError
         :return: None
         """
-        try:
-            _ = self.sender_pub_key
-        except ecdsa.MalformedPointError:
-            raise ValidationError("invalid sender public key")
+        if self.signature is None:
+            raise ValidationError("Transaction isn't singed")
         sender_wallet = blockchain_state.wallets.get(self.sender, None)
         if sender_wallet is None or sender_wallet.balance < (self.amount + self.fee):
             if not Config.IS_TEST_NET:
@@ -97,14 +65,6 @@ class Transaction:
     def hash(self):
         transaction_string = self._raw_transaction().encode()
         return hashlib.sha256(transaction_string).hexdigest()
-
-    @property
-    def sender_pub_key(self) -> ecdsa.VerifyingKey:
-        sender_public_key_string = unhexlify(self.sender)
-        sender_verifying_key = ecdsa.VerifyingKey.from_string(
-            sender_public_key_string, curve=Config.ECDSA_CURVE, valid_encodings=["compressed"]
-        )
-        return sender_verifying_key
 
     @property
     def base64_signature(self):

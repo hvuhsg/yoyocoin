@@ -1,7 +1,17 @@
 from loguru import logger
 import ecdsa
+import binascii
 
 from config import Config
+
+
+def decode_signature(sig, o):
+    res = tuple(map(int, sig.decode().split(":")))
+    return res
+
+
+def encode_signature(r, s, o):
+    return f"{r}:{s}".encode()
 
 
 class Wallet:
@@ -44,3 +54,27 @@ class Wallet:
     @property
     def private(self) -> str:
         return self.private_address
+
+    def sign(self, hash_hexdigest: str):
+        signature = self.private_key.sign_digest(
+            bytes.fromhex(hash_hexdigest),
+            sigencode=encode_signature,
+        )
+        return signature
+
+    @classmethod
+    def verify_signature(cls, verifying_key: str, signature: str, hash_str: str):
+        public_key_string = binascii.unhexlify(verifying_key)
+        vk = ecdsa.VerifyingKey.from_string(
+            public_key_string,
+            curve=Config.ECDSA_CURVE,
+            valid_encodings=["compressed", "raw"],
+        )
+        try:
+            vk.verify_digest(
+                signature, bytes.fromhex(hash_str), sigdecode=decode_signature
+            )
+        except ecdsa.BadSignatureError:
+            return False
+        else:
+            return True
