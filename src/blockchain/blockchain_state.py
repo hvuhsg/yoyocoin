@@ -61,7 +61,9 @@ class BlockchainState:
         block.validate(blockchain_state=self)
         fees = 0
         forger_wallet = self._get_wallet(block.forger)
-        forger_score = 100 if self.length == 0 else self._calculate_wallet_score(forger_wallet)
+        forger_score = (
+            100 if self.length == 0 else self._calculate_wallet_score(forger_wallet)
+        )
         # TODO change from 100 to 0 after lottery system refactor
 
         for transaction in block.transactions:
