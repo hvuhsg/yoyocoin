@@ -1,4 +1,4 @@
-from event_stream import Listener, Event
+from event_stream import Subscriber, Event
 
 from .on_transactions_request import TransactionsRequestHandler
 from .on_new_block import NewBlockHandler
@@ -31,5 +31,5 @@ class Protocol:
 
 def setup_protocol():
     protocol = Protocol()
-    network_listener = Listener(topic="network", callback=protocol.network_callback)
+    network_listener = Subscriber(topic="network", callback=protocol.network_callback)
     network_listener.start()

@@ -32,7 +32,7 @@ class Job:
     def execute(self):
         logger.info(f"Executing: {self.name}")
         event_stream: EventStream = EventStream.get_instance()
-        event_stream.publish("execute_job", Event(name=self.name))
+        event_stream.publish("execute-job", Event(name=self.name))
         if self.run_thread:
             t = Thread(target=self.func)
             t.daemon = True

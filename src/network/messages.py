@@ -11,22 +11,24 @@ class SyncRequest:
     def to_message(self) -> Message:
         return Message(meta={"score": self.score, "length": self.length})
 
-    def send(self, node: Node):
+    def send(self):
+        node: Node = Node.get_instance()
         node.publish_to_topic(topic=self.topic, message=self.to_message())
 
 
 class NewBlock:
     topic = "new-block"
 
-    def __init__(self, block: dict, privies_hash: str, index: int):
+    def __init__(self, block: dict, previous_hash: str, index: int):
         self.block = block
-        self.privies_hash = privies_hash
+        self.privies_hash = previous_hash
         self.index = index
 
     def to_message(self, cid: str) -> Message:
         return Message(meta={"p_hash": self.privies_hash, "index": self.index}, cid=cid)
 
-    def send(self, node: Node):
+    def send(self):
+        node: Node = Node.get_instance()
         cid = node.create_cid(self.block)
         node.publish_to_topic(topic=self.topic, message=self.to_message(cid))
 
@@ -42,6 +44,7 @@ class NewTransaction:
     def to_message(self, cid: str) -> Message:
         return Message(meta={"hash": self.hash, "nonce": self.nonce}, cid=cid)
 
-    def send(self, node: Node):
+    def send(self):
+        node: Node = Node.get_instance()
         cid = node.create_cid(self.transaction)
         node.publish_to_topic(topic=self.topic, message=self.to_message(cid))

@@ -9,7 +9,7 @@ from event_stream import setup_event_stream, Event
 from wallet import Wallet
 from blockchain import setup_blockchain
 from scheduler import setup_scheduler
-from network import setup_node
+from network import setup_network
 from chain_extender import setup_global_loop_handler
 from protocol import setup_protocol
 from helpers import create_genesis
@@ -44,7 +44,7 @@ def main():
     setup_wallet()
     scheduler = setup_scheduler()
     setup_blockchain()
-    setup_node()
+    setup_network()
     setup_global_loop_handler()
     setup_protocol()
     scheduler.start()

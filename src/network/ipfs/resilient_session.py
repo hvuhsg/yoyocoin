@@ -18,7 +18,8 @@ class ResilientSession(Session):
                 error = f"HTTP {error.status_code}"
             else:
                 return False
-        DELAY = 2 * counter
+        MAX_DELAY = 60
+        DELAY = min(2 * counter, MAX_DELAY)
         loguru.logger.warning(
             "Got recoverable error [%s] from %s %s, retry #%s in %ss"
             % (error, request, url, counter, DELAY)

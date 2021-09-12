@@ -46,7 +46,7 @@ class ChainInfoHandler(Handler):
     def build_blockchain(self, blocks: List[Block]):
         # TODO: move to blockchain package and activate via event
         current_blockchain: Blockchain = Blockchain.get_main_chain()
-        new_blockchain = Blockchain()
+        new_blockchain = Blockchain(branch=True)
         if blocks and blocks[0].index == 0:
             blocks.pop(0)
         new_blockchain.add_chain(blocks)

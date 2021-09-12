@@ -71,9 +71,4 @@ def broadcast_transaction(
     )
     event_stream: EventStream = EventStream.get_instance()
     event_stream.publish(topic='new-transaction', event=Event("api-new-transaction", transaction=transaction))
-    messages.NewTransaction(
-        transaction=transaction.to_dict(),
-        hash=transaction.hash(),
-        nonce=transaction.nonce,
-    ).send(node=Node.get_instance())
     return {"transaction": transaction.to_dict(), "broadcast": True}

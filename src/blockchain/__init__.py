@@ -1,7 +1,8 @@
-from .blockchain import Blockchain, setup_blockchain
+from .blockchain import Blockchain, setup_blockchain as setup_main_chain
 from .blockchain_state import BlockchainState
 from .block import Block
 from .transaction import Transaction
+from .subscribers import setup_subscribers
 from .exceptions import (
     ValidationError,
     InsufficientBalanceError,
@@ -9,6 +10,11 @@ from .exceptions import (
     DuplicateNonceError,
     NonLotteryMemberError,
 )
+
+
+def setup_blockchain():
+    setup_main_chain()
+    setup_subscribers()
 
 __all__ = [
     "setup_blockchain",
