@@ -3,6 +3,8 @@ PoS blockchain python (but a bit different)
 
 [![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin)  
 
+### New refactored repo [HERE](https://github.com/yoyocoin/yoyocoin)
+
 #### Explanation
 This coin will use PoS to determine which wallet has won and can forge the next block (incentive: get the fee's, block creation is free...)
 
