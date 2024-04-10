@@ -1,7 +1,8 @@
 # yoyocoin
 PoS blockchain python (but a bit different)  
 
-[![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin)  
+[![Build Status](https://travis-ci.com/hvuhsg/yoyocoin.svg?branch=main)](https://travis-ci.com/hvuhsg/yoyocoin) 
+[![Bring Them Home](https://badge.yehoyada.com)](https://www.standwithus.com/)  
 
 ### New refactored repo [HERE](https://github.com/yoyocoin/yoyocoin)
 
